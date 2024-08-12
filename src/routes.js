@@ -55,12 +55,14 @@ const Login = React.lazy(() => import('./views/pages/login/Login'))
 
 
 const DailyRashiUpdates = React.lazy(() => import('./pages/daily_rashi_updates/DailyRashiUpdates'))
+const DailyAusTimeUpdate = React.lazy(() => import('./pages/daily_aus_time_update/DailyAusTimeUpdate'))
 
 const routes = [
   { path: '/', exact: true, name: 'Home' },
   { path: '/login', exact: true, name: 'Login',element:Login },
   // { path: '/dashboard', name: 'Dashboard', element: Dashboard },
-  { path: '/page/daily_rashi_updates', exact: true, name: 'Login',element:DailyRashiUpdates },
+  { path: '/page/daily_rashi_updates', exact: true, name: 'Daily Rashi Update',element:DailyRashiUpdates },
+  { path: '/page/daily_aus_time_update', exact: true, name: 'Daily Aus Time Update',element:DailyAusTimeUpdate },
 
 
 

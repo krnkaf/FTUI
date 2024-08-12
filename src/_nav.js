@@ -38,6 +38,12 @@ const _nav = [
   },
   {
     component: CNavItem,
+    name: 'Daily Aus Time Updates',
+    to: '/page/daily_aus_time_update',
+    icon: <CIcon icon={cilDescription} customClassName="nav-icon" />,
+  },
+  {
+    component: CNavItem,
     name: 'Typography',
     to: '/theme/typography',
     icon: <CIcon icon={cilPencil} customClassName="nav-icon" />,
