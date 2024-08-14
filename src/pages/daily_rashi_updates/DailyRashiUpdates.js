@@ -10,12 +10,12 @@ function DailyRashiUpdates(){
 
     const [activeTab, setActiveTab] = useState('list');
 
-    const navitate = useNavigate();
+    const navigate = useNavigate();
     const location = useLocation();
 
     const swithTab = (tab) =>{
         setActiveTab(tab);
-        navitate("/page/daily_rashi_updates?page="+tab)
+        navigate("/page/daily_rashi_updates?page="+tab)
     }
   
     //To Activate Right Tab
