@@ -56,13 +56,19 @@ const Login = React.lazy(() => import('./views/pages/login/Login'))
 
 const DailyRashiUpdates = React.lazy(() => import('./pages/daily_rashi_updates/DailyRashiUpdates'))
 const DailyAusTimeUpdate = React.lazy(() => import('./pages/daily_aus_time_update/DailyAusTimeUpdate'))
+const Users = React.lazy(() => import('./pages/users/User'))
+const QuestionCategory = React.lazy(() => import('./pages/question_categories/QuestionCat'))
+const Questions = React.lazy(() => import('./pages/questions/Questions'))
 
 const routes = [
   { path: '/', exact: true, name: 'Home' },
   { path: '/login', exact: true, name: 'Login',element:Login },
-  // { path: '/dashboard', name: 'Dashboard', element: Dashboard },
-  { path: '/page/daily_rashi_updates', exact: true, name: 'Daily Rashi Update',element:DailyRashiUpdates },
-  { path: '/page/daily_aus_time_update', exact: true, name: 'Daily Aus Time Update',element:DailyAusTimeUpdate },
+  { path: '/dashboard', name: 'Dashboard', element: Dashboard },
+  { path: '/page/daily_rashi_updates', exact: true, name: 'Daily Rashi Update', element: DailyRashiUpdates },
+  { path: '/page/daily_aus_time_update', exact: true, name: 'Daily Aus Time Update', element: DailyAusTimeUpdate },
+  { path: '/page/user', exact: true, name: 'Users', element: Users },
+  { path: '/page/questioncategory', exact: true, name: 'Question Categories', element: QuestionCategory },
+  { path: '/page/questions', exact: true, name: 'Questions', element: Questions },
 
 
 

@@ -33,7 +33,7 @@ function DailyAusTimeUpdate(){
     return <>
             <CTabs activeItemKey={activeTab}>
                 <CTabList style={{"float":"right"}}  variant="pills">
-                    <CTab itemKey="list" onClick={e=>swithTab("list")}>List2</CTab>
+                    <CTab itemKey="list" onClick={e=>swithTab("list")}>List</CTab>
                     <CTab itemKey="manage" onClick={e=>swithTab("manage")}>Manage</CTab>
                 </CTabList>
             </CTabs>

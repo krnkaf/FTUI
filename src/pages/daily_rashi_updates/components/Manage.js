@@ -1,5 +1,5 @@
-import React, { useDebugValue, useEffect, useState } from 'react';
-import { CButton, CTable, CTableHead, CTableRow, CTableHeaderCell, CTableBody, CTableDataCell, CFormInput, CFormSelect, CFormTextarea } from '@coreui/react';
+import React, { useEffect, useState } from 'react';
+import { CButton, CTable, CTableRow, CTableHeaderCell, CTableBody, CTableDataCell, CFormInput, CFormSelect, CFormTextarea } from '@coreui/react';
 import { Formik, Field, Form } from 'formik';
 import * as Yup from 'yup';
 import { GetToken, GetURL } from '../../../library/API';
@@ -53,7 +53,8 @@ const Manage = () => {
         if (urlPath.includes('/page/daily_rashi_updates') && location.search.split("&").length === 2) {
           localStorage.setItem('id', location.search.split("&")[1].split("=")[1]);
         } else if (urlPath.includes('/page/daily_rashi_updates') && location.search.split("&").length === 1) {
-          console.log(location.search.split("&")[0]);
+          localStorage.setItem('id', 0);
+          return;
         }
   
         const response = await fetch(GetURL("/DailyRashiUpdates/Get?id=" + localStorage.id), {
@@ -232,12 +233,14 @@ const Manage = () => {
         onSubmit={handleSubmit}
       >
         {({ handleSubmit, errors, touched }) => (
-          <Form onSubmit={handleSubmit}>
+          <Form onSubmit={handleSubmit}>  
+            <hr/>
             <div className="mb-3">
               <label htmlFor="date">Date</label>
               <Field as={CFormInput} type='date' id='date' name='date' />
               {errors.date && touched.date && <div className="text-danger">{errors.date}</div>}
             </div>
+            <hr/>
             <div className="mb-3">
               <label htmlFor="name">Horoscope</label>
               <Field as={CFormSelect} name="name" id="name" disabled={updateIndex !== -1}>
@@ -248,16 +251,19 @@ const Manage = () => {
               </Field>
               {errors.name && touched.name && <div className="text-danger">{errors.name}</div>}
             </div>
+            <hr/>
             <div className="mb-3">
               <label htmlFor="rating">Rating</label>
               <Field as={CFormInput} type="number" id="rating" name="rating" />
               {errors.rating && touched.rating && <div className="text-danger">{errors.rating}</div>}
             </div>
+            <hr/>
             <div className="mb-3">
               <label htmlFor="description">Description</label>
               <Field as={CFormTextarea} id="description" name="description" />
               {errors.description && touched.description && <div className="text-danger">{errors.description}</div>}
             </div>
+            <hr/>
             <CButton type="submit" color="primary">
               {updateIndex === -1 ? "Add" : "Update"}
             </CButton>
@@ -265,31 +271,32 @@ const Manage = () => {
         )}
       </Formik>
 
-      <CTable hover>
-        <thead>
-          <CTableRow>
-            <CTableHeaderCell>Horoscope</CTableHeaderCell>
-            <CTableHeaderCell>Rating</CTableHeaderCell>
-            <CTableHeaderCell>Description</CTableHeaderCell>
-            <CTableHeaderCell>Action</CTableHeaderCell>
-          </CTableRow>
-        </thead>
-        <CTableBody>
-          {items.map((item, index) => (
-            <CTableRow key={index}>
-              <CTableDataCell>{item.name}</CTableDataCell>
-              <CTableDataCell>{item.rating}</CTableDataCell>
-              <CTableDataCell>{item.description}</CTableDataCell>
-              <CTableDataCell>
-                <CButton color="warning" onClick={() => handleEdit(index)}>Edit</CButton>
-                <CButton color="danger" onClick={() => DeleteItem(index)}>Delete</CButton>
-              </CTableDataCell>
+      <div className='tablediv'> 
+        <CTable hover className="ctable">
+          <thead>
+            <CTableRow>
+              <CTableHeaderCell>Horoscope</CTableHeaderCell>
+              <CTableHeaderCell>Rating</CTableHeaderCell>
+              <CTableHeaderCell>Description</CTableHeaderCell>
+              <CTableHeaderCell>Action</CTableHeaderCell>
             </CTableRow>
-          ))}
-        </CTableBody>
-      </CTable>
-
-      <CButton color="success" onClick={updateList}>Submit</CButton>
+          </thead>
+          <CTableBody>
+            {items.map((item, index) => (
+              <CTableRow key={index}>
+                <CTableDataCell>{item.name}</CTableDataCell>
+                <CTableDataCell>{item.rating}</CTableDataCell>
+                <CTableDataCell>{item.description}</CTableDataCell>
+                <CTableDataCell>
+                  <CButton color="warning" className='EditButton' onClick={() => handleEdit(index)}>Edit</CButton>
+                  <CButton color="danger" onClick={() => DeleteItem(index)}>Delete</CButton>
+                </CTableDataCell>
+              </CTableRow>
+            ))}
+          </CTableBody>
+        </CTable>
+        <CButton color="success" onClick={updateList}>Submit</CButton>
+      </div>
     </>
   );
 };

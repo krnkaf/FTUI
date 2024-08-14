@@ -1,7 +1,6 @@
 import React, { useEffect,useState } from 'react'
-import { Provider } from 'react-redux'
 import 'core-js'
-import { CTabList, CTabs,CTab,CTabPanel,CTabContent } from '@coreui/react';
+import { CTabList, CTabs, CTab, CTabContent } from '@coreui/react';
 import List from './components/List';
 import Manage from './components/Manage';
 import { useNavigate,useLocation  } from 'react-router-dom';
@@ -36,7 +35,7 @@ function DailyRashiUpdates(){
                     <CTab itemKey="list" onClick={e=>swithTab("list")}>List</CTab>
                     <CTab itemKey="manage" onClick={e=>swithTab("manage")}>Manage</CTab>
                 </CTabList>
-            </CTabs>
+            </CTabs> <br/><br/>
             <CTabContent>
                 {activeTab=="list"?<List/>:<Manage/>}
             </CTabContent>

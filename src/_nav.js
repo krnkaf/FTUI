@@ -44,6 +44,28 @@ const _nav = [
   },
   {
     component: CNavItem,
+    name: 'Users',
+    to: '/page/user',
+    icon: <CIcon icon={cilDescription} customClassName="nav-icon" />,
+  },
+  {
+    component: CNavItem,
+    name: 'Question Categories',
+    to: '/page/questioncategory',
+    icon: <CIcon icon={cilDescription} customClassName="nav-icon" />,
+  },
+  {
+    component: CNavItem,
+    name: 'Questions',
+    to: '/page/questions',
+    icon: <CIcon icon={cilDescription} customClassName="nav-icon" />,
+  },
+  {
+    component: CNavTitle,
+    name: 'Typography',
+  },
+  {
+    component: CNavItem,
     name: 'Typography',
     to: '/theme/typography',
     icon: <CIcon icon={cilPencil} customClassName="nav-icon" />,
