@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { CButton, CTable, CTableRow, CTableHeaderCell, CTableBody, CTableDataCell, CFormInput, CFormSelect, CFormTextarea } from '@coreui/react';
 import { Formik, Field, Form } from 'formik';
 import * as Yup from 'yup';
-import { GetURL } from '../../../library/API';
+import { GetToken,GetURL } from '../../../library/API';
 import { useNavigate } from 'react-router-dom';
 
 const Manage = () => {
@@ -25,7 +25,7 @@ const Manage = () => {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
-            // 'Authorization': GetToken()
+            'Authorization': GetToken()
           }
         });
 
@@ -60,7 +60,7 @@ const Manage = () => {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
-            // 'Authorization': GetToken()
+            'Authorization': GetToken()
           }
         });
   
@@ -175,7 +175,7 @@ const Manage = () => {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                // 'Authorization': GetToken()
+                'Authorization': GetToken()
             },
             body: JSON.stringify(payload1)
         })
@@ -197,7 +197,7 @@ const Manage = () => {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                // 'Authorization': GetToken()
+                'Authorization': GetToken()
             },
             body: JSON.stringify(payload)
         })

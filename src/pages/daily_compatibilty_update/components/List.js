@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { CButton, CTable, CTableRow, CTableHeaderCell, CTableBody, CTableDataCell } from '@coreui/react';
 import { useNavigate } from 'react-router-dom';
-import { GetToken,GetURL } from '../../../library/API';
+import { GetToken, GetURL } from '../../../library/API';
 
 const List = () => {
     const [items, setItems] = useState([]);
@@ -10,7 +10,7 @@ const List = () => {
     useEffect(() => {
         const fetchItems = async () => {
             try {
-                const response = await fetch(GetURL("/backend/DailyAuspiciousTimeUpdate/getalllist"), {
+                const response = await fetch(GetURL("/backend/DailyCompatibilityUpdate/getalllist"), {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -38,7 +38,7 @@ const List = () => {
     }, []);
 
     const handleEdit = (id) => {
-        navigate(`/page/daily_aus_time_update?page=manage&id=${id}`);
+        navigate(`/page/daily_comp_updates?page=manage&id=${id}`);
     };
 
     return (

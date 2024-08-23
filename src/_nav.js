@@ -38,6 +38,12 @@ const _nav = [
   },
   {
     component: CNavItem,
+    name: 'Daily Compatibility Updates',
+    to: '/page/daily_comp_updates',
+    icon: <CIcon icon={cilDescription} customClassName="nav-icon" />,
+  },
+  {
+    component: CNavItem,
     name: 'Daily Aus Time Updates',
     to: '/page/daily_aus_time_update',
     icon: <CIcon icon={cilDescription} customClassName="nav-icon" />,
@@ -50,6 +56,12 @@ const _nav = [
   },
   {
     component: CNavItem,
+    name: 'Guest Profiles',
+    to: '/page/guestprofiles',
+    icon: <CIcon icon={cilDescription} customClassName="nav-icon" />,
+  },
+  {
+    component: CNavItem,
     name: 'Question Categories',
     to: '/page/questioncategory',
     icon: <CIcon icon={cilDescription} customClassName="nav-icon" />,
@@ -58,6 +70,12 @@ const _nav = [
     component: CNavItem,
     name: 'Questions',
     to: '/page/questions',
+    icon: <CIcon icon={cilDescription} customClassName="nav-icon" />,
+  },
+  {
+    component: CNavItem,
+    name: 'Bundles',
+    to: '/page/bundles',
     icon: <CIcon icon={cilDescription} customClassName="nav-icon" />,
   },
   {

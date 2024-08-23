@@ -3,7 +3,7 @@ import { CButton, CFormInput, CFormSelect } from '@coreui/react';
 import { Formik, Field, Form } from 'formik';
 import * as Yup from 'yup';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { GetURL } from '../../../library/API';
+import { GetToken,GetURL } from '../../../library/API';
 
 const Manage = () => {
     const [categories, setCategories] = useState([]);
@@ -24,7 +24,10 @@ const Manage = () => {
             try {
                 const response = await fetch(GetURL("/backend/Question/LoadBaseData"), {
                     method: 'GET',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': GetToken()
+                    }
                 });
 
                 if (response.ok) {
@@ -42,7 +45,10 @@ const Manage = () => {
             try {
                 const response = await fetch(GetURL(`/backend/Question/Get?id=${id}`), {
                     method: 'GET',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        "Authorization": GetToken()
+                       }
                 });
 
                 if (response.ok) {
@@ -92,8 +98,9 @@ const Manage = () => {
         if (formattedValues._id) {
             fetch(GetURL('/backend/Question/Update'), {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': GetToken() 
                 },
                 body: JSON.stringify(formattedValues)
             })
@@ -103,8 +110,9 @@ const Manage = () => {
         } else {
             fetch(GetURL('/backend/Question/Create'), {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': GetToken() 
                 },
                 body: JSON.stringify(formattedValues)
             })

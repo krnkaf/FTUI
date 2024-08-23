@@ -10,7 +10,7 @@ const List = () => {
     useEffect(() => {
         const fetchItems = async () => {
             try {
-                const response = await fetch(GetURL("/DailyRashiUpdates/GetAllList"), {
+                const response = await fetch(GetURL("/backend/DailyRashiUpdates/GetAllList"), {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -21,7 +21,7 @@ const List = () => {
                 if (response.ok) {
                     const res = await response.json();
                     if (res.data && res.data.list) {
-                        setItems(res.data.list); // Set items with the data from API
+                        setItems(res.data.list);
                     } else {
                         console.error('Unexpected data structure:', res);
                     }
@@ -47,6 +47,10 @@ const List = () => {
                 <thead>
                     <CTableRow>
                         <CTableHeaderCell>Date</CTableHeaderCell>
+                        <CTableHeaderCell>Updated Date</CTableHeaderCell>
+                        <CTableHeaderCell>Updated By</CTableHeaderCell>
+                        <CTableHeaderCell>Created Date</CTableHeaderCell>
+                        <CTableHeaderCell>Created By</CTableHeaderCell>
                         <CTableHeaderCell>Actions</CTableHeaderCell>
                     </CTableRow>
                 </thead>
@@ -54,6 +58,10 @@ const List = () => {
                     {items.map((item) => (
                         <CTableRow key={item._id}>
                             <CTableDataCell>{item.transaction_date}</CTableDataCell>
+                            <CTableDataCell>{item.updated_date}</CTableDataCell>
+                            <CTableDataCell>{item.updated_by}</CTableDataCell>
+                            <CTableDataCell>{item.created_date}</CTableDataCell>
+                            <CTableDataCell>{item.created_by}</CTableDataCell>
                             <CTableDataCell>
                                 <CButton color="warning" onClick={() => handleEdit(item._id)}>Edit</CButton>
                             </CTableDataCell>

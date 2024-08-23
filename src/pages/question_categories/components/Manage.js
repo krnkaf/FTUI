@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { CButton, CFormInput, CFormSelect, CFormCheck } from '@coreui/react';
 import { Formik, Field, Form } from 'formik';
 import * as Yup from 'yup';
-import { GetURL } from '../../../library/API';
+import { GetToken,GetURL } from '../../../library/API';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 const Manage = () => {
@@ -22,7 +22,10 @@ const Manage = () => {
             try {
                 const response = await fetch(GetURL("/backend/QuestionCategory/LoadBaseData"), {
                     method: 'GET',
-                    headers: { 'Content-Type': 'application/json' }
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': GetToken() 
+                    }
                 });
                 const data = await response.json();
                 if (data.data && data.data.category_type) {
@@ -37,7 +40,10 @@ const Manage = () => {
             try {
                 const response = await fetch(GetURL(`/backend/QuestionCategory/Get?id=${id}`), {
                     method: 'GET',
-                    headers: { 'Content-Type': 'application/json' }
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': GetToken() 
+                    }
                 });
                 const data = await response.json();
                 if (data.data && data.data.item) {
@@ -85,7 +91,10 @@ const Manage = () => {
         try {
             const response = await fetch(GetURL(url), {
                 method,
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': GetToken() 
+                },
                 body: JSON.stringify(payload)
             });
             if (response.ok) {

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { CButton, CTable, CTableRow, CTableHeaderCell, CTableBody, CTableDataCell } from '@coreui/react';
 import { useNavigate } from 'react-router-dom';
-import { GetURL } from '../../../library/API';
+import { GetToken,GetURL } from '../../../library/API';
 
 const List = () => {
     const [users, setUsers] = useState([]);
@@ -11,20 +11,24 @@ const List = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                // Fetch user types
                 const typesResponse = await fetch(GetURL("/backend/Users/LoadBaseData"), {
                     method: 'GET',
-                    headers: { 'Content-Type': 'application/json' }
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': GetToken() 
+                    }
                 });
                 const typesData = await typesResponse.json();
                 if (typesData.data && typesData.data.user_type) {
                     setUserTypes(typesData.data.user_type);
                 }
 
-                // Fetch users
                 const usersResponse = await fetch(GetURL("/backend/Users/GetAllList"), {
                     method: 'GET',
-                    headers: { 'Content-Type': 'application/json' }
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': GetToken() 
+                    }
                 });
                 const usersData = await usersResponse.json();
                 if (usersData.data && usersData.data.list) {
@@ -45,23 +49,6 @@ const List = () => {
     return (
         <>
             <div className='tablediv'>
-                <h4>User Types</h4>
-                <CTable hover>
-                    <thead>
-                        <CTableRow>
-                            <CTableHeaderCell>ID</CTableHeaderCell>
-                            <CTableHeaderCell>Name</CTableHeaderCell>
-                        </CTableRow>
-                    </thead>
-                    <CTableBody>
-                        {userTypes.map(type => (
-                            <CTableRow key={type.id}>
-                                <CTableDataCell>{type.id}</CTableDataCell>
-                                <CTableDataCell>{type.name}</CTableDataCell>
-                            </CTableRow>
-                        ))}
-                    </CTableBody>
-                </CTable>
                 <h4>Users</h4>
                 <CTable hover>
                     <thead>
@@ -69,6 +56,10 @@ const List = () => {
                             <CTableHeaderCell>Name</CTableHeaderCell>
                             <CTableHeaderCell>Email</CTableHeaderCell>
                             <CTableHeaderCell>User Type</CTableHeaderCell>
+                            <CTableHeaderCell>Updated Date</CTableHeaderCell>
+                            <CTableHeaderCell>Updated By</CTableHeaderCell>
+                            <CTableHeaderCell>Created Date</CTableHeaderCell>
+                            <CTableHeaderCell>Created By</CTableHeaderCell>
                             <CTableHeaderCell>Action</CTableHeaderCell>
                         </CTableRow>
                     </thead>
@@ -78,6 +69,10 @@ const List = () => {
                                 <CTableDataCell>{user.name}</CTableDataCell>
                                 <CTableDataCell>{user.email}</CTableDataCell>
                                 <CTableDataCell>{userTypes.find(type => type.id == user.user_type_id)?.name}</CTableDataCell>
+                                <CTableDataCell>{user.updated_date}</CTableDataCell>
+                                <CTableDataCell>{user.updated_by}</CTableDataCell>
+                                <CTableDataCell>{user.created_date}</CTableDataCell>
+                                <CTableDataCell>{user.created_by}</CTableDataCell>
                                 <CTableDataCell>
                                     <CButton color="warning" onClick={() => handleEdit(user._id)}>Edit</CButton>
                                 </CTableDataCell>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { CButton, CTable, CTableRow, CTableHeaderCell, CTableBody, CTableDataCell } from '@coreui/react';
 import { useNavigate } from 'react-router-dom';
-import { GetURL } from '../../../library/API';
+import { GetToken,GetURL } from '../../../library/API';
 
 const List = () => {
     const [questions, setQuestions] = useState([]);
@@ -13,7 +13,10 @@ const List = () => {
             try {
                 const categoryResponse = await fetch(GetURL("/backend/Question/LoadBaseData"), {
                     method: 'GET',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': GetToken() 
+                    },
                 });
 
                 if (categoryResponse.ok) {
@@ -25,7 +28,10 @@ const List = () => {
 
                 const questionResponse = await fetch(GetURL("/backend/Question/GetAllList"), {
                     method: 'GET',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': GetToken() 
+                    },
                 });
 
                 if (questionResponse.ok) {
@@ -55,6 +61,10 @@ const List = () => {
                         <CTableHeaderCell>Question</CTableHeaderCell>
                         <CTableHeaderCell>Order ID</CTableHeaderCell>
                         <CTableHeaderCell>Price</CTableHeaderCell>
+                        <CTableHeaderCell>Updated Date</CTableHeaderCell>
+                        <CTableHeaderCell>Updated By</CTableHeaderCell>
+                        <CTableHeaderCell>Created Date</CTableHeaderCell>
+                        <CTableHeaderCell>Created By</CTableHeaderCell>
                         <CTableHeaderCell>Active</CTableHeaderCell>
                         <CTableHeaderCell>Action</CTableHeaderCell>
                     </CTableRow>
@@ -68,6 +78,10 @@ const List = () => {
                             <CTableDataCell>{item.question}</CTableDataCell>
                             <CTableDataCell>{item.order_id}</CTableDataCell>
                             <CTableDataCell>{item.price}</CTableDataCell>
+                            <CTableDataCell>{item.updated_date}</CTableDataCell>
+                            <CTableDataCell>{item.updated_by}</CTableDataCell>
+                            <CTableDataCell>{item.created_date}</CTableDataCell>
+                            <CTableDataCell>{item.created_by}</CTableDataCell>
                             <CTableDataCell>
                                 <input type="checkbox" checked={item.active} disabled />
                             </CTableDataCell>

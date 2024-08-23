@@ -22,7 +22,7 @@ const Manage = () => {
   useEffect(() => {
     const GetList = async () => {
       try {
-        const response = await fetch(GetURL("/backend/DailyRashiUpdates/LoadBaseData"), {
+        const response = await fetch(GetURL("/backend/DailyCompatibilityUpdate/LoadBaseData"), {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -50,14 +50,14 @@ const Manage = () => {
       try {
         const urlPath = location.pathname + location.search;
   
-        if (urlPath.includes('/page/daily_rashi_updates') && location.search.split("&").length === 2) {
+        if (urlPath.includes('/page/daily_comp_updates') && location.search.split("&").length === 2) {
           localStorage.setItem('id', location.search.split("&")[1].split("=")[1]);
-        } else if (urlPath.includes('/page/daily_rashi_updates') && location.search.split("&").length === 1) {
+        } else if (urlPath.includes('/page/daily_comp_updates') && location.search.split("&").length === 1) {
           localStorage.setItem('id', 0);
           return;
         }
   
-        const response = await fetch(GetURL("/backend/DailyRashiUpdates/Get?id=" + localStorage.id), {
+        const response = await fetch(GetURL("/backend/DailyCompatibilityUpdate/get?id=" + localStorage.id), {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -178,8 +178,8 @@ const Manage = () => {
 
     const urlPath = location.pathname + location.search;
 
-    if (urlPath.includes('/page/daily_rashi_updates') && location.search.split("&").length === 1) {
-        fetch(GetURL('/backend/DailyRashiUpdates/create'), {
+    if (urlPath.includes('/page/daily_comp_updates') && location.search.split("&").length === 1) {
+        fetch(GetURL('/backend/DailyCompatibilityUpdate/create'), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -195,13 +195,13 @@ const Manage = () => {
             })
             .then(data => {
                 console.log('Successfully posted to the API:', data);
-                navigate('/page/daily_rashi_updates?page=list');
+                navigate('/page/daily_comp_updates?page=list');
             })
             .catch(error => {
                 console.error('There was a problem with the fetch operation:', error);
             });
-    } if (urlPath.includes('/page/daily_rashi_updates') && location.search.split("&").length === 2) {
-        fetch(GetURL('/backend/DailyRashiUpdates/update'), {
+    } if (urlPath.includes('/page/daily_comp_updates') && location.search.split("&").length === 2) {
+        fetch(GetURL('/backend/DailyCompatibilityUpdate/update'), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -216,7 +216,7 @@ const Manage = () => {
                 return response.json();
             })
             .then(data => {
-                navigate('/page/daily_rashi_updates?page=list');
+                navigate('/page/daily_comp_updates?page=list');
             })
             .catch(error => {
                 console.error('There was a problem with the fetch operation:', error);
