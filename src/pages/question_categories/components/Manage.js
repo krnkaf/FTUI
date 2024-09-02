@@ -119,16 +119,6 @@ const Manage = () => {
                 {({ handleSubmit, errors, touched }) => (
                     <Form onSubmit={handleSubmit}>
                         <div className="mb-3">
-                            <label htmlFor="category">Category</label>
-                            <Field as={CFormInput} type="text" id="category" name="category" />
-                            {errors.category && touched.category && <div className="text-danger">{errors.category}</div>}
-                        </div>
-                        <div className="mb-3">
-                            <label htmlFor="order_id">Order ID</label>
-                            <Field as={CFormInput} type="number" id="order_id" name="order_id" />
-                            {errors.order_id && touched.order_id && <div className="text-danger">{errors.order_id}</div>}
-                        </div>
-                        <div className="mb-3">
                             <label htmlFor="category_type_id">Category Type</label>
                             <Field as={CFormSelect} name="category_type_id" id="category_type_id">
                                 <option value="">Select Category Type</option>
@@ -137,6 +127,16 @@ const Manage = () => {
                                 ))}
                             </Field>
                             {errors.category_type_id && touched.category_type_id && <div className="text-danger">{errors.category_type_id}</div>}
+                        </div>
+                        <div className="mb-3">
+                            <label htmlFor="category">Category</label>
+                            <Field as={CFormInput} type="text" id="category" name="category" />
+                            {errors.category && touched.category && <div className="text-danger">{errors.category}</div>}
+                        </div>
+                        <div className="mb-3">
+                            <label htmlFor="order_id">Order ID</label>
+                            <Field as={CFormInput} type="number" id="order_id" name="order_id" />
+                            {errors.order_id && touched.order_id && <div className="text-danger">{errors.order_id}</div>}
                         </div>
                         <div className="mb-3">
                             <label htmlFor="active">Is Active?</label>

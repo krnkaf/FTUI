@@ -13,6 +13,7 @@ const Manage = () => {
     date: new Date().toISOString().substring(0, 10),
     id: '',
     name: '',
+    rating: '',
     description: ''
   });
   
@@ -73,6 +74,7 @@ const Manage = () => {
             return {
               id: horoscope ? horoscope.id : '',
               name: horoscope ? horoscope.name : '',
+              rating: item.rating,
               description: item.description
             };
           });
@@ -82,6 +84,7 @@ const Manage = () => {
             date: fetchedData.transaction_date,
             id: fetchedData._id,
             name: '',
+            rating: '',
             description: ''
           });
         } else {
@@ -100,6 +103,7 @@ const Manage = () => {
   const validationSchema = Yup.object({
     date: Yup.date().required('Date is required'),
     name: Yup.string().oneOf(horoscopes.map(h => h.name), 'Invalid horoscope').required('Horoscope is required'),
+    rating: Yup.number().min(1, 'Rating must be at least 1').max(10, 'Rating must be at most 10').required('Rating is required'),
     description: Yup.string().required('Description is required'),
   });
 
@@ -114,6 +118,7 @@ const Manage = () => {
     const newItem = {
       id: selectedHoroscope.id,
       name: values.name,
+      rating: values.rating,
       description: values.description
     };
 
@@ -139,6 +144,7 @@ const Manage = () => {
       date: initialValues.date,
       id: item.id,
       name: item.name,
+      rating: item.rating,
       description: item.description
     });
     setUpdateIndex(index);
@@ -156,6 +162,7 @@ const Manage = () => {
         transaction_date: initialValues.date,
         items: items.map(item => ({
             rashi_id: item.id,
+            rating: item.rating,
             description: item.description
         }))
     };
@@ -164,6 +171,7 @@ const Manage = () => {
         transaction_date: initialValues.date,
         items: items.map(item => ({
             rashi_id: item.id,
+            rating: item.rating,
             description: item.description
         }))
     };
@@ -245,6 +253,12 @@ const Manage = () => {
             </div>
             <hr/>
             <div className="mb-3">
+              <label htmlFor="rating">Rating</label>
+              <Field as={CFormInput} type="number" id="rating" name="rating" />
+              {errors.rating && touched.rating && <div className="text-danger">{errors.rating}</div>}
+            </div>
+            <hr/>
+            <div className="mb-3">
               <label htmlFor="description">Description</label>
               <Field as={CFormTextarea} id="description" name="description" />
               {errors.description && touched.description && <div className="text-danger">{errors.description}</div>}
@@ -262,14 +276,16 @@ const Manage = () => {
           <thead>
             <CTableRow>
               <CTableHeaderCell>Horoscope</CTableHeaderCell>
+              <CTableHeaderCell>Rating</CTableHeaderCell>
               <CTableHeaderCell>Description</CTableHeaderCell>
-              <CTableHeaderCell>Action</CTableHeaderCell>
+              <CTableHeaderCell>Action</CTableHeaderCell> 
             </CTableRow>
           </thead>
           <CTableBody>
             {items.map((item, index) => (
               <CTableRow key={index}>
                 <CTableDataCell>{item.name}</CTableDataCell>
+                <CTableDataCell>{item.rating}</CTableDataCell>
                 <CTableDataCell>{item.description}</CTableDataCell>
                 <CTableDataCell>
                   <CButton color="warning" className='EditButton' onClick={() => handleEdit(index)}>Edit</CButton>

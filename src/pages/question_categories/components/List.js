@@ -1,33 +1,44 @@
 import React, { useEffect, useState } from 'react';
 import { CButton, CTable, CTableRow, CTableHeaderCell, CTableBody, CTableDataCell, CFormCheck } from '@coreui/react';
 import { useNavigate } from 'react-router-dom';
-import { GetToken,GetURL } from '../../../library/API';
+import { GetToken, GetURL } from '../../../library/API';
 
 const List = () => {
-    const [categories, setCategories] = useState([]);
     const [categoryTypes, setCategoryTypes] = useState([]);
+    const [categories, setCategories] = useState([]);
     const navigate = useNavigate();
 
     useEffect(() => {
-        const fetchData = async () => {
+        const fetchCategoryTypes = async () => {
             try {
                 const typesResponse = await fetch(GetURL("/backend/QuestionCategory/LoadBaseData"), {
                     method: 'GET',
-                    headers: { 
+                    headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': GetToken() 
+                        'Authorization': GetToken()
                     }
                 });
                 const typesData = await typesResponse.json();
                 if (typesData.data && typesData.data.category_type) {
                     setCategoryTypes(typesData.data.category_type);
+                    console.log(typesData.data.category_type);
+                    console.log(categoryTypes);
                 }
+            } catch (err) {
+                alert('An error occurred. Please try again later.');
+            }
+        };
+        fetchCategoryTypes();
+    }, []);
 
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
                 const categoriesResponse = await fetch(GetURL("/backend/QuestionCategory/GetAllList"), {
                     method: 'GET',
-                    headers: { 
+                    headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': GetToken() 
+                        'Authorization': GetToken()
                     }
                 });
                 const categoriesData = await categoriesResponse.json();
@@ -38,7 +49,6 @@ const List = () => {
                 alert('An error occurred. Please try again later.');
             }
         };
-
         fetchData();
     }, []);
 
@@ -54,6 +64,7 @@ const List = () => {
                     <thead>
                         <CTableRow>
                             <CTableHeaderCell>Category</CTableHeaderCell>
+                            <CTableHeaderCell>Category Type</CTableHeaderCell>
                             <CTableHeaderCell>Order ID</CTableHeaderCell>
                             <CTableHeaderCell>Updated Date</CTableHeaderCell>
                             <CTableHeaderCell>Updated By</CTableHeaderCell>
@@ -64,26 +75,30 @@ const List = () => {
                         </CTableRow>
                     </thead>
                     <CTableBody>
-                        {categories.map(category => (
-                            <CTableRow key={category._id}>
-                                <CTableDataCell>{category.category}</CTableDataCell>
-                                <CTableDataCell>{category.order_id}</CTableDataCell>
-                                <CTableDataCell>{category.updated_date}</CTableDataCell>
-                                <CTableDataCell>{category.updated_by}</CTableDataCell>
-                                <CTableDataCell>{category.created_date}</CTableDataCell>
-                                <CTableDataCell>{category.created_by}</CTableDataCell>
-                                <CTableDataCell>
-                                    <CFormCheck 
-                                        type="checkbox" 
-                                        checked={category.active} 
-                                        disabled 
-                                    />
-                                </CTableDataCell>
-                                <CTableDataCell>
-                                    <CButton color="warning" onClick={() => handleEdit(category._id)}>Edit</CButton>
-                                </CTableDataCell>
-                            </CTableRow>
-                        ))}
+                        {categories.map(category => {
+                            const categoryType = categoryTypes.find(type => type.id == category.category_type_id);
+                            return (
+                                <CTableRow key={category._id}>
+                                    <CTableDataCell>{category.category}</CTableDataCell>
+                                    <CTableDataCell>{categoryType ? categoryType.name : "No Category"}</CTableDataCell>
+                                    <CTableDataCell>{category.order_id}</CTableDataCell>
+                                    <CTableDataCell>{category.updated_date}</CTableDataCell>
+                                    <CTableDataCell>{category.updated_by}</CTableDataCell>
+                                    <CTableDataCell>{category.created_date}</CTableDataCell>
+                                    <CTableDataCell>{category.created_by}</CTableDataCell>
+                                    <CTableDataCell>
+                                        <CFormCheck
+                                            type="checkbox"
+                                            checked={category.active}
+                                            disabled
+                                        />
+                                    </CTableDataCell>
+                                    <CTableDataCell>
+                                        <CButton color="warning" onClick={() => handleEdit(category._id)}>Edit</CButton>
+                                    </CTableDataCell>
+                                </CTableRow>
+                            );
+                        })}
                     </CTableBody>
                 </CTable>
             </div>

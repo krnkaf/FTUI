@@ -12,7 +12,7 @@ const Manage = () => {
         question: '',
         order_id: '',
         question_category_id: '',
-        active: 'false',
+        active: false,
         price: ''
     });
 
@@ -58,7 +58,7 @@ const Manage = () => {
                         question: data.data.item.question,
                         order_id: data.data.item.order_id,
                         question_category_id: data.data.item.question_category_id,
-                        active: data.data.item.active ? 'true' : 'false',
+                        active: data.data.item.active,
                         price: data.data.item.price
                     });
                 } else {
@@ -87,9 +87,6 @@ const Manage = () => {
     });
 
     const handleSubmit = (values) => {
-        const urlPath = location.pathname + location.search;
-        const endpoint = urlPath.includes('/page/questions?page=manage') && location.search.split("&").length === 2 ? '/backend/Question/Update' : '/backend/Question/Create';
-
         const formattedValues = {
             ...values,
             active: values.active === 'true'
@@ -138,11 +135,6 @@ const Manage = () => {
                             {errors.question && touched.question && <div className="text-danger">{errors.question}</div>}
                         </div>
                         <div className="mb-3">
-                            <label htmlFor="order_id">Order ID</label>
-                            <Field as={CFormInput} type="number" id="order_id" name="order_id" />
-                            {errors.order_id && touched.order_id && <div className="text-danger">{errors.order_id}</div>}
-                        </div>
-                        <div className="mb-3">
                             <label htmlFor="question_category_id">Category</label>
                             <Field as={CFormSelect} id="question_category_id" name="question_category_id">
                                 <option value="">Select Category</option>
@@ -155,16 +147,18 @@ const Manage = () => {
                             {errors.question_category_id && touched.question_category_id && <div className="text-danger">{errors.question_category_id}</div>}
                         </div>
                         <div className="mb-3">
+                            <label htmlFor="order_id">Order ID</label>
+                            <Field as={CFormInput} type="number" id="order_id" name="order_id" />
+                            {errors.order_id && touched.order_id && <div className="text-danger">{errors.order_id}</div>}
+                        </div>
+                        <div className="mb-3">
                             <label htmlFor="price">Price</label>
                             <Field as={CFormInput} type="number" id="price" name="price" />
                             {errors.price && touched.price && <div className="text-danger">{errors.price}</div>}
                         </div>
                         <div className="mb-3">
                             <label htmlFor="active">Is Active?</label>
-                            <Field as={CFormSelect} id="active" name="active">
-                                <option value="true">True</option>
-                                <option value="false">False</option>
-                            </Field>
+                            <Field type="checkbox" id="active" name="active" />
                         </div>
                         <CButton type="submit" color="primary">Save</CButton>
                     </Form>

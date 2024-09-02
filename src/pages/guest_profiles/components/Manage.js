@@ -132,6 +132,16 @@ const Manage = () => {
                 {({ errors, touched }) => (
                     <Form>
                         <div className="mb-3">
+                            <label htmlFor="rashi_id">Rashi</label>
+                            <Field as={CFormSelect} name="rashi_id" id="rashi_id">
+                                <option value="">Select Rashi</option>
+                                {rashiOptions.map(rashi => (
+                                    <option key={rashi.id} value={rashi.id}>{rashi.name}</option>
+                                ))}
+                            </Field>
+                            {errors.rashi_id && touched.rashi_id && <div className="text-danger">{errors.rashi_id}</div>}
+                        </div>
+                        <div className="mb-3">
                             <label htmlFor="basic_description">Basic Description</label>
                             <Field as={CFormInput} type="text" id="basic_description" name="basic_description" />
                             {errors.basic_description && touched.basic_description && <div className="text-danger">{errors.basic_description}</div>}
@@ -150,16 +160,6 @@ const Manage = () => {
                             <label htmlFor="lucky_color">Lucky Color</label>
                             <Field as={CFormInput} type="text" id="lucky_color" name="lucky_color" />
                             {errors.lucky_color && touched.lucky_color && <div className="text-danger">{errors.lucky_color}</div>}
-                        </div>
-                        <div className="mb-3">
-                            <label htmlFor="rashi_id">Rashi</label>
-                            <Field as={CFormSelect} name="rashi_id" id="rashi_id">
-                                <option value="">Select Rashi</option>
-                                {rashiOptions.map(rashi => (
-                                    <option key={rashi.id} value={rashi.id}>{rashi.name}</option>
-                                ))}
-                            </Field>
-                            {errors.rashi_id && touched.rashi_id && <div className="text-danger">{errors.rashi_id}</div>}
                         </div>
                         <div className="mb-3">
                             <label htmlFor="compatibility_description">Compatibility Description</label>

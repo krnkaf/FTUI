@@ -54,44 +54,47 @@ const List = () => {
 
     return (
         <>
-            <CTable hover>
-                <thead>
-                    <CTableRow>
-                        <CTableHeaderCell>Category</CTableHeaderCell>
-                        <CTableHeaderCell>Question</CTableHeaderCell>
-                        <CTableHeaderCell>Order ID</CTableHeaderCell>
-                        <CTableHeaderCell>Price</CTableHeaderCell>
-                        <CTableHeaderCell>Updated Date</CTableHeaderCell>
-                        <CTableHeaderCell>Updated By</CTableHeaderCell>
-                        <CTableHeaderCell>Created Date</CTableHeaderCell>
-                        <CTableHeaderCell>Created By</CTableHeaderCell>
-                        <CTableHeaderCell>Active</CTableHeaderCell>
-                        <CTableHeaderCell>Action</CTableHeaderCell>
-                    </CTableRow>
-                </thead>
-                <CTableBody>
-                    {questions.map((item) => (
-                        <CTableRow key={item._id}>
-                            <CTableDataCell>
-                                {categories.find(cat => cat.question_category_id === item.question_category_id)?.question_category || 'Unknown'}
-                            </CTableDataCell>
-                            <CTableDataCell>{item.question}</CTableDataCell>
-                            <CTableDataCell>{item.order_id}</CTableDataCell>
-                            <CTableDataCell>{item.price}</CTableDataCell>
-                            <CTableDataCell>{item.updated_date}</CTableDataCell>
-                            <CTableDataCell>{item.updated_by}</CTableDataCell>
-                            <CTableDataCell>{item.created_date}</CTableDataCell>
-                            <CTableDataCell>{item.created_by}</CTableDataCell>
-                            <CTableDataCell>
-                                <input type="checkbox" checked={item.active} disabled />
-                            </CTableDataCell>
-                            <CTableDataCell>
-                                <CButton color="warning" onClick={() => handleEdit(item._id)}>Edit</CButton>
-                            </CTableDataCell>
+            <div className='tablediv'>
+                <h4>Questions</h4>
+                <CTable hover>
+                    <thead>
+                        <CTableRow>
+                            <CTableHeaderCell>Category</CTableHeaderCell>
+                            <CTableHeaderCell>Question</CTableHeaderCell>
+                            <CTableHeaderCell>Order ID</CTableHeaderCell>
+                            <CTableHeaderCell>Price</CTableHeaderCell>
+                            <CTableHeaderCell>Updated Date</CTableHeaderCell>
+                            <CTableHeaderCell>Updated By</CTableHeaderCell>
+                            <CTableHeaderCell>Created Date</CTableHeaderCell>
+                            <CTableHeaderCell>Created By</CTableHeaderCell>
+                            <CTableHeaderCell>Active</CTableHeaderCell>
+                            <CTableHeaderCell>Action</CTableHeaderCell>
                         </CTableRow>
-                    ))}
-                </CTableBody>
-            </CTable>
+                    </thead>
+                    <CTableBody>
+                        {questions.map((item) => (
+                            <CTableRow key={item._id}>
+                                <CTableDataCell>
+                                    {categories.find(cat => cat.question_category_id === item.question_category_id)?.question_category || 'Unknown'}
+                                </CTableDataCell>
+                                <CTableDataCell>{item.question}</CTableDataCell>
+                                <CTableDataCell>{item.order_id}</CTableDataCell>
+                                <CTableDataCell>{item.price}</CTableDataCell>
+                                <CTableDataCell>{item.updated_date}</CTableDataCell>
+                                <CTableDataCell>{item.updated_by}</CTableDataCell>
+                                <CTableDataCell>{item.created_date}</CTableDataCell>
+                                <CTableDataCell>{item.created_by}</CTableDataCell>
+                                <CTableDataCell>
+                                    <input type="checkbox" checked={item.active} disabled />
+                                </CTableDataCell>
+                                <CTableDataCell>
+                                    <CButton color="warning" onClick={() => handleEdit(item._id)}>Edit</CButton>
+                                </CTableDataCell>
+                            </CTableRow>
+                        ))}
+                    </CTableBody>
+                </CTable>
+            </div>
         </>
     );
 };

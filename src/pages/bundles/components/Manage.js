@@ -11,7 +11,7 @@ const Manage = () => {
         description: '',
         effective_from: '',
         effective_to: '',
-        active: true,
+        active: false,
         price: '',
         horoscope_question_count: '',
         compatibility_question_count: '',
@@ -62,7 +62,7 @@ const Manage = () => {
                     description: bundle.description || '',
                     effective_from: bundle.effective_from ? new Date(bundle.effective_from).toISOString().split('T')[0] : '',
                     effective_to: bundle.effective_to ? new Date(bundle.effective_to).toISOString().split('T')[0] : '',
-                    active: bundle.active || true,
+                    active: bundle.active,
                     price: bundle.price || '',
                     horoscope_question_count: bundle.horoscope_question_count || '',
                     compatibility_question_count: bundle.compatibility_question_count || '',
@@ -172,15 +172,8 @@ const Manage = () => {
                             {errors.effective_to && touched.effective_to && <div className="text-danger">{errors.effective_to}</div>}
                         </div>
                         <div className="mb-3">
-                            <label htmlFor="active">Active</label>
-                            <Field
-                                as={CFormSwitch}
-                                id="active"
-                                name="active"
-                                onChange={e => setFieldValue('active', e.target.checked)}
-                                checked={initialValues.active}
-                            />
-                            {errors.active && touched.active && <div className="text-danger">{errors.active}</div>}
+                            <label htmlFor="active">Is Active?</label>
+                            <Field type="checkbox" id="active" name="active" />
                         </div>
                         <div className="mb-3">
                             <label htmlFor="price">Price</label>

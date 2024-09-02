@@ -43,32 +43,35 @@ const List = () => {
 
     return (
         <>
-            <CTable hover>
-                <thead>
-                    <CTableRow>
-                        <CTableHeaderCell>Date</CTableHeaderCell>
-                        <CTableHeaderCell>Updated Date</CTableHeaderCell>
-                        <CTableHeaderCell>Updated By</CTableHeaderCell>
-                        <CTableHeaderCell>Created Date</CTableHeaderCell>
-                        <CTableHeaderCell>Created By</CTableHeaderCell>
-                        <CTableHeaderCell>Actions</CTableHeaderCell>
-                    </CTableRow>
-                </thead>
-                <CTableBody>
-                    {items.map((item) => (
-                        <CTableRow key={item._id}>
-                            <CTableDataCell>{item.transaction_date}</CTableDataCell>
-                            <CTableDataCell>{item.updated_date}</CTableDataCell>
-                            <CTableDataCell>{item.updated_by}</CTableDataCell>
-                            <CTableDataCell>{item.created_date}</CTableDataCell>
-                            <CTableDataCell>{item.created_by}</CTableDataCell>
-                            <CTableDataCell>
-                                <CButton color="warning" onClick={() => handleEdit(item._id)}>Edit</CButton>
-                            </CTableDataCell>
+            <div className='tablediv'>
+                <h4>Daily Rashi Updates</h4>
+                <CTable hover>
+                    <thead>
+                        <CTableRow>
+                            <CTableHeaderCell>Date</CTableHeaderCell>
+                            <CTableHeaderCell>Updated Date</CTableHeaderCell>
+                            <CTableHeaderCell>Updated By</CTableHeaderCell>
+                            <CTableHeaderCell>Created Date</CTableHeaderCell>
+                            <CTableHeaderCell>Created By</CTableHeaderCell>
+                            <CTableHeaderCell>Actions</CTableHeaderCell>
                         </CTableRow>
-                    ))}
-                </CTableBody>
-            </CTable>
+                    </thead>
+                    <CTableBody>
+                        {items.map((item) => (
+                            <CTableRow key={item._id}>
+                                <CTableDataCell>{item.transaction_date}</CTableDataCell>
+                                <CTableDataCell>{item.updated_date}</CTableDataCell>
+                                <CTableDataCell>{item.updated_by}</CTableDataCell>
+                                <CTableDataCell>{item.created_date}</CTableDataCell>
+                                <CTableDataCell>{item.created_by}</CTableDataCell>
+                                <CTableDataCell>
+                                    <CButton color="warning" onClick={() => handleEdit(item._id)}>Edit</CButton>
+                                </CTableDataCell>
+                            </CTableRow>
+                        ))}
+                    </CTableBody>
+                </CTable>
+            </div>
         </>
     );
 };
