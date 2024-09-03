@@ -1,6 +1,6 @@
-import React, { useEffect, useRef } from 'react'
-import { NavLink } from 'react-router-dom'
-import { useSelector, useDispatch } from 'react-redux'
+import React, { useEffect, useRef, useState } from 'react';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
 import {
   CContainer,
   CDropdown,
@@ -10,11 +10,12 @@ import {
   CHeader,
   CHeaderNav,
   CHeaderToggler,
+  CNav,
   CNavLink,
   CNavItem,
   useColorModes,
-} from '@coreui/react'
-import CIcon from '@coreui/icons-react'
+} from '@coreui/react';
+import CIcon from '@coreui/icons-react';
 import {
   cilBell,
   cilContrast,
@@ -23,24 +24,57 @@ import {
   cilMenu,
   cilMoon,
   cilSun,
-} from '@coreui/icons'
+} from '@coreui/icons';
 
-import { AppBreadcrumb } from './index'
-import { AppHeaderDropdown } from './header/index'
+import { AppHeaderDropdown } from './header/index';
 
 const AppHeader = () => {
-  const headerRef = useRef()
-  const { colorMode, setColorMode } = useColorModes('coreui-free-react-admin-template-theme')
+  const headerRef = useRef();
+  const { colorMode, setColorMode } = useColorModes('coreui-free-react-admin-template-theme');
+  const dispatch = useDispatch();
+  const sidebarShow = useSelector((state) => state.sidebarShow);
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  const dispatch = useDispatch()
-  const sidebarShow = useSelector((state) => state.sidebarShow)
+  const [tabItems, setTabItems] = useState([
+    ["T1", "New Enquiry", "t1", false],
+    ["T2", "Expert Reading", "t2", false],
+    ["T3", "Moderator", "t3", false],
+    ["T4", "Translator", "t4", false],
+    ["T5", "Publish", "t5", false],
+    ["T6", "Cancelled", "t6", false],
+  ]);
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const page = urlParams.get('page');
+    if (page) {
+      setTabItems(prevTabItems =>
+        prevTabItems.map((item) => ({
+          ...item,
+          [3]: item[2] === page,
+        }))
+      );
+    }
+  }, [location.search]);
 
   useEffect(() => {
     document.addEventListener('scroll', () => {
       headerRef.current &&
-        headerRef.current.classList.toggle('shadow-sm', document.documentElement.scrollTop > 0)
-    })
-  }, [])
+        headerRef.current.classList.toggle('shadow-sm', document.documentElement.scrollTop > 0);
+    });
+  }, []);
+
+  const handleTabChange = (index) => {
+    const selectedTab = tabItems[index];
+    setTabItems(prevTabItems =>
+      prevTabItems.map((item, idx) => ({
+        ...item,
+        [3]: idx === index,
+      }))
+    );
+    navigate(`/tabpages/${selectedTab[2]}`);
+  };
 
   return (
     <CHeader position="sticky" className="mb-4 p-0" ref={headerRef}>
@@ -131,11 +165,26 @@ const AppHeader = () => {
           <AppHeaderDropdown />
         </CHeaderNav>
       </CContainer>
-      {/* <CContainer className="px-4" fluid>
-        <AppBreadcrumb />
-      </CContainer> */}
+      <CContainer className="px-4" fluid>
+        <CNav variant="tabs">
+          {tabItems.map((m, index) => (
+            <CNavItem key={m[0]}>
+              <CNavLink
+                href="#"
+                active={m[3]}
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleTabChange(index);
+                }}
+              >
+                {m[1]}
+              </CNavLink>
+            </CNavItem>
+          ))}
+        </CNav>
+      </CContainer>
     </CHeader>
-  )
-}
+  );
+};
 
-export default AppHeader
+export default AppHeader;
