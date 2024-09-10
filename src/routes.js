@@ -63,12 +63,7 @@ const QuestionCategory = React.lazy(() => import('./pages/question_categories/Qu
 const Questions = React.lazy(() => import('./pages/questions/Questions'))
 const Bundles = React.lazy(() => import('./pages/bundles/Bundles'))
 
-const T1 = React.lazy(() => import('./tabpages/NewEnquiry'))
-const T2 = React.lazy(() => import('./tabpages/ExpertReading'))
-const T3 = React.lazy(() => import('./tabpages/Moderator'))
-const T4 = React.lazy(() => import('./tabpages/Translator'))
-const T5 = React.lazy(() => import('./tabpages/Publish'))
-const T6 = React.lazy(() => import('./tabpages/Cancelled'))
+const Inquiry = React.lazy(() => import('./tabpages/Inquiry'))
 
 const routes = [
   { path: '/', exact: true, name: 'Home' },
@@ -82,14 +77,7 @@ const routes = [
   { path: '/page/questioncategory', exact: true, name: 'Question Categories', element: QuestionCategory },
   { path: '/page/questions', exact: true, name: 'Questions', element: Questions },
   { path: '/page/bundles', exact: true, name: 'Bundles', element: Bundles },
-
-  { path: '/tabpages/t1', exact: true, name: 'New Enquiry', element: T1 },
-  { path: '/tabpages/t2', exact: true, name: 'New Enquiry', element: T2 },
-  { path: '/tabpages/t3', exact: true, name: 'New Enquiry', element: T3 },
-  { path: '/tabpages/t4', exact: true, name: 'New Enquiry', element: T4 },
-  { path: '/tabpages/t5', exact: true, name: 'New Enquiry', element: T5 },
-  { path: '/tabpages/t6', exact: true, name: 'New Enquiry', element: T6 },
-
+  { path: '/tabpages/inquiry', exact: true, name: 'Inquiry', element: Inquiry },
 
 
 

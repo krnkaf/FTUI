@@ -28,6 +28,16 @@ const _nav = [
   },
   {
     component: CNavTitle,
+    name: 'Inquiry',
+  },
+  {
+    component: CNavItem,
+    name: 'Inquiry',
+    to: '/tabpages/inquiry',
+    icon: <CIcon icon={cilDescription} customClassName="nav-icon" />,
+  },
+  {
+    component: CNavTitle,
     name: 'Setup',
   },
   {

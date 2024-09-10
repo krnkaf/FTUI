@@ -2,12 +2,9 @@ import React, { useState } from 'react';
 import { CTable, CTableRow, CTableHeaderCell, CTableBody, CTableDataCell, CTableHead } from '@coreui/react';
 import DetailedView from './views/DetailedView';
 
-const Cancelled = ({ data }) => {
-
+const NewInquiry = ({ data }) => {
     const [showDetailedView, setShowDetailedView] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
-
-    const cancelledItems = data.filter(item => item.payment_status.toLowerCase() === 'cancelled');
 
     const handleRowClick = (item) => {
         setSelectedItem(item);
@@ -35,7 +32,7 @@ const Cancelled = ({ data }) => {
                 </CTableHead>
 
                 <CTableBody>
-                    {cancelledItems.map((item) => (
+                    {data.map((item) => (
                         <CTableRow key={item.sn} onClick={() => handleRowClick(item)}>
                             <CTableDataCell>{item.sn}</CTableDataCell>
                             <CTableDataCell>{item.question}</CTableDataCell>
@@ -50,10 +47,10 @@ const Cancelled = ({ data }) => {
             </CTable>
 
             {showDetailedView && (
-                <DetailedView item={selectedItem} onClose={handleCloseDetailedView} fromPage={"Cancelled"}/>
+                <DetailedView item={selectedItem} onClose={handleCloseDetailedView} fromPage={"NewInquiry"}/>
             )}
         </div>
     );
 };
 
-export default Cancelled;
+export default NewInquiry;
