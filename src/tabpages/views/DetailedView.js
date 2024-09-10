@@ -1,7 +1,7 @@
 import React from 'react';
 import { CCard, CCardBody, CCardHeader, CButton, CRow, CCol } from '@coreui/react';
-import SupportVisible from './SupportVisible'; // Import the SupportVisible component
-import Submit from './Submit'; // Import the Submit component
+import SupportVisible from './SupportVisible';
+import Submit from './Submit';
 
 const dummyProfiles = {
     profiles: [
@@ -29,7 +29,7 @@ const ProfileCard = ({ name, dob, tob, pob, visible }) => {
     if (!visible) return null;
 
     return (
-        <CCard style={{ margin: '10px', flex: 1 }}>
+        <CCard className="mb-3" style={{ flex: 1 }}>
             <CCardHeader>
                 <h5>Profile Details</h5>
             </CCardHeader>
@@ -124,7 +124,7 @@ const DetailedView = ({ item, onClose, fromPage }) => {
                 flexDirection: 'column',
                 position: 'relative'
             }}>
-                <CCard style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                <CCard className="h-100 d-flex flex-column">
                     <CCardHeader>
                         <h4>{item.question}</h4>
                         <CButton
@@ -140,49 +140,45 @@ const DetailedView = ({ item, onClose, fromPage }) => {
                             Close
                         </CButton>
                     </CCardHeader>
-                    <CCardBody style={{ display: 'flex', flexDirection: 'column', height: '100%', overflowY: 'auto' }}>
-                        <div style={{ flex: '1', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                            <div style={{ display: 'flex', flexDirection: 'row', marginBottom: '20px' }}>
+                    <CCardBody className="d-flex flex-column h-100 overflow-auto">
+                        <CRow className="mb-4">
+                            <CCol md={6}>
+                                <ProfileCard
+                                    name={dummyProfiles.profiles[0].name}
+                                    dob={dummyProfiles.profiles[0].dob}
+                                    tob={dummyProfiles.profiles[0].tob}
+                                    pob={dummyProfiles.profiles[0].pob}
+                                    visible={true}
+                                />
+                            </CCol>
+                            {showTwoProfiles && (
                                 <CCol md={6}>
                                     <ProfileCard
-                                        name={dummyProfiles.profiles[0].name}
-                                        dob={dummyProfiles.profiles[0].dob}
-                                        tob={dummyProfiles.profiles[0].tob}
-                                        pob={dummyProfiles.profiles[0].pob}
+                                        name={dummyProfiles.profiles[1].name}
+                                        dob={dummyProfiles.profiles[1].dob}
+                                        tob={dummyProfiles.profiles[1].tob}
+                                        pob={dummyProfiles.profiles[1].pob}
                                         visible={true}
                                     />
                                 </CCol>
-                                {showTwoProfiles && (
-                                    <CCol md={6}>
-                                        <ProfileCard
-                                            name={dummyProfiles.profiles[1].name}
-                                            dob={dummyProfiles.profiles[1].dob}
-                                            tob={dummyProfiles.profiles[1].tob}
-                                            pob={dummyProfiles.profiles[1].pob}
-                                            visible={true}
-                                        />
-                                    </CCol>
+                            )}
+                        </CRow>
+                        <div className="text-center mb-4">
+                            {textsToShow.map((text, index) => (
+                                <div key={index}>
+                                    <p>{text}</p>
+                                </div>
+                            ))}
+                        </div>
+                        <CRow className="justify-content-center">
+                            <CCol md={8}>
+                                {isSubmitVisible ? (
+                                    <Submit />
+                                ) : (
+                                    <SupportVisible currentTask={item} />
                                 )}
-                            </div>
-                            <div style={{ textAlign: 'center', margin: '20px' }}>
-                                {textsToShow.map((text, index) => (
-                                    <div key={index}>
-                                        <p>{text}</p>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                        <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'center' }}>
-                            <CRow style={{ width: '100%', justifyContent: 'center' }}>
-                                <CCol md={8}>
-                                    {isSubmitVisible ? (
-                                        <Submit />
-                                    ) : (
-                                        <SupportVisible currentTask={item} />
-                                    )}
-                                </CCol>
-                            </CRow>
-                        </div>
+                            </CCol>
+                        </CRow>
                     </CCardBody>
                 </CCard>
             </div>

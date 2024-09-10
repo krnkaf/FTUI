@@ -10,7 +10,11 @@ const Submit = () => {
     };
 
     return (
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} style={{
+            border: '2px solid white',
+            borderRadius: '8px',
+            padding: '20px'
+        }}>
             <div className="mb-3">
                 <label htmlFor="comment">Comment:</label>
                 <CFormTextarea

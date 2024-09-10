@@ -68,109 +68,63 @@ const SupportVisible = ({ currentTask }) => {
     };
 
     return (
-        <div className='container text-center'>
-            <div className='row'>
-                <h3>Assign Task</h3>
-                <form onSubmit={handleSubmit}>
-                    <div className='row row-cols-1'>
-                        <div className="row">
-                            <label htmlFor="comment">Comment:</label>
-                            <CFormTextarea
-                                id="comment"
-                                value={comment}
-                                onChange={(e) => setComment(e.target.value)}
-                                rows={3}
-                                placeholder="Enter your comment"
-                                style={{ width: '100%' }}
-                                />
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', marginRight: '20px' }}>
-                                <strong style={{ marginRight: '10px' }}>For:</strong>
-                                <CFormSelect
-                                    id="userType"
-                                    value={selectedType}
-                                    onChange={handleTypeChange}
-                                    style={{ flex: 1, width: '200px' }}
-                                >
-                                    <option value="">Select User Type</option>
-                                    {userTypes.map(type => (
-                                        <option key={type.id} value={type.id}>{type.name}</option>
-                                    ))}
-                                </CFormSelect>
-                            </div>
-                            <div style={{ display: 'flex', alignItems: 'center' }}>
-                                <strong style={{ marginRight: '10px' }}>To:</strong>
-                                <CFormSelect
-                                    id="user"
-                                    value={selectedUser}
-                                    onChange={handleUserChange}
-                                    disabled={!selectedType}
-                                    style={{ flex: 1, width: '200px' }}
-                                    >
-                                    <option value="">Select User</option>
-                                    {filteredUsers.map(user => (
-                                        <option key={user._id} value={user._id}>{user.name}</option>
-                                    ))}
-                                </CFormSelect>
-                            </div>
-                        </div>
+        <div style={{
+            maxWidth: '600px', 
+            margin: '0 auto', 
+            padding: '20px',
+            border: '2px solid white',
+            borderRadius: '8px'
+        }}>
+            <h3>Assign Task</h3>
+            <form onSubmit={handleSubmit}>
+                <div className="mb-3">
+                    <label htmlFor="comment">Comment:</label>
+                    <CFormTextarea
+                        id="comment"
+                        value={comment}
+                        onChange={(e) => setComment(e.target.value)}
+                        rows={3}
+                        placeholder="Enter your comment"
+                        style={{ width: '100%' }}
+                    />
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', marginRight: '20px' }}>
+                        <strong style={{ marginRight: '10px' }}>For:</strong>
+                        <CFormSelect 
+                            id="userType" 
+                            value={selectedType} 
+                            onChange={handleTypeChange}
+                            style={{ flex: 1, width: '200px' }}
+                        >
+                            <option value="">Select User Type</option>
+                            {userTypes.map(type => (
+                                <option key={type.id} value={type.id}>{type.name}</option>
+                            ))}
+                        </CFormSelect>
                     </div>
-                        <CButton type="submit" color="primary">Assign</CButton>
-                </form>
-            </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                        <strong style={{ marginRight: '10px' }}>To:</strong>
+                        <CFormSelect 
+                            id="user" 
+                            value={selectedUser} 
+                            onChange={handleUserChange} 
+                            disabled={!selectedType}
+                            style={{ flex: 1, width: '200px' }}
+                        >
+                            <option value="">Select User</option>
+                            {filteredUsers.map(user => (
+                                <option key={user._id} value={user._id}>{user.name}</option>
+                            ))}
+                        </CFormSelect>
+                    </div>
+                </div>
+
+                <CButton type="submit" color="primary">Assign</CButton>
+            </form>
         </div>
-        // <div style={{ maxWidth: '600px', margin: '0 auto', padding: '20px' }}>
-        //     <h3>Assign Task</h3>
-        //     <form onSubmit={handleSubmit}>
-        //         <div className="mb-3">
-        //             <label htmlFor="comment">Comment:</label>
-        //             <CFormTextarea
-        //                 id="comment"
-        //                 value={comment}
-        //                 onChange={(e) => setComment(e.target.value)}
-        //                 rows={3}
-        //                 placeholder="Enter your comment"
-        //                 style={{ width: '100%' }}
-        //             />
-        //         </div>
-
-        //         <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
-        //             <div style={{ display: 'flex', alignItems: 'center', marginRight: '20px' }}>
-        //                 <strong style={{ marginRight: '10px' }}>For:</strong>
-        //                 <CFormSelect 
-        //                     id="userType" 
-        //                     value={selectedType} 
-        //                     onChange={handleTypeChange}
-        //                     style={{ flex: 1, width: '200px' }}
-        //                 >
-        //                     <option value="">Select User Type</option>
-        //                     {userTypes.map(type => (
-        //                         <option key={type.id} value={type.id}>{type.name}</option>
-        //                     ))}
-        //                 </CFormSelect>
-        //             </div>
-
-        //             <div style={{ display: 'flex', alignItems: 'center' }}>
-        //                 <strong style={{ marginRight: '10px' }}>To:</strong>
-        //                 <CFormSelect 
-        //                     id="user" 
-        //                     value={selectedUser} 
-        //                     onChange={handleUserChange} 
-        //                     disabled={!selectedType}
-        //                     style={{ flex: 1, width: '200px' }}
-        //                 >
-        //                     <option value="">Select User</option>
-        //                     {filteredUsers.map(user => (
-        //                         <option key={user._id} value={user._id}>{user.name}</option>
-        //                     ))}
-        //                 </CFormSelect>
-        //             </div>
-        //         </div>
-
-        //         <CButton type="submit" color="primary">Assign</CButton>
-        //     </form>
-        // </div>
     );
 };
 
