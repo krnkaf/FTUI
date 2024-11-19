@@ -202,7 +202,7 @@ const List = () => {
                             </CTableRow>
                             {expandedRow === profile._id && (
                                 <CTableRow>
-                                    <CTableDataCell colSpan={11}>
+                                    <CTableDataCell colSpan={12}>
                                         <div>
                                             <strong>Basic Description:</strong> {profile.guest_profile?.basic_description || 'N/A'}<br />
                                             <strong>Lucky Number:</strong> {profile.guest_profile?.lucky_number || 'N/A'}<br />

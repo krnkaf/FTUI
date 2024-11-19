@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { CButton, CFormInput, CFormSelect, CFormTextarea, CTable, CTableRow, CTableHeaderCell, CTableBody, CTableDataCell } from '@coreui/react';
+import { CButton, CFormInput, CFormSelect, CFormCheck } from '@coreui/react';
 import { Formik, Field, Form } from 'formik';
 import * as Yup from 'yup';
-import { GetToken,GetURL } from '../../../library/API';
+import { GetToken, GetURL } from '../../../library/API';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 const Manage = () => {
@@ -10,8 +10,9 @@ const Manage = () => {
     const [initialValues, setInitialValues] = useState({
         name: '',
         email: '',
-        user_type_id: '',
+        user_type_id: '',  // Initially as an empty string
         password: '',
+        active: true  // New field for active status
     });
     const [updateId, setUpdateId] = useState(null);
     const navigate = useNavigate();
@@ -52,6 +53,7 @@ const Manage = () => {
                         email: data.data.item.email,
                         user_type_id: data.data.item.user_type_id,
                         password: '',
+                        active: data.data.item.active || false  // Set active status
                     });
                 }
             } catch (err) {
@@ -73,6 +75,7 @@ const Manage = () => {
                 email: '',
                 user_type_id: '',
                 password: '',
+                active: false
             });
         }
     }, [location.search]);
@@ -80,14 +83,19 @@ const Manage = () => {
     const validationSchema = Yup.object({
         name: Yup.string().required('Name is required'),
         email: Yup.string().email('Invalid email address').required('Email is required'),
-        user_type_id: Yup.string().required('User type is required'),
+        user_type_id: Yup.number().required('User type is required').positive().integer(),
         password: Yup.string().required('Password is required'),
+        active: Yup.boolean()
     });
 
     const handleSubmit = async (values, { resetForm }) => {
         const url = updateId ? '/backend/Users/Update' : '/backend/Users/Create';
         const method = updateId ? 'POST' : 'POST';
-        const payload = updateId ? { ...values, _id: updateId } : values;
+        const payload = {
+            ...values,
+            user_type_id: Number(values.user_type_id),
+            active: values.active
+        };
 
         try {
             const response = await fetch(GetURL(url), {
@@ -107,6 +115,8 @@ const Manage = () => {
         } catch (err) {
             alert('An error occurred. Please try again later.');
         }
+
+        resetForm();
     };
 
     return (
@@ -141,8 +151,13 @@ const Manage = () => {
                         </div>
                         <div className="mb-3">
                             <label htmlFor="password">Password</label>
-                            <Field as={CFormInput} type="text" id="password" name="password" />
+                            <Field as={CFormInput} type="password" id="password" name="password" />
                             {errors.password && touched.password && <div className="text-danger">{errors.password}</div>}
+                        </div>
+                        <div className="mb-3">
+                            <Field type="checkbox" id="active" name="active" />
+                            <label htmlFor="active" className="ms-2">Active</label>
+                            {errors.active && touched.active && <div className="text-danger">{errors.active}</div>}
                         </div>
                         <CButton type="submit" color="primary">
                             {updateId ? "Update" : "Create"}

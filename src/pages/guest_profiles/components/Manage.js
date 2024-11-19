@@ -143,7 +143,7 @@ const Manage = () => {
                         </div>
                         <div className="mb-3">
                             <label htmlFor="basic_description">Basic Description</label>
-                            <Field as={CFormInput} type="text" id="basic_description" name="basic_description" />
+                            <Field as={CFormTextarea} type="text" id="basic_description" name="basic_description" />
                             {errors.basic_description && touched.basic_description && <div className="text-danger">{errors.basic_description}</div>}
                         </div>
                         <div className="mb-3">

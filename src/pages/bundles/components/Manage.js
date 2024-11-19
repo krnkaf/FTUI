@@ -11,7 +11,7 @@ const Manage = () => {
         description: '',
         effective_from: '',
         effective_to: '',
-        active: false,
+        active: true,
         price: '',
         horoscope_question_count: '',
         compatibility_question_count: '',

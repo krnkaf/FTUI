@@ -21,8 +21,6 @@ const List = () => {
                 const typesData = await typesResponse.json();
                 if (typesData.data && typesData.data.category_type) {
                     setCategoryTypes(typesData.data.category_type);
-                    console.log(typesData.data.category_type);
-                    console.log(categoryTypes);
                 }
             } catch (err) {
                 alert('An error occurred. Please try again later.');

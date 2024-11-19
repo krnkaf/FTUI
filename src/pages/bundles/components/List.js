@@ -115,7 +115,7 @@ const List = () => {
                             </CTableRow>
                             {expandedRow === bundle._id && (
                                 <CTableRow>
-                                    <CTableDataCell colSpan={13}>
+                                    <CTableDataCell colSpan={14}>
                                         <div>
                                             <strong>Description:</strong> {bundle.description}
                                         </div>

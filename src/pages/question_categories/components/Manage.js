@@ -72,7 +72,7 @@ const Manage = () => {
                 category: '',
                 order_id: '',
                 category_type_id: '',
-                active: false,
+                active: true,
             });
         }
     }, [location.search]);

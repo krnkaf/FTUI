@@ -37,7 +37,7 @@ const Login = () => {
     e.preventDefault();
     setValidated(true);
 
-    if (validateEmail(email) && password.length >= 5) {
+    if (validateEmail(email) && password.length >= 3) {
       try {
         const response = await fetch(GetURL("/UserContoller/Login"), {
           method: 'POST',
@@ -50,7 +50,9 @@ const Login = () => {
         if (response.ok) {
           const data = await response.json();
           localStorage.setItem('token', data.data.token);
+          localStorage.setItem('user_type_id', data.data.user_type_id);
           navigate('/dashboard'); // Redirect to home page after successful login
+          location.reload()
         } else {
           const errorData = await response.json();
           setError(errorData.message || 'Login failed. Please try again.');

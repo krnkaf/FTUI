@@ -1,5 +1,5 @@
-import React from 'react'
-import CIcon from '@coreui/icons-react'
+import React from 'react';
+import CIcon from '@coreui/icons-react';
 import {
   cilBell,
   cilCalculator,
@@ -12,10 +12,13 @@ import {
   cilPuzzle,
   cilSpeedometer,
   cilStar,
-} from '@coreui/icons'
-import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
+} from '@coreui/icons';
+import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react';
+import routes from './routes';
 
-const _nav = [
+const user_type_id = localStorage.getItem('user_type_id');
+
+const dashboard = [
   {
     component: CNavItem,
     name: 'Dashboard',
@@ -33,9 +36,13 @@ const _nav = [
   {
     component: CNavItem,
     name: 'Inquiry',
-    to: '/tabpages/inquiry',
+    to: '/tabpages/inquiry/new/pending',
     icon: <CIcon icon={cilDescription} customClassName="nav-icon" />,
-  },
+  }
+]
+
+// Define user-specific navigation items
+const user_nav = [
   {
     component: CNavTitle,
     name: 'Setup',
@@ -88,6 +95,10 @@ const _nav = [
     to: '/page/bundles',
     icon: <CIcon icon={cilDescription} customClassName="nav-icon" />,
   },
+];
+
+// Define main navigation items
+const _nav = [
   {
     component: CNavTitle,
     name: 'Typography',
@@ -361,6 +372,13 @@ const _nav = [
     href: 'https://coreui.io/react/docs/templates/installation/',
     icon: <CIcon icon={cilDescription} customClassName="nav-icon" />,
   },
-]
+];
 
-export default _nav
+if (user_type_id == 1 || user_type_id == 2) {
+  _nav.unshift(...dashboard, ...user_nav);
+}
+else {
+  _nav.unshift(...dashboard)
+}
+
+export default _nav;

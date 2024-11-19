@@ -12,7 +12,7 @@ const Manage = () => {
         question: '',
         order_id: '',
         question_category_id: '',
-        active: false,
+        active: true,
         price: ''
     });
 
@@ -89,9 +89,9 @@ const Manage = () => {
     const handleSubmit = (values) => {
         const formattedValues = {
             ...values,
-            active: values.active === 'true'
+            active: values.active
         };
-
+    
         if (formattedValues._id) {
             fetch(GetURL('/backend/Question/Update'), {
                 method: 'POST',
@@ -118,6 +118,7 @@ const Manage = () => {
             .catch(error => console.error('An error occurred:', error));
         }
     };
+    
 
     return (
         <>

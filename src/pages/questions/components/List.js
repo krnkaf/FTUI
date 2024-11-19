@@ -59,8 +59,8 @@ const List = () => {
                 <CTable hover>
                     <thead>
                         <CTableRow>
-                            <CTableHeaderCell>Category</CTableHeaderCell>
                             <CTableHeaderCell>Question</CTableHeaderCell>
+                            <CTableHeaderCell>Category</CTableHeaderCell>
                             <CTableHeaderCell>Order ID</CTableHeaderCell>
                             <CTableHeaderCell>Price</CTableHeaderCell>
                             <CTableHeaderCell>Updated Date</CTableHeaderCell>
@@ -74,10 +74,10 @@ const List = () => {
                     <CTableBody>
                         {questions.map((item) => (
                             <CTableRow key={item._id}>
+                                <CTableDataCell>{item.question}</CTableDataCell>
                                 <CTableDataCell>
                                     {categories.find(cat => cat.question_category_id === item.question_category_id)?.question_category || 'Unknown'}
                                 </CTableDataCell>
-                                <CTableDataCell>{item.question}</CTableDataCell>
                                 <CTableDataCell>{item.order_id}</CTableDataCell>
                                 <CTableDataCell>{item.price}</CTableDataCell>
                                 <CTableDataCell>{item.updated_date}</CTableDataCell>

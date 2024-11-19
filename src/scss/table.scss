@@ -1,0 +1,12 @@
+.tablediv {
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+.CTableDataCell {
+    max-width: 300px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    border: 2px solid black;
+}

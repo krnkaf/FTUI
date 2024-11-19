@@ -6,7 +6,7 @@ import 'core-js'
 import App from './App'
 import store from './store'
 
-localStorage.url="http://52.66.24.172:7001";
+localStorage.url="http://145.223.23.200:3002";
 
 createRoot(document.getElementById('root')).render(
   <Provider store={store}>

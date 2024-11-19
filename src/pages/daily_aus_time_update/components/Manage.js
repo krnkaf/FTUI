@@ -194,7 +194,6 @@ const Manage = () => {
                 return response.json();
             })
             .then(data => {
-                console.log('Successfully posted to the API:', data);
                 navigate('/page/daily_aus_time_update?page=list');
             })
             .catch(error => {

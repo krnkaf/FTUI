@@ -194,7 +194,6 @@ const Manage = () => {
                 return response.json();
             })
             .then(data => {
-                console.log('Successfully posted to the API:', data);
                 navigate('/page/daily_rashi_updates?page=list');
             })
             .catch(error => {
