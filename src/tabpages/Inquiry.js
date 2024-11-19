@@ -16,7 +16,7 @@ const Inquiry = () => {
     const [activeTab, setActiveTab] = useState('');
     const [visibleTabs, setVisibleTabs] = useState([]);
 
-    // Extracting state from the URL
+    // Extracting state from the URL path
     const pathSegments = window.location.pathname.split('/');
     const currentState = pathSegments[3];
 
@@ -41,6 +41,7 @@ const Inquiry = () => {
         setFromPage(stateMap[currentState] || 'new');
     }, [currentState]);
 
+    // Fetch user types and set visibility for tabs based on the user type
     useEffect(() => {
         const fetchUserTypes = async () => {
             try {
@@ -56,13 +57,14 @@ const Inquiry = () => {
                 setCurrentUser(data.data.user[0]);
                 setVisibleTabs(tabVisibility[userTypeId]);
             } catch (err) {
-                alert('An error odccurred. Please try again later.');
+                alert('An error occurred. Please try again later.');
             }
         };
 
         fetchUserTypes();
     }, []);
 
+    // Set visible tabs whenever user type changes
     useEffect(() => {
         setVisibleTabs(tabVisibility[userTypeId]);
     }, [userTypeId]);
@@ -94,10 +96,6 @@ const Inquiry = () => {
         setUserTypeId((p) => ((p % 5) + 1));
     };
 
-    const handleUserAssignment = () => {
-        console.log(currentUser);
-    };
-
     const SubTabs = ({from, substate, publish}) => {
         return (
             <>
@@ -106,6 +104,7 @@ const Inquiry = () => {
                         <CNavLink 
                             active={currentStatus === 'pending'} 
                             onClick={() => handleStatusChange('pending')}
+                            style={{ padding: '8px 16px' }}
                         >
                             Pending
                         </CNavLink>
@@ -114,6 +113,7 @@ const Inquiry = () => {
                         <CNavLink 
                             active={currentStatus === 'completed'} 
                             onClick={() => handleStatusChange('completed')}
+                            style={{ padding: '8px 16px' }}
                         >
                             Completed
                         </CNavLink>
@@ -132,16 +132,19 @@ const Inquiry = () => {
 
     return (
         <UserContext.Provider value={{ id: userTypeId, assignee: currentUser, fromPage }}>
-            <CButton color={'primary'} name='User' onClick={() => handleIncrement()} style={{ marginLeft: '20px' }}> Next User Id</CButton> {userTypeId}
-            <CButton color={'primary'} name='User' onClick={() => handleUserAssignment()} style={{ marginLeft: '20px' }}> Current User</CButton>
-            <CButton color={'primary'} name='Change User' onClick={() => handleUserChange()} style={{ marginLeft: '20px' }}> Change User</CButton>
+            <div style={{ margin: '20px 0', display: 'flex', gap: '15px' }}>
+                <CButton color={'primary'} name='User' onClick={() => handleIncrement()} style={{ padding: '8px 16px' }}> Next User Id</CButton> 
+                <span style={{ fontWeight: 'bold', alignSelf: 'center' }}>{userTypeId}</span>
+                <CButton color={'primary'} name='Change User' onClick={() => handleUserChange()} style={{ padding: '8px 16px' }}> Change User</CButton>
+            </div>
             
-            <CNav variant="tabs" onSelect={handleTabChange}>
+            <CNav variant="tabs" onSelect={handleTabChange} style={{ marginBottom: '20px', backgroundColor: '#f8f9fa', borderRadius: '5px' }}>
                 {visibleTabs.includes('new_inquiry') && (
                     <CNavItem>
                         <CNavLink 
                             active={activeTab === 'new_inquiry'}
                             onClick={() => handleTabChange('new_inquiry')}
+                            style={{ padding: '10px 20px', fontWeight: 'bold' }}
                         >
                             New Inquiry
                         </CNavLink>
@@ -152,6 +155,7 @@ const Inquiry = () => {
                         <CNavLink 
                             active={activeTab === 'expert_reading'}
                             onClick={() => handleTabChange('expert_reading')}
+                            style={{ padding: '10px 20px', fontWeight: 'bold' }}
                         >
                             Expert Reading
                         </CNavLink>
@@ -162,6 +166,7 @@ const Inquiry = () => {
                         <CNavLink 
                             active={activeTab === 'reviewer'}
                             onClick={() => handleTabChange('reviewer')}
+                            style={{ padding: '10px 20px', fontWeight: 'bold' }}
                         >
                             Reviewer
                         </CNavLink>
@@ -172,6 +177,7 @@ const Inquiry = () => {
                         <CNavLink 
                             active={activeTab === 'translator'}
                             onClick={() => handleTabChange('translator')}
+                            style={{ padding: '10px 20px', fontWeight: 'bold' }}
                         >
                             Translator
                         </CNavLink>
@@ -182,6 +188,7 @@ const Inquiry = () => {
                         <CNavLink 
                             active={activeTab === 'publish'}
                             onClick={() => handleTabChange('publish')}
+                            style={{ padding: '10px 20px', fontWeight: 'bold' }}
                         >
                             Publish
                         </CNavLink>
@@ -192,6 +199,7 @@ const Inquiry = () => {
                         <CNavLink 
                             active={activeTab === 'cancelled'}
                             onClick={() => handleTabChange('cancelled')}
+                            style={{ padding: '10px 20px', fontWeight: 'bold' }}
                         >
                             Cancelled
                         </CNavLink>
