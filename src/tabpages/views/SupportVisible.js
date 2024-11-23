@@ -7,8 +7,6 @@ const SupportVisible = ({ currentTask, inquiry_id, onClose }) => {
     const [userTypes, setUserTypes] = useState([]);
     const [users, setUsers] = useState([]);
     const [filteredUsers, setFilteredUsers] = useState([]);
-    
-    const handleBackButtonClick = () => onClose();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -43,15 +41,6 @@ const SupportVisible = ({ currentTask, inquiry_id, onClose }) => {
         };
 
         fetchData();
-
-        const handleKeyPress = (e) => {
-            if (e.key === 'Escape') {
-                handleBackButtonClick();
-            }
-        };
-
-        window.addEventListener('keydown', handleKeyPress);
-        return () => window.removeEventListener('keydown', handleKeyPress);
     }, []);
 
     const handleSubmit = async (values, { resetForm }) => {
@@ -71,16 +60,16 @@ const SupportVisible = ({ currentTask, inquiry_id, onClose }) => {
                 body: JSON.stringify(payload)
             });
             resetForm();
-            const event = new KeyboardEvent('keydown', { key: 'Escape' });
-            document.dispatchEvent(event);
         } else {
             alert('Please select both user type and user.');
         }
+
+        location.reload();
     };
 
     return (
         <div style={{
-            maxWidth: '500px',  // Decrease width to fit better in the parent component
+            maxWidth: '100vw',  // Decrease width to fit better in the parent component
             margin: '0 auto', 
             padding: '15px',    // Reduced padding
             backgroundColor: '#fff',

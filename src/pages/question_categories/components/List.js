@@ -8,6 +8,7 @@ const List = () => {
     const [categories, setCategories] = useState([]);
     const navigate = useNavigate();
 
+    // Fetch the category types when the component loads
     useEffect(() => {
         const fetchCategoryTypes = async () => {
             try {
@@ -29,6 +30,7 @@ const List = () => {
         fetchCategoryTypes();
     }, []);
 
+    // Fetch the categories when the component loads
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -50,13 +52,14 @@ const List = () => {
         fetchData();
     }, []);
 
+    // Handle the navigation to the "Edit" page
     const handleEdit = (id) => {
         navigate(`/page/questioncategory?page=manage&id=${id}`);
     };
 
     return (
         <>
-            <div className='tablediv'>
+            <div className="tablediv">
                 <h4>Categories</h4>
                 <CTable hover>
                     <thead>

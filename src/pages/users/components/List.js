@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { CButton, CTable, CTableRow, CTableHeaderCell, CTableBody, CTableDataCell } from '@coreui/react';
 import { useNavigate } from 'react-router-dom';
-import { GetToken,GetURL } from '../../../library/API';
+import { GetToken, GetURL } from '../../../library/API';
 
 const List = () => {
     const [users, setUsers] = useState([]);
     const [userTypes, setUserTypes] = useState([]);
+    const [userMap, setUserMap] = useState({}); // Map to store users by ID
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -33,6 +34,13 @@ const List = () => {
                 const usersData = await usersResponse.json();
                 if (usersData.data && usersData.data.list) {
                     setUsers(usersData.data.list);
+                    
+                    // Create a map of users by ID for quick lookup
+                    const userMap = usersData.data.list.reduce((acc, user) => {
+                        acc[user._id] = user;
+                        return acc;
+                    }, {});
+                    setUserMap(userMap);
                 }
             } catch (err) {
                 alert('An error occurred. Please try again later.');
@@ -44,6 +52,22 @@ const List = () => {
 
     const handleEdit = (id) => {
         navigate(`/page/user?page=manage&id=${id}`);
+    };
+
+    // Function to format dates (2024-11-21T03:57:03.173Z -> 2024-11-21 03:57)
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${year}-${month}-${day} | ${hours}:${minutes}`;
+    };
+
+    // Safe user name lookup
+    const getUserNameById = (userId) => {
+        return userMap[userId]?.name || 'Super Admin'; // Fallback to 'Unknown' if not found
     };
 
     return (
@@ -68,11 +92,11 @@ const List = () => {
                             <CTableRow key={user._id}>
                                 <CTableDataCell>{user.name}</CTableDataCell>
                                 <CTableDataCell>{user.email}</CTableDataCell>
-                                <CTableDataCell>{userTypes.find(type => type.id == user.user_type_id)?.name}</CTableDataCell>
-                                <CTableDataCell>{user.updated_date}</CTableDataCell>
-                                <CTableDataCell>{user.updated_by}</CTableDataCell>
-                                <CTableDataCell>{user.created_date}</CTableDataCell>
-                                <CTableDataCell>{user.created_by}</CTableDataCell>
+                                <CTableDataCell>{userTypes.find(type => type.id == user.user_type_id)?.name || 'Unknown'}</CTableDataCell>
+                                <CTableDataCell>{formatDate(user.updated_date)}</CTableDataCell>
+                                <CTableDataCell>{getUserNameById(user.updated_by)}</CTableDataCell>
+                                <CTableDataCell>{formatDate(user.created_date)}</CTableDataCell>
+                                <CTableDataCell>{getUserNameById(user.created_by)}</CTableDataCell>
                                 <CTableDataCell>
                                     <CButton color="warning" onClick={() => handleEdit(user._id)}>Edit</CButton>
                                 </CTableDataCell>

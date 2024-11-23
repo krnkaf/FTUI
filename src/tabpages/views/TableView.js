@@ -16,246 +16,264 @@ import DetailedView from './DetailedView';
 import { GetURL, GetToken } from '../../library/API';
 
 const TableView = ({ page, state, status, publish }) => {
-    const [inquiries, setInquiries] = useState([]);
-    const [categories, setCategories] = useState([]);
-    const [toast, setToast] = useState({ visible: false, message: '' });
-    const [showDetailedView, setShowDetailedView] = useState(false);
-    const [selectedItem, setSelectedItem] = useState(null);
-    const [contextMenu, setContextMenu] = useState({ visible: false, x: 0, y: 0, inquiryNumber: '' });
-
-    // Fetch inquiries data
-    const fetchInquiries = async () => {
-        try {
-            const response = await fetch(GetURL(`/backend/InquiryManagement/GetInquiries?inquiry_state=${state}&inquiry_status=${status}`), {
-                method: 'GET',
-                headers: { 'Content-Type': 'application/json', 'Authorization': GetToken() }
+    try {
+        const [inquiries, setInquiries] = useState([]);
+        const [categories, setCategories] = useState([]);
+        const [toast, setToast] = useState({ visible: false, message: '' });
+        const [showDetailedView, setShowDetailedView] = useState(false);
+        const [selectedItem, setSelectedItem] = useState(null);
+        const [contextMenu, setContextMenu] = useState({ visible: false, x: 0, y: 0, inquiryNumber: '' });
+    
+        // Fetch inquiries data
+        const fetchInquiries = async () => {
+            try {
+                const response = await fetch(GetURL(`/backend/InquiryManagement/GetInquiries?inquiry_state=${state}&inquiry_status=${status}`), {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': GetToken() }
+                });
+                const data = await response.json();
+                setInquiries(data.data.list);
+            } catch (err) {
+                setToast({ visible: true, message: `An error occurred. Please try again later. ${err}` });
+            }
+        };
+    
+        // Fetch category data
+        const fetchCategories = async () => {
+            try {
+                const response = await fetch(GetURL('/backend/QuestionCategory/LoadBaseData'), {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': GetToken() }
+                });
+                const data = await response.json();
+                // Map category types into an object for easy lookup
+                const categoryMap = data.data.category_type.reduce((acc, category) => {
+                    acc[category.id] = category.name;
+                    return acc;
+                }, {});
+                setCategories(categoryMap);
+            } catch (err) {
+                setToast({ visible: true, message: `An error occurred while loading categories. ${err}` });
+            }
+        };
+    
+        // Fetch inquiries and categories when component mounts
+        useEffect(() => {
+            fetchInquiries();
+            fetchCategories();
+        }, [state, status]);
+    
+        const formatDateTime = (timestamp) => {
+            const dateObj = new Date(timestamp);
+            const date = `${dateObj.getFullYear()}/${(dateObj.getMonth() + 1).toString().padStart(2, '0')}/${dateObj.getDate().toString().padStart(2, '0')}`;
+            const time = `${dateObj.getHours().toString().padStart(2, '0')}:${dateObj.getMinutes().toString().padStart(2, '0')}`;
+            return { date, time };
+        };
+    
+        const formatAuspiciousDate = (timestamp) => {
+            if (timestamp == null)
+                return 'N/A';
+            const dateObj = new Date(timestamp);
+            return `${dateObj.getFullYear()}/${(dateObj.getMonth() + 1).toString().padStart(2, '0')}/${dateObj.getDate().toString().padStart(2, '0')}`;
+        };
+    
+        // Handle right-click to show context menu
+        const handleRightClick = (e, inquiryNumber) => {
+            e.preventDefault(); // Prevent default right-click menu
+            setContextMenu({
+                visible: true,
+                x: e.clientX,
+                y: e.clientY,
+                inquiryNumber,
             });
-            const data = await response.json();
-            setInquiries(data.data.list);
-        } catch (err) {
-            setToast({ visible: true, message: `An error occurred. Please try again later. ${err}` });
-        }
-    };
-
-    // Fetch category data
-    const fetchCategories = async () => {
-        try {
-            const response = await fetch(GetURL('/backend/QuestionCategory/LoadBaseData'), {
-                method: 'GET',
-                headers: { 'Content-Type': 'application/json', 'Authorization': GetToken() }
-            });
-            const data = await response.json();
-            // Map category types into an object for easy lookup
-            const categoryMap = data.data.category_type.reduce((acc, category) => {
-                acc[category.id] = category.name;
-                return acc;
-            }, {});
-            setCategories(categoryMap);
-        } catch (err) {
-            setToast({ visible: true, message: `An error occurred while loading categories. ${err}` });
-        }
-    };
-
-    // Fetch inquiries and categories when component mounts
-    useEffect(() => {
-        fetchInquiries();
-        fetchCategories();
-    }, [state, status]);
-
-    const formatDateTime = (timestamp) => {
-        const dateObj = new Date(timestamp);
-        const date = `${dateObj.getFullYear()}/${(dateObj.getMonth() + 1).toString().padStart(2, '0')}/${dateObj.getDate().toString().padStart(2, '0')}`;
-        const time = `${dateObj.getHours().toString().padStart(2, '0')}:${dateObj.getMinutes().toString().padStart(2, '0')}`;
-        return { date, time };
-    };
-
-    const formatAuspiciousDate = (timestamp) => {
-        const dateObj = new Date(timestamp);
-        return `${dateObj.getFullYear()}/${(dateObj.getMonth() + 1).toString().padStart(2, '0')}/${dateObj.getDate().toString().padStart(2, '0')}`;
-    };
-
-    // Handle right-click to show context menu
-    const handleRightClick = (e, inquiryNumber) => {
-        e.preventDefault(); // Prevent default right-click menu
-        setContextMenu({
-            visible: true,
-            x: e.clientX,
-            y: e.clientY,
-            inquiryNumber,
-        });
-    };
-
-    // Copy the inquiry number to clipboard
-    const handleCopyToClipboard = () => {
-        navigator.clipboard.writeText(contextMenu.inquiryNumber)
-            .then(() => {
-                setToast({ visible: true, message: `Inquiry number copied to clipboard: ${contextMenu.inquiryNumber}` });
-            })
-            .catch((err) => {
-                setToast({ visible: true, message: `Failed to copy: ${err}` });
-            });
-        setContextMenu({ ...contextMenu, visible: false });
-    };
-
-    // Close the context menu
-    const closeContextMenu = () => {
-        setContextMenu({ ...contextMenu, visible: false });
-    };
-
-    return (
-        <div style={{ padding: '20px' }}>
-            <div
-                style={{
-                    maxHeight: '500px',
-                    overflowY: 'auto',
-                    scrollbarWidth: 'thin',
-                    scrollbarColor: '#888 #f1f1f1',
-                    position: 'relative',
-                }}
-            >
-                <CTable
-                    hover
-                    responsive
+        };
+    
+        // Copy the inquiry number to clipboard
+        const handleCopyToClipboard = () => {
+            navigator.clipboard.writeText(contextMenu.inquiryNumber)
+                .then(() => {
+                    setToast({ visible: true, message: `Inquiry number copied to clipboard: ${contextMenu.inquiryNumber}` });
+                })
+                .catch((err) => {
+                    setToast({ visible: true, message: `Failed to copy: ${err}` });
+                });
+            setContextMenu({ ...contextMenu, visible: false });
+        };
+    
+        // Close the context menu
+        const closeContextMenu = () => {
+            setContextMenu({ ...contextMenu, visible: false });
+        };
+    
+        return (
+            <div style={{ padding: '20px' }}>
+                <div
                     style={{
-                        borderRadius: '8px',
-                        boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
-                        borderCollapse: 'collapse',
-                        width: '100%',
-                        marginTop: '20px',
+                        maxHeight: '500px',
+                        overflowY: 'auto',
+                        scrollbarWidth: 'thin',
+                        scrollbarColor: '#888 #f1f1f1',
+                        position: 'relative',
                     }}
                 >
-                    <CTableHead
+                    <CTable
+                        hover
+                        responsive
                         style={{
-                            position: 'sticky',
-                            top: 0,
-                            zIndex: 1,
-                            backgroundColor: '#f8f8f8',
+                            borderRadius: '8px',
+                            boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
+                            borderCollapse: 'collapse',
+                            width: '100%',
+                            marginTop: '20px',
                         }}
                     >
-                        <CTableRow>
-                            <CTableHeaderCell style={{ padding: '12px 15px', backgroundColor: '#f8f8f8', fontWeight: 'normal' }}></CTableHeaderCell>
-                            {['SN', 'Question', 'Category', 'Amount', 'Inquiry No.', 'Date', 'Time', 'Payment Status', 'Auspicious From', 'Assignee', 'Comment for Assignee', 'Final Reading', 'Guest Name'].map(header => (
-                                <CTableHeaderCell
-                                    key={header}
-                                    style={{
-                                        padding: '12px 15px',
-                                        backgroundColor: '#f8f8f8',
-                                        color: '#6c757d',
-                                        fontWeight: 'normal',
-                                    }}
-                                >
-                                    {header}
-                                </CTableHeaderCell>
-                            ))}
-                        </CTableRow>
-                    </CTableHead>
-                    <CTableBody>
-                        {inquiries.map((item, index) => {
-                            const { date, time } = formatDateTime(item.purchased_on);
-                            const auspiciousDate = formatAuspiciousDate(item.auspicious_from_date);
-
-                            // Get the category name by matching the category id
-                            const categoryName = categories[item.category_type_id] || 'Unknown Category';
-
-                            return (
-                                <CTableRow key={item.inquiry_number}>
-                                    <CTableDataCell style={{ padding: '12px 15px', textAlign: 'center' }}>
-                                        <CButton
-                                            onClick={() => { setSelectedItem(item); setShowDetailedView(true); }}
-                                            style={{
-                                                backgroundColor: '#28a745',
-                                                color: 'white',
-                                                border: 'none',
-                                                padding: '5px 10px',
-                                                borderRadius: '5px',
-                                                cursor: 'pointer',
-                                            }}
-                                        >
-                                            Go
-                                        </CButton>
-                                    </CTableDataCell>
-                                    {[ 
-                                        index + 1,
-                                        item.question,
-                                        categoryName, // Display the category name here
-                                        item.price,
-                                        <div
-                                            style={{ 
-                                                maxWidth: '120px', 
-                                                whiteSpace: 'nowrap', 
-                                                overflow: 'hidden', 
-                                                textOverflow: 'ellipsis' 
-                                            }}
-                                            onContextMenu={(e) => handleRightClick(e, item.inquiry_number)}
-                                        >
-                                            {item.inquiry_number}
-                                        </div>,
-                                        date,
-                                        time,
-                                        item.payment_successfull ? 'Paid' : 'Cancelled',
-                                        auspiciousDate,
-                                        item.assignee || 'N/A',
-                                        item.comment_for_assignee ?? 'N/A',
-                                        item.final_reading ?? 'N/A',
-                                        item.profile1?.name || 'N/A'  // Guest Name column added here, checks for profile1 and name
-                                    ].map((value, idx) => (
-                                        <CTableDataCell
-                                            key={idx}
-                                            style={{
-                                                padding: '12px 15px',
-                                                maxWidth: idx === 1 ? '800px' : '',
-                                            }}
-                                        >
-                                            {value}
+                        <CTableHead
+                            style={{
+                                position: 'sticky',
+                                top: 0,
+                                zIndex: 1,
+                                backgroundColor: '#f8f8f8',
+                            }}
+                        >
+                            <CTableRow>
+                                <CTableHeaderCell style={{ padding: '12px 15px', backgroundColor: '#f8f8f8', fontWeight: 'normal' }}></CTableHeaderCell>
+                                {['SN', 'Question', 'Category', 'Amount', 'Inquiry No.', 'Date', 'Time', 'Payment Status', 'Auspicious From', 'Assignee', 'Comment for Assignee', 'Final Reading', 'Guest Name'].map(header => (
+                                    <CTableHeaderCell
+                                        key={header}
+                                        style={{
+                                            padding: '12px 15px',
+                                            backgroundColor: '#f8f8f8',
+                                            color: '#6c757d',
+                                            fontWeight: 'normal',
+                                        }}
+                                    >
+                                        {header}
+                                    </CTableHeaderCell>
+                                ))}
+                            </CTableRow>
+                        </CTableHead>
+                        <CTableBody>
+                            {inquiries.map((item, index) => {
+                                const { date, time } = formatDateTime(item.purchased_on);
+                                const auspiciousDate = formatAuspiciousDate(item.auspicious_from_date);
+    
+                                // Get the category name by matching the category id
+                                const categoryName = categories[item.category_type_id] || 'Unknown Category';
+    
+                                return (
+                                    <CTableRow key={item.inquiry_number}>
+                                        <CTableDataCell style={{ padding: '12px 15px', textAlign: 'center' }}>
+                                            <CButton
+                                                onClick={() => { setSelectedItem(item); setShowDetailedView(true); }}
+                                                style={{
+                                                    backgroundColor: '#28a745',
+                                                    color: 'white',
+                                                    border: 'none',
+                                                    padding: '5px 10px',
+                                                    borderRadius: '5px',
+                                                    cursor: 'pointer',
+                                                }}
+                                            >
+                                                Go
+                                            </CButton>
                                         </CTableDataCell>
-                                    ))}
-                                </CTableRow>
-                            );
-                        })}
-                    </CTableBody>
-                </CTable>
-            </div>
-            
-            {/* Custom Context Menu */}
-            {contextMenu.visible && (
-                <div 
-                    style={{
-                        position: 'absolute',
-                        top: contextMenu.y,
-                        left: contextMenu.x,
-                        backgroundColor: 'white',
-                        border: '1px solid #ccc',
-                        borderRadius: '4px',
-                        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-                        zIndex: 9999,
-                    }}
-                    onClick={closeContextMenu}
-                >
+                                        {[ 
+                                            index + 1,
+                                            item.question,
+                                            categoryName, // Display the category name here
+                                            item.price,
+                                            <div
+                                                style={{ 
+                                                    maxWidth: '120px', 
+                                                    whiteSpace: 'nowrap', 
+                                                    overflow: 'hidden', 
+                                                    textOverflow: 'ellipsis' 
+                                                }}
+                                                onContextMenu={(e) => handleRightClick(e, item.inquiry_number)}
+                                            >
+                                                {item.inquiry_number}
+                                            </div>,
+                                            date,
+                                            time,
+                                            <CTableDataCell style={{ padding: '12px 15px', textAlign: 'center' }}>
+                                                <span
+                                                    style={{
+                                                        backgroundColor: item.payment_successfull ? '#28a745' : '#dc3545',
+                                                        color: 'white',
+                                                        padding: '5px 10px',
+                                                        borderRadius: '12px',
+                                                        fontWeight: 'bold',
+                                                    }}
+                                                >
+                                                    {item.payment_successfull ? 'Paid' : 'Cancelled'}
+                                                </span>
+                                            </CTableDataCell>,
+                                            auspiciousDate,
+                                            item.assignee || 'N/A',
+                                            item.comment_for_assignee ?? 'N/A',
+                                            item.final_reading ?? 'N/A',
+                                            item.profile1?.name || 'N/A'
+                                        ].map((value, idx) => (
+                                            <CTableDataCell
+                                                key={idx}
+                                                style={{
+                                                    padding: '12px 15px',
+                                                    maxWidth: idx === 1 ? '800px' : '',
+                                                }}
+                                            >
+                                                {value}
+                                            </CTableDataCell>
+                                        ))}
+                                    </CTableRow>
+                                );
+                            })}
+                        </CTableBody>
+                    </CTable>
+                </div>
+    
+                {/* Custom Context Menu */}
+                {contextMenu.visible && (
                     <div 
                         style={{
-                            padding: '8px 12px',
-                            cursor: 'pointer',
+                            position: 'absolute',
+                            top: contextMenu.y,
+                            left: contextMenu.x,
+                            backgroundColor: 'white',
+                            border: '1px solid #ccc',
+                            borderRadius: '4px',
+                            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                            zIndex: 9999,
                         }}
-                        onClick={handleCopyToClipboard}
+                        onClick={closeContextMenu}
                     >
-                        <span style={{ marginRight: '10px' }}>📋</span> Copy Inquiry Number
+                        <div 
+                            style={{
+                                padding: '8px 12px',
+                                cursor: 'pointer',
+                            }}
+                            onClick={handleCopyToClipboard}
+                        >
+                            <span style={{ marginRight: '10px' }}>📋</span> Copy Inquiry Number
+                        </div>
                     </div>
-                </div>
-            )}
-
-            {showDetailedView && <DetailedView item={selectedItem} onClose={() => setShowDetailedView(false)} publish={publish} fromPage={page} />}
-            {toast.visible && (
-                <CToaster position="top-right">
-                    <CToast visible={toast.visible} onClose={() => setToast({ ...toast, visible: false })} style={{ minWidth: '250px' }}>
-                        <CToastHeader closeButton>
-                            <strong className="me-auto">Notification</strong>
-                        </CToastHeader>
-                        <CToastBody>{toast.message}</CToastBody>
-                    </CToast>
-                </CToaster>
-            )}
-        </div>
-    );
+                )}
+    
+                {showDetailedView && <DetailedView item={selectedItem} onClose={() => setShowDetailedView(false)} publish={publish} fromPage={page} />}
+                {toast.visible && (
+                    <CToaster position="top-right">
+                        <CToast visible={toast.visible} onClose={() => setToast({ ...toast, visible: false })} style={{ minWidth: '250px' }}>
+                            <CToastHeader closeButton>
+                                <strong className="me-auto">Notification</strong>
+                            </CToastHeader>
+                            <CToastBody>{toast.message}</CToastBody>
+                        </CToast>
+                    </CToaster>
+                )}
+            </div>
+        );
+    } catch (error) {
+        return(<></>)
+    }
 };
 
 export default TableView;

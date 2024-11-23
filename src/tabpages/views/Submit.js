@@ -1,20 +1,15 @@
-import React, { useContext, useEffect } from 'react';
-import { CButton, CFormTextarea } from '@coreui/react';
-import { Formik, Field, Form } from 'formik';
-import { GetURL, GetToken } from '../../library/API';
+import React, { useContext, useState } from 'react';
+import { CButton, CFormTextarea, CToast, CToaster, CToastBody, CToastHeader } from '@coreui/react';
+import { Field, Form, Formik } from 'formik';
+import { GetToken, GetURL } from '../../library/API';
 import { UserContext } from '../Inquiry';
 import { useNavigate } from 'react-router-dom';
-import { toast, ToastContainer } from 'react-toastify';
 
 const Submit = ({ inquiry_id }) => {
-    const fromPage = useContext(UserContext).fromPage;
+    const { fromPage, id } = useContext(UserContext);
     const navigate = useNavigate();
-    const id = useContext(UserContext).id;
 
-    useEffect(() => {
-        window.addEventListener('keydown', () => {});
-        return () => window.removeEventListener('keydown', () => {});
-    }, []);
+    const [toasts, setToasts] = useState([]);
 
     const handleSubmit = async (values, { resetForm }) => {
         const payload = {
@@ -26,7 +21,7 @@ const Submit = ({ inquiry_id }) => {
             let response;
             let apiUrl;
 
-            if (fromPage != 'reviewer' && id != 5) {
+            if (fromPage !== 'reviewer' && id !== 5) {
                 apiUrl = "/backend/InquiryManagement/PushComment";
             } else {
                 apiUrl = "/backend/InquiryManagement/PublishInquiry";
@@ -44,25 +39,32 @@ const Submit = ({ inquiry_id }) => {
             if (response.ok) {
                 const data = await response.json();
                 console.log(data);
-                toast.success('Comment submitted successfully!'); // Show success toast
+                setToasts([...toasts, { type: 'success', message: 'Comment submitted successfully!' }]);
             } else {
                 const errorData = await response.json();
-                toast.error(errorData.message || 'Something went wrong!'); // Show error toast
+                setToasts([...toasts, { type: 'error', message: errorData.message || 'Something went wrong!' }]);
             }
         } catch (err) {
-            toast.error('An error occurred. Please try again later.'); // Show error toast
+            setToasts([...toasts, { type: 'error', message: 'An error occurred. Please try again later.' }]);
         }
 
-        const event = new KeyboardEvent('keydown', { key: 'Escape' });
-        document.dispatchEvent(event);
-
         resetForm();
+        location.reload();
     };
 
     return (
         <>
-            {/* Toast Container (You only need this once in your app, typically in App.js) */}
-            <ToastContainer />
+            {/* Toast Container (coreui's toast) */}
+            <CToaster position="top-end">
+                {toasts.map((toast, index) => (
+                    <CToast key={index} color={toast.type} closeButton={true} autohide={3000}>
+                        <CToastHeader closeButton>
+                            {toast.type === 'success' ? 'Success' : 'Error'}
+                        </CToastHeader>
+                        <CToastBody>{toast.message}</CToastBody>
+                    </CToast>
+                ))}
+            </CToaster>
 
             <Formik
                 initialValues={{ comment: '' }}
@@ -71,7 +73,7 @@ const Submit = ({ inquiry_id }) => {
                 {({ setFieldValue, values }) => (
                     <Form
                         style={{
-                            maxWidth: '500px',
+                            maxWidth: '100vw',
                             margin: '0 auto',
                             padding: '15px',
                             backgroundColor: '#fff',
@@ -117,7 +119,7 @@ const Submit = ({ inquiry_id }) => {
                                     borderColor: '#ff9933',
                                 }}
                             >
-                                {fromPage == 'reviewer' ? 'Publish' : 'Submit'}
+                                {fromPage === 'reviewer' ? 'Publish' : 'Submit'}
                             </CButton>
                         </div>
                     </Form>

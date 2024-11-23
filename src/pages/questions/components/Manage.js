@@ -3,7 +3,7 @@ import { CButton, CFormInput, CFormSelect } from '@coreui/react';
 import { Formik, Field, Form } from 'formik';
 import * as Yup from 'yup';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { GetToken,GetURL } from '../../../library/API';
+import { GetToken, GetURL } from '../../../library/API';
 
 const Manage = () => {
     const [categories, setCategories] = useState([]);
@@ -48,7 +48,7 @@ const Manage = () => {
                     headers: {
                         'Content-Type': 'application/json',
                         "Authorization": GetToken()
-                       }
+                    }
                 });
 
                 if (response.ok) {
@@ -70,7 +70,7 @@ const Manage = () => {
         };
 
         fetchCategories();
-        
+
         const query = new URLSearchParams(location.search);
         const id = query.get('id');
         if (id) {
@@ -91,7 +91,7 @@ const Manage = () => {
             ...values,
             active: values.active
         };
-    
+
         if (formattedValues._id) {
             fetch(GetURL('/backend/Question/Update'), {
                 method: 'POST',
@@ -118,10 +118,17 @@ const Manage = () => {
             .catch(error => console.error('An error occurred:', error));
         }
     };
-    
 
     return (
-        <>
+        <div style={{ 
+            padding: '30px', 
+            maxWidth: '1000px',  // Increase max-width for larger form
+            margin: '0 auto', 
+            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)', 
+            borderRadius: '10px', 
+            backgroundColor: '#fff',
+            height: 'auto' 
+        }}>
             <Formik
                 initialValues={initialValues}
                 enableReinitialize
@@ -130,14 +137,24 @@ const Manage = () => {
             >
                 {({ handleSubmit, errors, touched }) => (
                     <Form onSubmit={handleSubmit}>
-                        <div className="mb-3">
-                            <label htmlFor="question">Question</label>
-                            <Field as={CFormInput} id="question" name="question" />
-                            {errors.question && touched.question && <div className="text-danger">{errors.question}</div>}
+                        <div className="mb-4">
+                            <label htmlFor="question" className="form-label">Question</label>
+                            <Field
+                                as={CFormInput}
+                                id="question"
+                                name="question"
+                                placeholder="Enter the question"
+                                className={`form-control ${errors.question && touched.question ? 'is-invalid' : ''}`}
+                                style={{ fontSize: '1.1rem', padding: '12px 16px' }}  // Larger text and padding
+                            />
+                            {errors.question && touched.question && (
+                                <div className="invalid-feedback">{errors.question}</div>
+                            )}
                         </div>
-                        <div className="mb-3">
-                            <label htmlFor="question_category_id">Category</label>
-                            <Field as={CFormSelect} id="question_category_id" name="question_category_id">
+
+                        <div className="mb-4">
+                            <label htmlFor="question_category_id" className="form-label">Category</label>
+                            <Field as={CFormSelect} id="question_category_id" name="question_category_id" className={`form-select ${errors.question_category_id && touched.question_category_id ? 'is-invalid' : ''}`} style={{ fontSize: '1.1rem', padding: '12px 16px' }}>
                                 <option value="">Select Category</option>
                                 {categories.map(category => (
                                     <option key={category.question_category_id} value={category.question_category_id}>
@@ -145,27 +162,53 @@ const Manage = () => {
                                     </option>
                                 ))}
                             </Field>
-                            {errors.question_category_id && touched.question_category_id && <div className="text-danger">{errors.question_category_id}</div>}
+                            {errors.question_category_id && touched.question_category_id && (
+                                <div className="invalid-feedback">{errors.question_category_id}</div>
+                            )}
                         </div>
-                        <div className="mb-3">
-                            <label htmlFor="order_id">Order ID</label>
-                            <Field as={CFormInput} type="number" id="order_id" name="order_id" />
-                            {errors.order_id && touched.order_id && <div className="text-danger">{errors.order_id}</div>}
+
+                        <div className="mb-4">
+                            <label htmlFor="order_id" className="form-label">Order ID</label>
+                            <Field
+                                as={CFormInput}
+                                type="number"
+                                id="order_id"
+                                name="order_id"
+                                placeholder="Enter order ID"
+                                className={`form-control ${errors.order_id && touched.order_id ? 'is-invalid' : ''}`}
+                                style={{ fontSize: '1.1rem', padding: '12px 16px' }}  // Larger text and padding
+                            />
+                            {errors.order_id && touched.order_id && (
+                                <div className="invalid-feedback">{errors.order_id}</div>
+                            )}
                         </div>
-                        <div className="mb-3">
-                            <label htmlFor="price">Price</label>
-                            <Field as={CFormInput} type="number" id="price" name="price" />
-                            {errors.price && touched.price && <div className="text-danger">{errors.price}</div>}
+
+                        <div className="mb-4">
+                            <label htmlFor="price" className="form-label">Price</label>
+                            <Field
+                                as={CFormInput}
+                                type="number"
+                                id="price"
+                                name="price"
+                                placeholder="Enter price"
+                                className={`form-control ${errors.price && touched.price ? 'is-invalid' : ''}`}
+                                style={{ fontSize: '1.1rem', padding: '12px 16px' }}  // Larger text and padding
+                            />
+                            {errors.price && touched.price && (
+                                <div className="invalid-feedback">{errors.price}</div>
+                            )}
                         </div>
-                        <div className="mb-3">
-                            <label htmlFor="active">Is Active?</label>
-                            <Field type="checkbox" id="active" name="active" />
+
+                        <div className="mb-4">
+                            <label htmlFor="active" className="form-label">Is Active?</label>
+                            <Field type="checkbox" id="active" name="active" className="form-check-input" />
                         </div>
-                        <CButton type="submit" color="primary">Save</CButton>
+
+                        <CButton type="submit" color="primary" className="w-100" style={{ fontSize: '1.2rem', padding: '14px' }}>Save</CButton>
                     </Form>
                 )}
             </Formik>
-        </>
+        </div>
     );
 };
 
