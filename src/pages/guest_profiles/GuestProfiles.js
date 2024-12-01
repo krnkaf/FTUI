@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { CTabList, CTabs, CTab, CTabContent } from '@coreui/react';
 import List from './components/List';
@@ -26,14 +26,16 @@ function guest_profiles() {
 
     return (
         <>
-            <CTabs activeItemKey={activeTab}>
-                <CTabList style={{ float: "right" }} variant="pills">
-                    <CTab itemKey="list" onClick={() => switchTab("list")}>List</CTab>
-                </CTabList>
-            </CTabs>
-            <CTabContent>
-                {activeTab === "list" ? <List /> : <Manage />}
-            </CTabContent>
+            <Suspense fallback={<>Hello</>}>
+                <CTabs activeItemKey={activeTab}>
+                    <CTabList style={{ float: "right" }} variant="pills">
+                        <CTab itemKey="list" onClick={() => switchTab("list")}>List</CTab>
+                    </CTabList>
+                </CTabs>
+                <CTabContent>
+                    {activeTab === "list" ? <List /> : <Manage />}
+                </CTabContent>
+            </Suspense>
         </>
     );
 }

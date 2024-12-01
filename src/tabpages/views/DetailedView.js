@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { CCard, CCardBody, CCardHeader, CButton, CRow, CCol } from '@coreui/react';
+import { CCard, CCardBody, CCardHeader, CButton, CRow, CCol, CBadge } from '@coreui/react';
 import SupportVisible from './SupportVisible';
 import Submit from './Submit';
 import { UserContext } from '../Inquiry';
@@ -8,7 +8,7 @@ import ReactTimeAgo from 'react-timeago';
 
 export const commentContext = createContext();
 
-const DetailedView = ({ item, onClose, fromPage, publish }) => {
+const DetailedView = ({ item, onClose, fromPage, publish, status }) => {
     const [showCommentHistory, setShowCommentHistory] = useState(false);
     const showTwoProfiles = item.category_type_id === 2;
     const userTypeId = useContext(UserContext).id;
@@ -66,26 +66,39 @@ const DetailedView = ({ item, onClose, fromPage, publish }) => {
     const categoryName = category ? category.name : 'Category not found';
 
     const handleBackButtonClick = () => onClose();
+    const [expandedComments, setExpandedComments] = useState([]);
+
+    const toggleExpanded = (index) => {
+        setExpandedComments((prevState) => {
+            if (prevState.includes(index)) {
+                // If already expanded, remove the index to collapse it
+                return prevState.filter((i) => i !== index);
+            } else {
+                // Otherwise, add the index to expand it
+                return [...prevState, index];
+            }
+        });
+    };
 
     const ProfileCard = ({ name, dob, tob, city_id, visible, from }) => {
         return (
             <CCard
-            className="mb-3"
-            style={{
-                border: '1px solid #e0e0e0',
-                borderRadius: '8px',
-                width: '100%',
-                visibility: visible ? 'visible' : 'hidden',
-            }}
+                className="mb-3"
+                style={{
+                    border: '1px solid #e0e0e0',
+                    borderRadius: '8px',
+                    width: '100%',
+                    visibility: visible ? 'visible' : 'hidden',
+                }}
             >
                 {console.log(categoryName)}
                 <CCardHeader style={{ backgroundColor: '#f5f5f5', padding: '12px 20px' }}>
-                    <h5 style={{ margin: 0, fontSize: '18px', fontWeight: 600 }}>{from}</h5>
+                    <h5 style={{ margin: 0, fontSize: '15px', fontWeight: 600 }}>{from}</h5>
                 </CCardHeader>
-                <CCardBody style={{ padding: '15px 20px', fontSize: '14px', color: '#555' }}>
+                <CCardBody style={{ padding: '10x 20px', fontSize: '13px', color: '#555' }}>
                     <strong>Name:</strong> {name || 'N/A'} <br />
                     <strong>DOB:</strong> {dob || 'N/A'} <br />
-                    <strong>TOB:</strong> {tob || 'N/A'} <br />
+                    <strong>TOB:</strong> {Intl.DateTimeFormat('en-us', { hour: '2-digit', minute: '2-digit', hour12: true }).format((new Date(`1970-01-01T${tob}:00Z`))) || 'N/A'} <br />
                     <strong>POB:</strong> {city_id || 'N/A'}
                 </CCardBody>
             </CCard>
@@ -124,8 +137,98 @@ const DetailedView = ({ item, onClose, fromPage, publish }) => {
                         paddingTop: `${navbarHeight}px`,
                     }}
                 >
-                    {/* Full-width Header */}
                     <CCard
+                        className="h-auto"
+                        style={{
+                            borderRadius: '10px',
+                            border: 'none',
+                            width: '100%',
+                            padding: '20px 15px 0px 15px',
+                        }}
+                    >
+                        {/* First Row: Back Button, Purchased Info, and Payment Badge */}
+                        <CCardHeader
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                padding: '15px',
+                                backgroundColor: '#FFFFFF',
+                                color: '#FF9933',
+                                borderRadius: '10px 10px 0 0',
+                                fontWeight: 500,
+                                width: '100%',
+                            }}
+                        >
+                            <div style={{ display: 'flex', width: '100%', alignItems: 'center' }}>
+                                {/* Back Button */}
+                                <CButton
+                                    color="secondary"
+                                    style={{
+                                        flex: '0 0 6%',
+                                        marginRight: '15px',
+                                        padding: '8px 15px',
+                                        backgroundColor: '#fff',
+                                        color: '#FF9933',
+                                        border: '1px solid #FF9933',
+                                        borderRadius: '5px',
+                                        fontWeight: 600,
+                                    }}
+                                    onClick={handleBackButtonClick}
+                                >
+                                    <span className="material-icons">&lt;-</span>
+                                </CButton>
+
+                                {/* Purchased Info */}
+                                <div style={{ flex: '1', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <span style={{ fontWeight: 600, fontSize: '16px' }}>Purchased: &nbsp;<ReactTimeAgo date={item.purchased_on} /></span>
+                                    {/* Payment Badge */}
+                                    <CBadge
+                                        color={!item.payment_successful ? 'success' : 'danger'}
+                                        style={{
+                                            padding: '5px 10px',
+                                            borderRadius: '5px',
+                                            fontSize: '14px',
+                                            fontWeight: '500',
+                                        }}
+                                    >
+                                        {!item.payment_successful ? 'Paid' : 'Cancelled'}
+                                    </CBadge>
+                                </div>
+                            </div>
+                        </CCardHeader>
+
+                        {/* Second Row: Category Name and Question */}
+                        <CCardHeader
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                padding: '15px 15px 15px 15px',
+                                backgroundColor: '#FFFFFF',
+                                borderRadius: '0 0 10px 10px',
+                                fontWeight: 500,
+                                width: '100%',
+                            }}
+                        >
+                            <h4 style={{ margin: 0, fontSize: '16px', fontWeight: 200 }}>
+                                {categoryName} - {item.question} {
+                                    (() => {
+                                        if (item.auspicious_from_date == null && item.horoscope_from_date == null) {
+                                            return null;
+                                        } else if (item.auspicious_from_date == null) {
+                                            return <>- Start From: {item.horoscope_from_date.split('T')[0]}</>;
+                                        } else if (item.horoscope_from_date == null) {
+                                            return <>- Start From: {item.auspicious_from_date.split('T')[0]}</>;
+                                        } else {
+                                            return null;
+                                        }
+                                    })()
+                                }
+                            </h4>
+                        </CCardHeader>
+                    </CCard>
+
+                    {/* Full-width Header */}
+                    {/* <CCard
                         className="h-auto"
                         style={{
                             borderRadius: '10px',
@@ -174,28 +277,7 @@ const DetailedView = ({ item, onClose, fromPage, publish }) => {
                                 Purchased: &nbsp; <ReactTimeAgo date={item.purchased_on} />
                             </div>
                         </CCardHeader>
-                    </CCard>
-                    {/* assignee: ""
-                        auspicious_from_date: "2024-11-22T18:15:00Z"
-                        category_type_id: 3
-                        comment_for_assignee: null
-                        final_reading: null
-                        horoscope_from_date: null
-                        inquiry_id: "6741ac44094af6a20d468757"
-                        inquiry_number: "6f04289c3e9e40128b997aea3daa7a01"
-                        payment_successfull: true
-                        price: 7
-                        profile1: {name: 'Aagya Kumari Jha', city_id: 'USA', dob: '2004-01-25', tob: '09:15'}
-                        profile2: null
-                        purchased_on: "2024-11-23T10:19:48.233Z"
-                        question: "1 year"
-                       
-                        0: {id: '1', name: 'Horosope'}
-                        1: {id: '2', name: 'Compatibility'}
-                        2: {id: '3', name: 'Auspicious Time'}
-                        3: {id: '4', name: 'Kundali'}
-                        4: {id: '5', name: 'Support'}
-                        5: {id: '6', name: 'Question'} */}
+                    </CCard> */}
 
                     {/* Content Section: Vertical Split Begins Below Header */}
                     <div style={{ display: 'flex', flexDirection: 'row', width: '100%' }}>
@@ -205,7 +287,7 @@ const DetailedView = ({ item, onClose, fromPage, publish }) => {
                                 borderRadius: '10px',
                                 border: 'none',
                                 width: '50%', // 50% width for the profile section
-                                padding: '20px',
+                                padding: '0px 20px 0px 20px',
                             }}
                         >
                             <CCardBody className="d-flex flex-column h-100" style={{ paddingTop: '10px', paddingBottom: '10px' }}>
@@ -267,8 +349,6 @@ const DetailedView = ({ item, onClose, fromPage, publish }) => {
                                         Comment for you: {item.comment_for_assignee}
                                     </CRow> : null
                                 }
-
-                                {/* Render either SupportVisible or Submit component */}
                                 <CRow
                                     className="justify-content-center"
                                     style={{
@@ -277,11 +357,27 @@ const DetailedView = ({ item, onClose, fromPage, publish }) => {
                                         alignItems: 'stretch',
                                     }}
                                 >
-                                    {(userTypeId != 1 && userTypeId != 2) || fromPage === "reviewer" ? (
-                                        <Submit inquiry_id={item.inquiry_id} onClose={onClose} />
-                                    ) : (
-                                        <SupportVisible currentTask={item} inquiry_id={item.inquiry_id} onClose={onClose} />
-                                    )}
+                                    {
+                                        (() => {
+                                            var x = localStorage.getItem('user_type_id');
+                                            
+                                            if (x == 1 || x == 2) {
+                                                // Users 1 & 2: Always show SupportVisible
+                                                return <SupportVisible currentTask={item} inquiry_id={item.inquiry_id} onClose={onClose} />;
+                                            } else if (
+                                                (x == 3 && fromPage === 'expert') ||
+                                                (x == 4 && fromPage === 'translator') ||
+                                                (x == 5 && fromPage === 'reviewer')
+                                            ) {
+                                                // Users 3, 4, & 5: Show Submit if status is pending
+                                                if (status === 'pending') {
+                                                    return <Submit inquiry_id={item.inquiry_id} onClose={onClose} />;
+                                                }
+                                            }
+                                            return null; // Render nothing for all other cases
+                                        })()
+                                    }
+
                                 </CRow>
                             </CCardBody>
                         </CCard>
@@ -303,10 +399,7 @@ const DetailedView = ({ item, onClose, fromPage, publish }) => {
                                 padding: '20px',
                             }}
                         >
-                            <CCardBody
-                                className="d-flex flex-column h-100"
-                                style={{ paddingTop: '10px', paddingBottom: '10px' }}
-                            >
+                            <CCardBody className="d-flex flex-column h-100" style={{ paddingTop: '10px', paddingBottom: '10px' }}>
                                 {comments.length > 0 && (
                                     <div
                                         style={{
@@ -314,53 +407,94 @@ const DetailedView = ({ item, onClose, fromPage, publish }) => {
                                             borderRadius: '8px',
                                             padding: '12px 18px',
                                             backgroundColor: '#f9f9f9',
-                                            maxHeight: '400px',
+                                            maxHeight: '60vh',
                                             overflowY: 'auto',
                                         }}
                                     >
                                         <div className="text-center mb-4">
                                             <ul style={{ listStyle: 'none', padding: 0 }}>
-                                                {comments.map((m, index) => (
-                                                    <li
-                                                        key={index}
-                                                        style={{
-                                                            paddingBottom: '12px',
-                                                            display: 'flex',
-                                                            justifyContent: 'space-between',
-                                                            border: '1px solid #ddd',
-                                                            borderRadius: '8px',
-                                                            padding: '10px',
-                                                            marginBottom: '8px',
-                                                            backgroundColor: '#fff',
-                                                        }}
-                                                    >
-                                                        <div
+                                                {comments.map((m, index) => {
+                                                    const isLatestComment = index === 0; // The first item is always the latest comment
+
+                                                    return (
+                                                        <li
+                                                            key={index}
                                                             style={{
-                                                                flex: '0 0 150px',
-                                                                fontSize: '13px',
-                                                                color: '#888',
+                                                                paddingBottom: '12px',
+                                                                display: 'flex',
+                                                                flexDirection: 'column',
+                                                                border: '1px solid #ddd',
+                                                                borderRadius: '8px',
+                                                                padding: '10px',
+                                                                marginBottom: '8px',
+                                                                backgroundColor: '#fff',
                                                             }}
                                                         >
-                                                            {m.assignee} <br />
-                                                            {m.updated_on.split("T")[0]} &nbsp;|&nbsp;
-                                                            {m.updated_on.split("T")[1].substr(0, 8)}
-                                                        </div>
-                                                        <div
-                                                            style={{
-                                                                flex: '1',
-                                                                fontSize: '14px',
-                                                                color: '#333',
-                                                            }}
-                                                        >
-                                                            {m.description}
-                                                        </div>
-                                                    </li>
-                                                ))}
+                                                            <div
+                                                                style={{
+                                                                    fontSize: '13px',
+                                                                    color: '#888',
+                                                                    marginBottom: '5px',
+                                                                }}
+                                                            >
+                                                                {Intl.DateTimeFormat('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }).format(new Date(m.updated_on))} | {m.updated_on.split("T")[0]} | {m.assignee}
+                                                            </div>
+                                                            <div style={{ height: '8px' }}></div>
+                                                            <div
+                                                                style={{
+                                                                    fontSize: '14px',
+                                                                    color: '#333',
+                                                                    textAlign: 'left',
+                                                                    whiteSpace: 'pre-wrap',
+                                                                    overflow: 'hidden',
+                                                                    display: '-webkit-box',
+                                                                    WebkitBoxOrient: 'vertical',
+                                                                    WebkitLineClamp: expandedComments.includes(index) || isLatestComment ? 'none' : 3,
+                                                                }}
+                                                            >
+                                                                {m.description}
+                                                            </div>
+
+                                                            {!isLatestComment && !expandedComments.includes(index) && m.description.length > 0 && (
+                                                                <button
+                                                                    style={{
+                                                                        background: 'none',
+                                                                        border: 'none',
+                                                                        color: '#ff9c33',
+                                                                        cursor: 'pointer',
+                                                                        padding: '0',
+                                                                        textDecoration: 'none',
+                                                                    }}
+                                                                    onClick={() => toggleExpanded(index)}
+                                                                >
+                                                                    View More
+                                                                </button>
+                                                            )}
+
+                                                            {expandedComments.includes(index) && (
+                                                                <button
+                                                                    style={{
+                                                                        background: 'none',
+                                                                        border: 'none',
+                                                                        color: '#ff9c33',
+                                                                        cursor: 'pointer',
+                                                                        padding: '0',
+                                                                        textDecoration: 'none',
+                                                                    }}
+                                                                    onClick={() => toggleExpanded(index)}
+                                                                >
+                                                                    View Less
+                                                                </button>
+                                                            )}
+                                                        </li>
+                                                    );
+                                                })}
                                             </ul>
                                         </div>
                                     </div>
                                 )}
                             </CCardBody>
+
                         </CCard>
                     </div>
                 </div>

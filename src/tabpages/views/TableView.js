@@ -10,7 +10,8 @@ import {
     CToast,
     CToastBody,
     CToastHeader,
-    CToaster
+    CToaster,
+    CBadge
 } from '@coreui/react';
 import DetailedView from './DetailedView';
 import { GetURL, GetToken } from '../../library/API';
@@ -53,7 +54,8 @@ const TableView = ({ page, state, status, publish }) => {
                 }, {});
                 setCategories(categoryMap);
             } catch (err) {
-                setToast({ visible: true, message: `An error occurred while loading categories. ${err}` });
+                // setToast({ visible: true, message: `An error occurred while loading categories. ${err}` });
+                
             }
         };
     
@@ -66,7 +68,7 @@ const TableView = ({ page, state, status, publish }) => {
         const formatDateTime = (timestamp) => {
             const dateObj = new Date(timestamp);
             const date = `${dateObj.getFullYear()}/${(dateObj.getMonth() + 1).toString().padStart(2, '0')}/${dateObj.getDate().toString().padStart(2, '0')}`;
-            const time = `${dateObj.getHours().toString().padStart(2, '0')}:${dateObj.getMinutes().toString().padStart(2, '0')}`;
+            const time = Intl.DateTimeFormat('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }).format(new Date(dateObj));
             return { date, time };
         };
     
@@ -136,22 +138,31 @@ const TableView = ({ page, state, status, publish }) => {
                             }}
                         >
                             <CTableRow>
-                                <CTableHeaderCell style={{ padding: '12px 15px', backgroundColor: '#f8f8f8', fontWeight: 'normal' }}></CTableHeaderCell>
-                                {['SN', 'Question', 'Category', 'Amount', 'Inquiry No.', 'Date', 'Time', 'Payment Status', 'Auspicious From', 'Assignee', 'Comment for Assignee', 'Final Reading', 'Guest Name'].map(header => (
+                                {['SN', 'Inq no.', 'Category', 'Question', 'Date', 'Time', 'Status', 'Assignee', 'Guest Name'].map(header => (
                                     <CTableHeaderCell
-                                        key={header}
-                                        style={{
-                                            padding: '12px 15px',
-                                            backgroundColor: '#f8f8f8',
-                                            color: '#6c757d',
-                                            fontWeight: 'normal',
-                                        }}
+                                    key={header}
+                                    style={{
+                                        padding: '12px 15px',
+                                        backgroundColor: '#f8f8f8',
+                                        color: '#6c757d',
+                                        fontWeight: 'normal',
+                                        lineHeight: '17px',
+                                        textAlign: 'center',
+                                    }}
                                     >
                                         {header}
                                     </CTableHeaderCell>
                                 ))}
+                                <CTableHeaderCell style={{ padding: '12px 15px', backgroundColor: '#f8f8f8', fontWeight: 'normal', }}></CTableHeaderCell>
                             </CTableRow>
                         </CTableHead>
+                        <style>
+                            {
+                                `
+                                    
+                                `
+                            }
+                        </style>
                         <CTableBody>
                             {inquiries.map((item, index) => {
                                 const { date, time } = formatDateTime(item.purchased_on);
@@ -162,7 +173,66 @@ const TableView = ({ page, state, status, publish }) => {
     
                                 return (
                                     <CTableRow key={item.inquiry_number}>
-                                        <CTableDataCell style={{ padding: '12px 15px', textAlign: 'center' }}>
+                                        {[ 
+                                            index + 1,
+                                            <span>
+                                                <div
+                                                style={{
+                                                    maxWidth: '65px',
+                                                    whiteSpace: 'nowrap',
+                                                    overflow: 'hidden',
+                                                    textOverflow: 'ellipsis',
+                                                    lineHeight: '17px',
+                                                }}
+                                                onContextMenu={(e) => handleRightClick(e, item.inquiry_number)}
+                                                >
+                                                    📋 {item.inquiry_number}
+                                                </div>
+                                                
+                                            </span>,
+                                            categoryName,
+                                            <div
+                                            style={{ 
+                                                minWidth: '300px', 
+                                                maxWidth: '300px', 
+                                                lineHeight: '17px',
+                                                whiteSpace: 'wrap', 
+                                            }}
+                                            >
+                                                {item.question}
+                                            </div>,
+                                            date,
+                                            time,
+                                            <CTableDataCell style={{ padding: '12px 15px', textAlign: 'center' }}>
+                                                {/* <span
+                                                    style={{
+                                                        backgroundColor: '#28a745',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        padding: '5px 10px',
+                                                        borderRadius: '5px',
+                                                        cursor: 'default',
+                                                    }}
+                                                >
+                                                    {item.payment_successfull ? 'Paid' : 'Cancelled'}
+                                                </span> */}
+                                                {item.payment_successfull == false ? <CBadge color='body-secondary'><span style={{ color: 'gray' }}>Cancelled</span></CBadge> : <CBadge color='success'>Paid</CBadge>}   
+                                            </CTableDataCell>,
+                                            item.assignee || 'N/A',
+                                            item.profile1?.name || 'N/A'
+                                        ].map((value, idx) => (
+                                            <CTableDataCell
+                                                key={idx}
+                                                style={{
+                                                    padding: '5px 15px',
+                                                    maxWidth: idx === 1 ? '800px' : '',
+                                                    lineHeight: '17px',
+                                                }}
+                                            >
+                                                {value}
+                                            </CTableDataCell>
+                                        ))}
+                                        <CTableDataCell style={{ padding: '12px 15px', textAlign: 'center', lineHeight: '17px', }}>
                                             <CButton
                                                 onClick={() => { setSelectedItem(item); setShowDetailedView(true); }}
                                                 style={{
@@ -172,58 +242,12 @@ const TableView = ({ page, state, status, publish }) => {
                                                     padding: '5px 10px',
                                                     borderRadius: '5px',
                                                     cursor: 'pointer',
+                                                    textAlign: 'center'
                                                 }}
                                             >
-                                                Go
+                                                Open
                                             </CButton>
                                         </CTableDataCell>
-                                        {[ 
-                                            index + 1,
-                                            item.question,
-                                            categoryName, // Display the category name here
-                                            item.price,
-                                            <div
-                                                style={{ 
-                                                    maxWidth: '120px', 
-                                                    whiteSpace: 'nowrap', 
-                                                    overflow: 'hidden', 
-                                                    textOverflow: 'ellipsis' 
-                                                }}
-                                                onContextMenu={(e) => handleRightClick(e, item.inquiry_number)}
-                                            >
-                                                {item.inquiry_number}
-                                            </div>,
-                                            date,
-                                            time,
-                                            <CTableDataCell style={{ padding: '12px 15px', textAlign: 'center' }}>
-                                                <span
-                                                    style={{
-                                                        backgroundColor: item.payment_successfull ? '#28a745' : '#dc3545',
-                                                        color: 'white',
-                                                        padding: '5px 10px',
-                                                        borderRadius: '12px',
-                                                        fontWeight: 'bold',
-                                                    }}
-                                                >
-                                                    {item.payment_successfull ? 'Paid' : 'Cancelled'}
-                                                </span>
-                                            </CTableDataCell>,
-                                            auspiciousDate,
-                                            item.assignee || 'N/A',
-                                            item.comment_for_assignee ?? 'N/A',
-                                            item.final_reading ?? 'N/A',
-                                            item.profile1?.name || 'N/A'
-                                        ].map((value, idx) => (
-                                            <CTableDataCell
-                                                key={idx}
-                                                style={{
-                                                    padding: '12px 15px',
-                                                    maxWidth: idx === 1 ? '800px' : '',
-                                                }}
-                                            >
-                                                {value}
-                                            </CTableDataCell>
-                                        ))}
                                     </CTableRow>
                                 );
                             })}
@@ -258,7 +282,7 @@ const TableView = ({ page, state, status, publish }) => {
                     </div>
                 )}
     
-                {showDetailedView && <DetailedView item={selectedItem} onClose={() => setShowDetailedView(false)} publish={publish} fromPage={page} />}
+                {showDetailedView && <DetailedView item={selectedItem} onClose={() => setShowDetailedView(false)}  fromPage={page} status={status}/>}
                 {toast.visible && (
                     <CToaster position="top-right">
                         <CToast visible={toast.visible} onClose={() => setToast({ ...toast, visible: false })} style={{ minWidth: '250px' }}>

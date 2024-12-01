@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { CButton, CTable, CTableRow, CTableHeaderCell, CTableBody, CTableDataCell, CFormCheck, CFormInput } from '@coreui/react';
+import { CButton, CTable, CTableRow, CTableHeaderCell, CTableBody, CTableDataCell, CFormCheck, CFormInput, CBadge } from '@coreui/react';
 import { CButtonToolbar, CButtonGroup } from '@coreui/react';
 import { useNavigate } from 'react-router-dom';
 import { Formik, Field, Form } from 'formik';
 import { GetToken, GetURL } from '../../../library/API';
+import { FaExclamationTriangle, FaEye } from 'react-icons/fa';
+import { CIcon } from '@coreui/icons-react';
+import { cilPencil, cilSearch } from '@coreui/icons';
+import { Button } from '@coreui/coreui';
 
 const List = () => {
     const [initialValues] = useState({
@@ -47,7 +51,7 @@ const List = () => {
                     setTotalCount(data.data.total_count);
                 }
             } catch (err) {
-                alert('An error occurred. Please try again later.');
+                console.log('An error occurred. Please try again later.');
             }
         };
 
@@ -65,7 +69,7 @@ const List = () => {
                     setHoroscopes(data.data.rashi);
                 }
             } catch (err) {
-                alert('An error occurred. Please try again later.');
+                console.log('An error occurred. Please try again later.');
             }
         };
 
@@ -102,10 +106,26 @@ const List = () => {
         index === 0 ? setDefaultChecked([true, false, false]) : index === 1 ? setDefaultChecked([false, true, false]) : index === 2 ? setDefaultChecked([false, false, true]) : null;
     }
 
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${year}-${month}-${day} | ${hours}:${minutes}`;
+    };
+
     const pageCount = totalCount ? Math.ceil(totalCount / pageSize) : 0;
+
+    const [show, setShow] = useState(false);
+
+    const handleClose = () => setShow(false);
+    const handleShow = () => setShow(true);
 
     return (
         <div className='tablediv'>
+            <CButton variant="primary" onClick="hangleshow">Filter</CButton>
             <CButton color='info' onClick={() => setFilterIndex(p => !p)}>Filter</CButton>
             {filterIndex ? 
             <div>
@@ -155,49 +175,53 @@ const List = () => {
             <CTable hover>
                 <thead>
                     <CTableRow>
-                        <CTableHeaderCell>Name</CTableHeaderCell>
-                        <CTableHeaderCell>Email</CTableHeaderCell>
-                        <CTableHeaderCell>City ID</CTableHeaderCell>
-                        <CTableHeaderCell>Date of Birth</CTableHeaderCell>
-                        <CTableHeaderCell>Time of Birth</CTableHeaderCell>
-                        <CTableHeaderCell>Updated Date</CTableHeaderCell>
-                        <CTableHeaderCell>Updated By</CTableHeaderCell>
-                        <CTableHeaderCell>Created Date</CTableHeaderCell>
-                        <CTableHeaderCell>Created By</CTableHeaderCell>
-                        <CTableHeaderCell>Description</CTableHeaderCell>
-                        <CTableHeaderCell>Active</CTableHeaderCell>
-                        <CTableHeaderCell>Action</CTableHeaderCell>
+                        <CTableHeaderCell style={{ textAlign: 'left' }}>Name</CTableHeaderCell>
+                        <CTableHeaderCell style={{ textAlign: 'left' }}>Email</CTableHeaderCell>
+                        <CTableHeaderCell style={{ textAlign: 'left' }}>City ID</CTableHeaderCell>
+                        <CTableHeaderCell style={{ textAlign: 'center' }}>Date of Birth</CTableHeaderCell>
+                        <CTableHeaderCell style={{ textAlign: 'center' }}>Time of Birth</CTableHeaderCell>
+                        <CTableHeaderCell style={{ textAlign: 'center' }}>Updated Date</CTableHeaderCell>
+                        <CTableHeaderCell style={{ textAlign: 'center' }}>Updated By</CTableHeaderCell>
+                        <CTableHeaderCell style={{ textAlign: 'center' }}>Verified</CTableHeaderCell>
+                        <CTableHeaderCell style={{ textAlign: 'center' }}>Active</CTableHeaderCell>
+                        <CTableHeaderCell style={{ minWidth: '105px', textAlign: 'center' }}>Action</CTableHeaderCell>
                     </CTableRow>
                 </thead>
                 <CTableBody>
                     {profiles.map(profile => (
                         <React.Fragment key={profile._id}>
                             <CTableRow>
-                                <CTableDataCell>{profile.name}</CTableDataCell>
-                                <CTableDataCell>{profile.email}</CTableDataCell>
-                                <CTableDataCell>{profile.city_id}</CTableDataCell>
-                                <CTableDataCell>{profile.dob}</CTableDataCell>
-                                <CTableDataCell>{profile.tob}</CTableDataCell>
-                                <CTableDataCell>{profile.updated_date}</CTableDataCell>
-                                <CTableDataCell>{profile.updated_by}</CTableDataCell>
-                                <CTableDataCell>{profile.created_date}</CTableDataCell>
-                                <CTableDataCell>{profile.created_by}</CTableDataCell>
-                                <CTableDataCell>
+                                <CTableDataCell style={{ textAlign: 'left' }}>{profile.name}</CTableDataCell>
+                                <CTableDataCell style={{ textAlign: 'left' }}>{profile.email}</CTableDataCell>
+                                <CTableDataCell style={{ textAlign: 'left' }}>{profile.city_id}</CTableDataCell>
+                                <CTableDataCell style={{ textAlign: 'center' }}>{profile.dob}</CTableDataCell>
+                                <CTableDataCell style={{ textAlign: 'center' }}>{Intl.DateTimeFormat('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }).format(new Date("2024-01-01T"+profile.tob+":27.642Z"))}</CTableDataCell>
+                                <CTableDataCell style={{ textAlign: 'center' }}>{formatDate(profile.updated_date)}</CTableDataCell>
+                                <CTableDataCell style={{ textAlign: 'center' }}>{profile.updated_by}</CTableDataCell>
+                                {/* <CTableDataCell>
                                     {profile.guest_profile ? (
                                         <CButton color='info' onClick={() => viewDescription(profile._id)}>View</CButton>
                                     ) : (
                                         "Data not available"
                                     )}
+                                </CTableDataCell> */}
+                                <CTableDataCell style={{ textAlign: 'center' }}>
+                                    {profile.guest_profile == null ? <CBadge color='body-secondary'><span style={{ color: 'gray' }}>Not Verified</span></CBadge> : <CBadge color='success'>Verified</CBadge>}
                                 </CTableDataCell>
-                                <CTableDataCell>
+                                <CTableDataCell style={{ textAlign: 'center' }}>
                                     <CFormCheck 
                                         type="checkbox" 
                                         checked={profile.active} 
                                         disabled 
                                     />
                                 </CTableDataCell>
-                                <CTableDataCell>
-                                    <CButton color="warning" onClick={() => handleEdit(profile._id)}>Update</CButton>
+                                <CTableDataCell style={{ textAlign: 'center' }}>
+                                    {profile.guest_profile ? (
+                                        <CButton color='info' onClick={() => viewDescription(profile._id)}><FaEye /></CButton>
+                                    ) : (
+                                        <CButton color='info' onClick={() => {}}><FaExclamationTriangle /></CButton>
+                                    )}
+                                    <CButton color="warning" onClick={() => handleEdit(profile._id)} style={{ marginLeft: '5px' }}><CIcon icon={cilPencil} /></CButton>
                                 </CTableDataCell>
                             </CTableRow>
                             {expandedRow === profile._id && (

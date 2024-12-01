@@ -136,9 +136,11 @@ const List = () => {
                             <CTableDataCell>{item.order_id}</CTableDataCell>
                             <CTableDataCell>{item.price}</CTableDataCell>
                             <CTableDataCell>{formatDate(item.updated_date)}</CTableDataCell>
-                            <CTableDataCell>{getUserNameById(item.updated_by)}</CTableDataCell>
+                            <CTableDataCell>{item.updated_by}</CTableDataCell>
+                            {/* <CTableDataCell>{getUserNameById(item.updated_by)}</CTableDataCell> */}
                             <CTableDataCell>{formatDate(item.created_date)}</CTableDataCell>
-                            <CTableDataCell>{getUserNameById(item.created_by)}</CTableDataCell>
+                            <CTableDataCell>{item.created_by}</CTableDataCell>
+                            {/* <CTableDataCell>{getUserNameById(item.created_by)}</CTableDataCell> */}
                             <CTableDataCell>
                                 <input type="checkbox" checked={item.active} disabled />
                             </CTableDataCell>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { CButton, CFormSelect, CFormTextarea } from '@coreui/react';
+import { CButton, CFormSelect, CFormTextarea, CToast, CToastBody, CToastHeader } from '@coreui/react';
 import { GetToken, GetURL } from '../../library/API';
 import { Formik, Form, Field } from 'formik';
 
@@ -7,6 +7,7 @@ const SupportVisible = ({ currentTask, inquiry_id, onClose }) => {
     const [userTypes, setUserTypes] = useState([]);
     const [users, setUsers] = useState([]);
     const [filteredUsers, setFilteredUsers] = useState([]);
+    const [toastVisible, setToastVisible] = useState(false); // State for toast visibility
 
     useEffect(() => {
         const fetchData = async () => {
@@ -51,26 +52,40 @@ const SupportVisible = ({ currentTask, inquiry_id, onClose }) => {
         };
 
         if (values.selectedType && values.selectedUser) {
-            await fetch(GetURL("/backend/InquiryManagement/ChangeAssignee"), {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': GetToken()
-                },
-                body: JSON.stringify(payload)
-            });
-            resetForm();
+            try {
+                const response = await fetch(GetURL("/backend/InquiryManagement/ChangeAssignee"), {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': GetToken()
+                    },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+
+                if (response.ok) {
+                    // Show toast notification upon successful API call
+                    setToastVisible(true);
+                    
+                    resetForm();
+                } else {
+                    alert('Failed to assign task. Please try again.');
+                }
+            } catch (err) {
+                alert('An error occurred while assigning the task. Please try again.');
+            }
         } else {
             alert('Please select both user type and user.');
         }
 
-        location.reload();
+        // Reload the page after submission (optional)
+        // location.reload();
     };
 
     return (
         <div style={{
             maxWidth: '100vw',  // Decrease width to fit better in the parent component
-            margin: '0 auto', 
+            margin: '0 auto',
             padding: '15px',    // Reduced padding
             backgroundColor: '#fff',
             borderRadius: '8px',
@@ -142,13 +157,29 @@ const SupportVisible = ({ currentTask, inquiry_id, onClose }) => {
                             <CButton 
                                 type="submit" 
                                 color="primary" 
-                                style={{ fontSize: '14px', padding: '8px 20px', width: '100%', backgroundColor: '#ff9933', borderColor: '#ff9933' }}>
+                                style={{ fontSize: '14px', padding: '8px 20px', width: '100%', backgroundColor: '#ff9933', borderColor: '#ff9933' }} >
                                 Assign
                             </CButton>
                         </div>
                     </Form>
                 )}
             </Formik>
+
+            {/* Toast Notification */}
+            {toastVisible && (
+                <div style={{
+                    position: 'fixed', top: '30px', right: '10px', zIndex: 9999
+                }}>
+                    <CToast visible={toastVisible} onClose={() => {setToastVisible(false); }} color="success">
+                        <CToastHeader closeButton>
+                            Task Assigned Successfully
+                        </CToastHeader>
+                        <CToastBody>
+                            The task has been assigned to the selected user.
+                        </CToastBody>
+                    </CToast>
+                </div>
+            )}
         </div>
     );
 };

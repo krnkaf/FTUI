@@ -9,8 +9,10 @@ const Submit = ({ inquiry_id }) => {
     const { fromPage, id } = useContext(UserContext);
     const navigate = useNavigate();
 
+    // State to manage the list of toasts
     const [toasts, setToasts] = useState([]);
 
+    // Handle form submission
     const handleSubmit = async (values, { resetForm }) => {
         const payload = {
             comment: values.comment,
@@ -21,12 +23,14 @@ const Submit = ({ inquiry_id }) => {
             let response;
             let apiUrl;
 
+            // Determine the correct API URL based on the page
             if (fromPage !== 'reviewer' && id !== 5) {
                 apiUrl = "/backend/InquiryManagement/PushComment";
             } else {
                 apiUrl = "/backend/InquiryManagement/PublishInquiry";
             }
 
+            // API call
             response = await fetch(GetURL(apiUrl), {
                 method: 'POST',
                 headers: {
@@ -37,25 +41,30 @@ const Submit = ({ inquiry_id }) => {
             });
 
             if (response.ok) {
+                // If successful, show a success toast
                 const data = await response.json();
                 console.log(data);
                 setToasts([...toasts, { type: 'success', message: 'Comment submitted successfully!' }]);
             } else {
+                // If an error occurs, show an error toast
                 const errorData = await response.json();
                 setToasts([...toasts, { type: 'error', message: errorData.message || 'Something went wrong!' }]);
             }
         } catch (err) {
+            // In case of network or other errors, show a generic error toast
             setToasts([...toasts, { type: 'error', message: 'An error occurred. Please try again later.' }]);
         }
 
+        // Reset the form after submission
         resetForm();
+        // Reload the page after submission (optional)
         location.reload();
     };
 
     return (
         <>
             {/* Toast Container (coreui's toast) */}
-            <CToaster position="top-end">
+            <CToaster position="middle-start">
                 {toasts.map((toast, index) => (
                     <CToast key={index} color={toast.type} closeButton={true} autohide={3000}>
                         <CToastHeader closeButton>
