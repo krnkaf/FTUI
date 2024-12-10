@@ -28,10 +28,10 @@ function guest_profiles() {
         <>
             <Suspense fallback={<>Hello</>}>
                 <CTabs activeItemKey={activeTab}>
-                    <CTabList style={{ float: "right" }} variant="pills">
-                        <CTab itemKey="list" onClick={() => switchTab("list")}>List</CTab>
+                    <CTabList style={{ float: "right", marginRight: '1vw' }} variant="pills">
+                        <CTab itemKey="list" onClick={() => switchTab("list")} style={{ backgroundColor: '#ff9933', border: 'none' }}>List</CTab>
                     </CTabList>
-                </CTabs>
+                </CTabs> <br/><br/>
                 <CTabContent>
                     {activeTab === "list" ? <List /> : <Manage />}
                 </CTabContent>

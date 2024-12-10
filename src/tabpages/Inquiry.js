@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { CNav, CNavItem, CNavLink, CButton, CToaster, CToast, CToastBody, CToastHeader, CModal, CModalBody, CModalFooter, CFormInput, CFormSelect } from '@coreui/react';
 import TableView from './views/TableView';
 import { GetToken, GetURL } from '../library/API';
+import { useToast } from '../ToastComponent';
+import { FaSearch } from 'react-icons/fa';
 
 export const UserContext = createContext();
 
@@ -12,8 +14,7 @@ const Inquiry = () => {
         const [userList, setUserList] = useState([]);
         const [currentUser, setCurrentUser] = useState(null);
         const [userTypeId, setUserTypeId] = useState(localStorage.getItem('user_type_id'));
-        const [fromPage, setFromPage] = useState('NewInquiry');
-        const [currentStatus, setCurrentStatus] = useState('pending');
+        const [fromPage, setFromPage] = useState('new');
         const [activeTab, setActiveTab] = useState('');
         const [visibleTabs, setVisibleTabs] = useState([]);
         const [filterVisible, setFilterVisible] = useState(false);
@@ -26,15 +27,16 @@ const Inquiry = () => {
             status: '',
         });
 
-        const [toasts, setToasts] = useState([]);
-
+        const { showToast } = useToast();
         const pathSegments = window.location.pathname.split('/');
         const currentState = pathSegments[3];
 
         const tabVisibility = {
-            1: ['new_inquiry', 'expert_reading', 'translator', 'reviewer', 'publish', 'cancelled'],
-            2: ['new_inquiry', 'expert_reading', 'translator', 'reviewer', 'publish', 'cancelled'],
-            3: ['expert_reading'],
+            // 1: ['new', 'expert', 'translator', 'reviewer', 'publish', 'cancelled'],
+            1: ['new', 'expert', 'translator', 'reviewer'],
+            // 2: ['new', 'expert', 'translator', 'reviewer', 'publish', 'cancelled'],
+            2: ['new', 'expert', 'translator', 'reviewer'],
+            3: ['expert'],
             4: ['translator'],
             5: ['reviewer']
         };
@@ -66,42 +68,36 @@ const Inquiry = () => {
                     setCurrentUser(data.data.user[0]);
                     setVisibleTabs(tabVisibility[userTypeId]);
                 } catch (err) {
-                    setToasts([...toasts, {
-                        title: 'Error',
-                        content: 'An error occurred while fetching user types. Please try again later.',
-                        color: 'danger'
-                    }]);
+                    showToast('Response Error', 'No Network Connection', 2);
                 }
             };
-
+            
             fetchUserTypes();
         }, []);
-
+        
         useEffect(() => {
             setVisibleTabs(tabVisibility[userTypeId]);
         }, [userTypeId]);
-
+        
         useEffect(() => {
             try {
                 if (visibleTabs.length > 0) {
                     setActiveTab(visibleTabs[0]);
                 }
             } catch (error) {
-                setToasts([...toasts, {
-                    title: 'Error',
-                    content: 'An error occurred while setting tabs. Please try again later.',
-                    color: 'danger'
-                }]);
+                console.log(err);
+                showToast('Failed', 'An error has occurred', 1);
             }
         }, [visibleTabs]);
-
+        
         const handleTabChange = (tab) => {
             setActiveTab(tab);
-            navigate(`/tabpages/inquiry/${tab}/${currentStatus}`);
+            setState(tab);
+            navigate(`/tabpages/inquiry/${tab}/${status}`);
         };
 
         const handleStatusChange = (status) => {
-            setCurrentStatus(status);
+            setStatus(status);
             navigate(`/tabpages/inquiry/${activeTab}/${status}`);
         };
 
@@ -111,7 +107,7 @@ const Inquiry = () => {
             const nextUser = userList[nextIndex];
             setCurrentUser(nextUser);
         };
-
+        
         const handleIncrement = () => {
             setUserTypeId((p) => ((p % 5) + 1));
         };
@@ -121,7 +117,8 @@ const Inquiry = () => {
         };
     
         const handleApplyFilters = () => {
-            setFilterVisible(false); // Close the filter modal
+            setFilterVisible(false);
+            showToast('Items Filtered');
         };
     
         const handleClearFilters = () => {
@@ -135,66 +132,92 @@ const Inquiry = () => {
             });
         };
 
-        const SubTabs = ({ from, substate, publish }) => {
+        const SubTabs = ({ from, substate }) => {
             return (
                 <>
                     <CNav variant="tabs" style={{ marginLeft: '20px', marginBottom: '20px' }}>
                         <CNavItem>
                             <CNavLink
-                                active={currentStatus === 'pending'}
+                                active={status === 'pending'}
                                 onClick={() => handleStatusChange('pending')}
-                                style={{ padding: '8px 16px' }}
+                                style={{ padding: '8px 16px', color: '#ff9933' }}
                             >
                                 Pending
                             </CNavLink>
                         </CNavItem>
                         {(from != 'new') &&  <CNavItem>
                             <CNavLink
-                                active={currentStatus === 'completed'}
+                                active={status === 'completed'}
                                 onClick={() => handleStatusChange('completed')}
-                                style={{ padding: '8px 16px' }}
+                                style={{ padding: '8px 16px', color: '#ff9933' }}
                             >
                                 Completed
                             </CNavLink>
                         </CNavItem>}
                     </CNav>
 
-                    {currentStatus === 'pending' && (
-                        <TableView page={fromPage} state={from} status="pending" substate={substate} publish={publish} />
+                    {status === 'pending' && (
+                        <TableView page={fromPage} state={from} status="pending" substate={substate} />
                     )}
-                    {currentStatus === 'completed' && (
-                        <TableView page={fromPage} state={from} status="completed" substate={substate} publish={publish} />
+                    {status === 'completed' && (
+                        <TableView page={fromPage} state={from} status="completed" substate={substate}   />
                     )}
                 </>
             );
         };
 
+        const [state, setState] = useState(pathSegments[3]);
+        const [status, setStatus] = useState('pending');
+        const [inquiryList, setInquiryList] = useState([]);
+
+        const fetchInquiries = async (state, status) => {
+            try {
+                const response = await fetch(GetURL(`/backend/InquiryManagement/GetInquiries?inquiry_state=${state}&inquiry_status=${status}`), {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': GetToken()
+                    }
+                });
+
+                const data = await response.json();
+                setInquiryList(data.data.list);
+            } catch(e) {
+                showToast('Failed', 'Cannot fetch inquiries right now. Try again later.', 2)
+            }
+        }
+
+        useEffect(() => {
+            fetchInquiries(state, status);
+        }, [state, status]);
+
         return (
-            <UserContext.Provider value={{ id: userTypeId, assignee: currentUser, fromPage }}>
-                <div style={{ margin: '20px 0', display: 'flex', gap: '15px' }}>
-                    <CButton color={'primary'} name='User' onClick={() => handleIncrement()} style={{ padding: '8px 16px' }}> Next User Id</CButton> 
+            <UserContext.Provider value={{ id: userTypeId, assignee: currentUser, userList, fromPage: fromPage, state: state, setState, status: status, setStatus, inquiryList: [inquiryList], setInquiryList, fetchInquiries }}>
+                {/* <div style={{ margin: '20px 0', display: 'flex', gap: '15px' }}>
+                    <CButton name='User' onClick={() => handleIncrement()} style={{ padding: '8px 16px', backgroundColor: '#ff9933', color: 'white' }}> Next User Id</CButton> 
                     <span style={{ fontWeight: 'bold', alignSelf: 'center' }}>{userTypeId}</span>
-                    <CButton color={'primary'} name='Change User' onClick={() => handleUserChange()} style={{ padding: '8px 16px' }}> Change User</CButton>
-                </div> 
+                    <CButton name='Change User' onClick={() => handleUserChange()} style={{ padding: '8px 16px', backgroundColor: '#ff9933', color: 'white' }}> Change User</CButton>
+                    <CButton name='Change User' onClick={() => console.log(inquiryList)} style={{ padding: '8px 16px', backgroundColor: '#ff9933', color: 'white' }}> InquiryList</CButton>
+                </div>  */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: '' }}>
                     <CNav variant="tabs" onSelect={handleTabChange} style={{ marginBottom: '20px', backgroundColor: '#f8f9fa', borderRadius: '5px' }}>
-                        {visibleTabs.includes('new_inquiry') && (
+                        {visibleTabs.includes('new') && (
                             <CNavItem>
                                 <CNavLink
-                                    active={activeTab === 'new_inquiry'}
-                                    onClick={() => handleTabChange('new_inquiry')}
-                                    style={{ padding: '10px 20px', fontWeight: 'bold' }}
+                                    active={activeTab === 'new'}
+                                    onClick={() => handleTabChange('new')}
+                                    style={{ padding: '10px 20px', fontWeight: 'bold', color: '#ff9933' }}
                                 >
                                     New Inquiry
                                 </CNavLink>
                             </CNavItem>
                         )}
-                        {visibleTabs.includes('expert_reading') && (
+                        {visibleTabs.includes('expert') && (
                             <CNavItem>
                                 <CNavLink
-                                    active={activeTab === 'expert_reading'}
-                                    onClick={() => handleTabChange('expert_reading')}
-                                    style={{ padding: '10px 20px', fontWeight: 'bold' }}
+                                    active={activeTab === 'expert'}
+                                    onClick={() => handleTabChange('expert')}
+                                    style={{ padding: '10px 20px', fontWeight: 'bold', color: '#ff9933' }}
                                 >
                                     Expert Reading
                                 </CNavLink>
@@ -205,7 +228,7 @@ const Inquiry = () => {
                                 <CNavLink
                                     active={activeTab === 'translator'}
                                     onClick={() => handleTabChange('translator')}
-                                    style={{ padding: '10px 20px', fontWeight: 'bold' }}
+                                    style={{ padding: '10px 20px', fontWeight: 'bold', color: '#ff9933' }}
                                 >
                                     Translator
                                 </CNavLink>
@@ -216,7 +239,7 @@ const Inquiry = () => {
                                 <CNavLink
                                     active={activeTab === 'reviewer'}
                                     onClick={() => handleTabChange('reviewer')}
-                                    style={{ padding: '10px 20px', fontWeight: 'bold' }}
+                                    style={{ padding: '10px 20px', fontWeight: 'bold', color: '#ff9933' }}
                                 >
                                     Reviewer
                                 </CNavLink>
@@ -227,7 +250,7 @@ const Inquiry = () => {
                                 <CNavLink
                                     active={activeTab === 'publish'}
                                     onClick={() => handleTabChange('publish')}
-                                    style={{ padding: '10px 20px', fontWeight: 'bold' }}
+                                    style={{ padding: '10px 20px', fontWeight: 'bold', color: '#ff9933' }}
                                 >
                                     Publish
                                 </CNavLink>
@@ -238,37 +261,25 @@ const Inquiry = () => {
                                 <CNavLink
                                     active={activeTab === 'cancelled'}
                                     onClick={() => handleTabChange('cancelled')}
-                                    style={{ padding: '10px 20px', fontWeight: 'bold' }}
+                                    style={{ padding: '10px 20px', fontWeight: 'bold', color: '#ff9933' }}
                                 >
                                     Cancelled
                                 </CNavLink>
                             </CNavItem>
                         )}
-
-                        <CButton style={{ backgroundColor: 'grey' }} onClick={() => setFilterVisible(true)}>🔍</CButton>
                     </CNav>
+                        <CButton style={{ textAlign: 'center', maxHeight: '6vh', backgroundColor: '#ff9933', marginRight: '20px' }} onClick={() => setFilterVisible(true)}><FaSearch /></CButton>
                 </div>
 
                 <Suspense fallback={<div>Loading...</div>}>
-                    {activeTab === 'new_inquiry' && <SubTabs from='new' />}
-                    {activeTab === 'expert_reading' && <SubTabs from='expert' />}
+                    {activeTab === 'new' && <SubTabs from='new' />}
+                    {activeTab === 'expert' && <SubTabs from='expert' />}
                     {activeTab === 'reviewer' && <SubTabs from='reviewer' />}
                     {activeTab === 'translator' && <SubTabs from='translator' />}
                     {activeTab === 'publish' && <SubTabs from='new' publish='true' />}
                     {activeTab === 'cancelled' && <SubTabs from='new' substate='cancelled' />}
                 </Suspense>
 
-                <CToaster position="top-right">
-                    {toasts.map((toastItem, index) => (
-                        <CToast key={index} color={toastItem.color}>
-                            <CToastHeader closeButton>{toastItem.title}</CToastHeader>
-                            <CToastBody>{toastItem.content}</CToastBody>
-                            {console.log(toastItem)}
-                        </CToast>
-                    ))}
-                </CToaster>
-
-                {/* Filter Modal */}
                 <CModal visible={filterVisible} onClose={() => setFilterVisible(false)}>
                     <CModalBody>
                         <div>

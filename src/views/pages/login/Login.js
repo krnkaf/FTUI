@@ -63,6 +63,31 @@ const Login = () => {
     }
   };
 
+  const quickLogin = async (ea, pwd) => {
+    try {
+      const response = await fetch(GetURL("/UserContoller/Login"), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: ea, password: pwd }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem('token', data.data.token);
+        localStorage.setItem('user_type_id', data.data.user_type_id);
+        navigate('/dashboard'); // Redirect to home page after successful login
+        location.reload()
+      } else {
+        const errorData = await response.json();
+        setError(errorData.message || 'Login failed. Please try again.');
+      }
+    } catch (err) {
+      setError('An error occurred. Please try again later.');
+    }
+  }
+
   return (
     <div className="bg-body-tertiary min-vh-100 d-flex flex-row align-items-center">
       <CContainer>
@@ -119,6 +144,15 @@ const Login = () => {
                         <CButton color="link" className="px-0">
                           Forgot password?
                         </CButton>
+                      </CCol>
+                    </CRow>
+                    <CRow>
+                      <CCol>
+                        Quick Login:
+                        <button onClick={() => quickLogin('admin@gmail.com', '12345')}>Admin</button>
+                        <button onClick={() => quickLogin('expert@gmail.com', '12345')}>Expert</button>
+                        <button onClick={() => quickLogin('translator@gmail.com', '12345')}>Translator</button>
+                        <button onClick={() => quickLogin('reviewer@gmail.com', '12345')}>Reviewer</button>
                       </CCol>
                     </CRow>
                   </CForm>

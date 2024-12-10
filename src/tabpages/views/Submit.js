@@ -1,18 +1,17 @@
-import React, { useContext, useState } from 'react';
-import { CButton, CFormTextarea, CToast, CToaster, CToastBody, CToastHeader } from '@coreui/react';
+import React, { useContext } from 'react';
+import { CButton, CFormTextarea } from '@coreui/react';
 import { Field, Form, Formik } from 'formik';
 import { GetToken, GetURL } from '../../library/API';
 import { UserContext } from '../Inquiry';
-import { useNavigate } from 'react-router-dom';
+import { DetailedContext } from './TableView';
+import { useToast } from '../../ToastComponent';
 
 const Submit = ({ inquiry_id }) => {
-    const { fromPage, id } = useContext(UserContext);
-    const navigate = useNavigate();
+    const { setShowDetailedView } = useContext(DetailedContext);
+    const { fetchInquiries, state, status } = useContext(UserContext);
 
-    // State to manage the list of toasts
-    const [toasts, setToasts] = useState([]);
+    const { showToast } = useToast();
 
-    // Handle form submission
     const handleSubmit = async (values, { resetForm }) => {
         const payload = {
             comment: values.comment,
@@ -20,18 +19,7 @@ const Submit = ({ inquiry_id }) => {
         };
 
         try {
-            let response;
-            let apiUrl;
-
-            // Determine the correct API URL based on the page
-            if (fromPage !== 'reviewer' && id !== 5) {
-                apiUrl = "/backend/InquiryManagement/PushComment";
-            } else {
-                apiUrl = "/backend/InquiryManagement/PublishInquiry";
-            }
-
-            // API call
-            response = await fetch(GetURL(apiUrl), {
+            const response = await fetch(GetURL("/backend/InquiryManagement/PushComment"), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -41,40 +29,28 @@ const Submit = ({ inquiry_id }) => {
             });
 
             if (response.ok) {
-                // If successful, show a success toast
                 const data = await response.json();
-                console.log(data);
-                setToasts([...toasts, { type: 'success', message: 'Comment submitted successfully!' }]);
+                if (data.error_code == 0) {
+                    resetForm();
+                    fetchInquiries(state, status);
+                    setShowDetailedView(false);
+                    showToast('Success', 'Comment Posted Successfully!', 1);
+                } else if (data.error_code == 1) {
+                    showToast('Failed', 'You Are Not Allowed To Post Comment Here.', 2)
+                } else {
+                    showToast('Failed', 'An Unknown Error Has Occurred. Try Again Later', 2)
+                }
             } else {
-                // If an error occurs, show an error toast
                 const errorData = await response.json();
-                setToasts([...toasts, { type: 'error', message: errorData.message || 'Something went wrong!' }]);
+                showToast('Error', errorData.message || 'Something Went Wrong!', 2);
             }
         } catch (err) {
-            // In case of network or other errors, show a generic error toast
-            setToasts([...toasts, { type: 'error', message: 'An error occurred. Please try again later.' }]);
+            showToast('Error', 'An Error Occurred. Please Try Again Later.' + err, 2);
         }
-
-        // Reset the form after submission
-        resetForm();
-        // Reload the page after submission (optional)
-        location.reload();
     };
 
     return (
         <>
-            {/* Toast Container (coreui's toast) */}
-            <CToaster position="middle-start">
-                {toasts.map((toast, index) => (
-                    <CToast key={index} color={toast.type} closeButton={true} autohide={3000}>
-                        <CToastHeader closeButton>
-                            {toast.type === 'success' ? 'Success' : 'Error'}
-                        </CToastHeader>
-                        <CToastBody>{toast.message}</CToastBody>
-                    </CToast>
-                ))}
-            </CToaster>
-
             <Formik
                 initialValues={{ comment: '' }}
                 onSubmit={handleSubmit}
@@ -90,7 +66,6 @@ const Submit = ({ inquiry_id }) => {
                             boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
                         }}
                     >
-                        {/* Comment Textarea */}
                         <div className="mb-3" style={{ marginBottom: '15px' }}>
                             <label
                                 htmlFor="comment"
@@ -114,8 +89,6 @@ const Submit = ({ inquiry_id }) => {
                                 }}
                             />
                         </div>
-
-                        {/* Submit Button */}
                         <div style={{ textAlign: 'center' }}>
                             <CButton
                                 type="submit"
@@ -128,7 +101,8 @@ const Submit = ({ inquiry_id }) => {
                                     borderColor: '#ff9933',
                                 }}
                             >
-                                {fromPage === 'reviewer' ? 'Publish' : 'Submit'}
+                                {/* {fromPage === 'reviewer' ? 'Publish' : 'Submit'} */}
+                                Submit
                             </CButton>
                         </div>
                     </Form>

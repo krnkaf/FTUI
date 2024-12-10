@@ -2,18 +2,28 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { CCard, CCardBody, CCardHeader, CButton, CRow, CCol, CBadge } from '@coreui/react';
 import SupportVisible from './SupportVisible';
 import Submit from './Submit';
-import { UserContext } from '../Inquiry';
 import { GetURL, GetToken } from '../../library/API';
 import ReactTimeAgo from 'react-timeago';
+import { UserContext } from '../Inquiry';
+import { DetailedContext } from './TableView';
+import { useToast } from '../../ToastComponent';
+import { Modal, Button } from 'react-bootstrap';
+import { FaCheck } from 'react-icons/fa';
 
 export const commentContext = createContext();
 
-const DetailedView = ({ item, onClose, fromPage, publish, status }) => {
-    const [showCommentHistory, setShowCommentHistory] = useState(false);
-    const showTwoProfiles = item.category_type_id === 2;
-    const userTypeId = useContext(UserContext).id;
+const DetailedView = ({ item }) => {
     const [comments, setComments] = useState([]);
-    const [categories, setCategories] = useState([]);
+    const [expandedComments, setExpandedComments] = useState([]);
+    const [showConfirmation, setShowConfirmation] = useState(false);
+    const [selectedCommentIndex, setSelectedCommentIndex] = useState(null);
+
+    const { fromPage, status, state, fetchInquiries } = useContext(UserContext);
+    const {setShowDetailedView} = useContext(DetailedContext);
+    const handleBackButtonClick = () => setShowDetailedView(false);
+    const { showToast } = useToast();
+    
+    const navbarHeight = 60;
 
     useEffect(() => {
         const FetchComments = async (item) => {
@@ -28,28 +38,12 @@ const DetailedView = ({ item, onClose, fromPage, publish, status }) => {
                 const data = await response.json();
                 setComments(data.data.comment);
             } catch (err) {
-                alert('An error occurred. Please try again later.' + err);
-            }
-        };
-
-        const FetchCategories = async () => {
-            try {
-                const response = await fetch(GetURL(`/backend/QuestionCategory/LoadBaseData`), {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': GetToken(),
-                    },
-                });
-                const data = await response.json();
-                setCategories(data.data.category_type);
-            } catch (err) {
-                alert('An error occurred. Please try again later.' + err);
+                // alert('An error occurred. Please try again later.' + err);
+                showToast('Failed', 'Cannot fetch comments right now.', 2);
             }
         };
 
         FetchComments(item);
-        FetchCategories();
 
         const handleKeyPress = (e) => {
             if (e.key === 'Escape') {
@@ -60,21 +54,28 @@ const DetailedView = ({ item, onClose, fromPage, publish, status }) => {
         window.addEventListener('keydown', handleKeyPress);
         return () => window.removeEventListener('keydown', handleKeyPress);
     }, [item]);
+    
+    const handleCheckmarkClick = (index) => {
+        setSelectedCommentIndex(index);
+        setShowConfirmation(true);
+    };
 
-    const navbarHeight = 60;
-    const category = categories.find(category => category.id == item.category_type_id);
-    const categoryName = category ? category.name : 'Category not found';
+    const handleConfirmPublish = () => {
+        if (selectedCommentIndex !== null) {
+            handlePublish(selectedCommentIndex);
+            setShowConfirmation(false);
+        }
+    };
 
-    const handleBackButtonClick = () => onClose();
-    const [expandedComments, setExpandedComments] = useState([]);
+    const handleCloseModal = () => {
+        setShowConfirmation(false);
+    };
 
     const toggleExpanded = (index) => {
         setExpandedComments((prevState) => {
             if (prevState.includes(index)) {
-                // If already expanded, remove the index to collapse it
                 return prevState.filter((i) => i !== index);
             } else {
-                // Otherwise, add the index to expand it
                 return [...prevState, index];
             }
         });
@@ -91,7 +92,6 @@ const DetailedView = ({ item, onClose, fromPage, publish, status }) => {
                     visibility: visible ? 'visible' : 'hidden',
                 }}
             >
-                {console.log(categoryName)}
                 <CCardHeader style={{ backgroundColor: '#f5f5f5', padding: '12px 20px' }}>
                     <h5 style={{ margin: 0, fontSize: '15px', fontWeight: 600 }}>{from}</h5>
                 </CCardHeader>
@@ -103,6 +103,76 @@ const DetailedView = ({ item, onClose, fromPage, publish, status }) => {
                 </CCardBody>
             </CCard>
         );
+    };
+
+    const handleReviewerPush = async () => {
+        const latestComment = comments[0];
+        const payload = {
+            comment: latestComment?.description || '',
+            inquiry_id: item.inquiry_id,
+        };
+
+        try {
+            const response = await fetch(GetURL("/backend/InquiryManagement/PushComment"), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': GetToken(),
+                },
+                body: JSON.stringify(payload),
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.error_code == 0) {
+                    fetchInquiries(state, status);
+                    setShowDetailedView(false);
+                    showToast('Success', 'Inquiry set to publish!', 1);
+                } else {
+                    showToast('Failed', 'Unable to push inquiry.', 2);
+                }
+            } else {
+                const errorData = await response.json();
+                showToast('Error', errorData.message || 'Something went wrong!', 2);
+            }
+        } catch (err) {
+            showToast('Error', 'An error occurred. Please try again later.', 2);
+        }
+    };
+
+    const handlePublish = async () => {
+        const latestComment = comments[0];
+        const payload = {
+            comment: latestComment?.description || 'Default Message. Nobody Commented. Please Contact Support',
+            inquiry_id: item.inquiry_id,
+        };
+
+        try {
+            const response = await fetch(GetURL("/backend/InquiryManagement/PublishInquiry"), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': GetToken(),
+                },
+                body: JSON.stringify(payload),
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.error_code == 0) {
+                    fetchInquiries(state, status);
+                    setShowDetailedView(false);
+                    showToast('Success', 'Inquiry published successfully!', 1);
+                } else {
+                    showToast('Failed', 'Unable to publish inquiry.', 2);
+                }
+            } else {
+                const errorData = await response.json();
+                showToast('Error', errorData.message || 'Something went wrong!', 2);
+            }
+        } catch (err) {
+            showToast('Error', 'An error occurred. Please try again later.', 2);
+        }
     };
 
     return (
@@ -143,7 +213,7 @@ const DetailedView = ({ item, onClose, fromPage, publish, status }) => {
                             borderRadius: '10px',
                             border: 'none',
                             width: '100%',
-                            padding: '20px 15px 0px 15px',
+                            padding: '0px 15px 0px 15px',
                         }}
                     >
                         {/* First Row: Back Button, Purchased Info, and Payment Badge */}
@@ -210,7 +280,7 @@ const DetailedView = ({ item, onClose, fromPage, publish, status }) => {
                             }}
                         >
                             <h4 style={{ margin: 0, fontSize: '16px', fontWeight: 200 }}>
-                                {categoryName} - {item.question} {
+                                {item.category_type_id} - {item.question} {
                                     (() => {
                                         if (item.auspicious_from_date == null && item.horoscope_from_date == null) {
                                             return null;
@@ -226,58 +296,6 @@ const DetailedView = ({ item, onClose, fromPage, publish, status }) => {
                             </h4>
                         </CCardHeader>
                     </CCard>
-
-                    {/* Full-width Header */}
-                    {/* <CCard
-                        className="h-auto"
-                        style={{
-                            borderRadius: '10px',
-                            border: 'none',
-                            width: '100%',
-                            padding: '20px',
-                        }}
-                    >
-                        <CCardHeader
-                            style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                padding: '15px',
-                                backgroundColor: '#FFFFFF',
-                                color: '#ff9933',
-                                borderRadius: '10px 10px 0 0',
-                                fontWeight: 500,
-                                width: '100%', // Full width
-                            }}
-                        >
-                            <div style={{ display: 'flex', width: '100%', alignItems: 'center' }}>
-                                <CButton
-                                    color="secondary"
-                                    style={{
-                                        flex: '0 0 6%',
-                                        marginRight: '15px',
-                                        padding: '8px 15px',
-                                        backgroundColor: '#fff',
-                                        color: '#FF9933',
-                                        border: '1px solid #FF9933',
-                                        borderRadius: '5px',
-                                        fontWeight: 600,
-                                    }}
-                                    onClick={handleBackButtonClick}
-                                >
-                                    Back
-                                </CButton>
-                                <h4 style={{ flex: '1', margin: 0, fontSize: '20px', fontWeight: 600 }}>
-                                    {categoryName} - &nbsp;
-                                    {item.question} - {!item.payment_successful ? (
-                                        <span style={{ color: 'green' }}>paid</span>
-                                    ) : (
-                                        <span style={{ color: 'red' }}>not paid</span>
-                                    )}
-                                </h4>
-                                Purchased: &nbsp; <ReactTimeAgo date={item.purchased_on} />
-                            </div>
-                        </CCardHeader>
-                    </CCard> */}
 
                     {/* Content Section: Vertical Split Begins Below Header */}
                     <div style={{ display: 'flex', flexDirection: 'row', width: '100%' }}>
@@ -359,22 +377,33 @@ const DetailedView = ({ item, onClose, fromPage, publish, status }) => {
                                 >
                                     {
                                         (() => {
-                                            var x = localStorage.getItem('user_type_id');
+                                            // var x = localStorage.getItem('user_type_id');
+                                            var x = useContext(UserContext).id;
                                             
                                             if (x == 1 || x == 2) {
+                                                // if (fromPage === 'reviewer') {
+                                                //     if (status === 'completed') {
+                                                //         return <>
+                                                //             <SupportVisible currentTask={item} inquiry_id={item.inquiry_id}/>
+                                                //         </>
+                                                //     }
+                                                // }
                                                 // Users 1 & 2: Always show SupportVisible
-                                                return <SupportVisible currentTask={item} inquiry_id={item.inquiry_id} onClose={onClose} />;
-                                            } else if (
-                                                (x == 3 && fromPage === 'expert') ||
-                                                (x == 4 && fromPage === 'translator') ||
-                                                (x == 5 && fromPage === 'reviewer')
-                                            ) {
+                                                return <SupportVisible currentTask={item} inquiry_id={item.inquiry_id}/>;
+                                            } 
+                                            else if ((x == 3 && fromPage === 'expert') || (x == 4 && fromPage === 'translator')) 
+                                            {
                                                 // Users 3, 4, & 5: Show Submit if status is pending
                                                 if (status === 'pending') {
-                                                    return <Submit inquiry_id={item.inquiry_id} onClose={onClose} />;
+                                                    return <Submit inquiry_id={item.inquiry_id}/>;
                                                 }
                                             }
-                                            return null; // Render nothing for all other cases
+                                            else if ((x == 5 && fromPage === 'reviewer')) {
+                                                if (status === 'pending') {
+                                                    return <CButton onClick={handleReviewerPush} style={{ marginTop: '20px', backgroundColor: '#ff9933', color: 'white' }}>Publish</CButton>
+                                                }
+                                            }
+                                            return <>-/-</>; // Render nothing for all other cases
                                         })()
                                     }
 
@@ -400,101 +429,135 @@ const DetailedView = ({ item, onClose, fromPage, publish, status }) => {
                             }}
                         >
                             <CCardBody className="d-flex flex-column h-100" style={{ paddingTop: '10px', paddingBottom: '10px' }}>
-                                {comments.length > 0 && (
-                                    <div
+            {comments.length > 0 && (
+                <div
+                    style={{
+                        border: '1px solid #e0e0e0',
+                        borderRadius: '8px',
+                        padding: '12px 18px',
+                        backgroundColor: '#f9f9f9',
+                        maxHeight: '60vh',
+                        overflowY: 'auto',
+                    }}
+                >
+                    <div className="text-center mb-4">
+                        <ul style={{ listStyle: 'none', padding: 0 }}>
+                            {comments.map((m, index) => {
+                                const isLatestComment = index === 0;
+                                const isPendingReviewer = (fromPage === 'reviewer' && status === 'completed');
+
+                                return (
+                                    <li
+                                        key={index}
                                         style={{
-                                            border: '1px solid #e0e0e0',
+                                            paddingBottom: '12px',
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            border: '1px solid #ddd',
                                             borderRadius: '8px',
-                                            padding: '12px 18px',
-                                            backgroundColor: '#f9f9f9',
-                                            maxHeight: '60vh',
-                                            overflowY: 'auto',
+                                            padding: '10px',
+                                            marginBottom: '8px',
+                                            backgroundColor: '#fff',
                                         }}
                                     >
-                                        <div className="text-center mb-4">
-                                            <ul style={{ listStyle: 'none', padding: 0 }}>
-                                                {comments.map((m, index) => {
-                                                    const isLatestComment = index === 0; // The first item is always the latest comment
-
-                                                    return (
-                                                        <li
-                                                            key={index}
-                                                            style={{
-                                                                paddingBottom: '12px',
-                                                                display: 'flex',
-                                                                flexDirection: 'column',
-                                                                border: '1px solid #ddd',
-                                                                borderRadius: '8px',
-                                                                padding: '10px',
-                                                                marginBottom: '8px',
-                                                                backgroundColor: '#fff',
-                                                            }}
-                                                        >
-                                                            <div
-                                                                style={{
-                                                                    fontSize: '13px',
-                                                                    color: '#888',
-                                                                    marginBottom: '5px',
-                                                                }}
-                                                            >
-                                                                {Intl.DateTimeFormat('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }).format(new Date(m.updated_on))} | {m.updated_on.split("T")[0]} | {m.assignee}
-                                                            </div>
-                                                            <div style={{ height: '8px' }}></div>
-                                                            <div
-                                                                style={{
-                                                                    fontSize: '14px',
-                                                                    color: '#333',
-                                                                    textAlign: 'left',
-                                                                    whiteSpace: 'pre-wrap',
-                                                                    overflow: 'hidden',
-                                                                    display: '-webkit-box',
-                                                                    WebkitBoxOrient: 'vertical',
-                                                                    WebkitLineClamp: expandedComments.includes(index) || isLatestComment ? 'none' : 3,
-                                                                }}
-                                                            >
-                                                                {m.description}
-                                                            </div>
-
-                                                            {!isLatestComment && !expandedComments.includes(index) && m.description.length > 0 && (
-                                                                <button
-                                                                    style={{
-                                                                        background: 'none',
-                                                                        border: 'none',
-                                                                        color: '#ff9c33',
-                                                                        cursor: 'pointer',
-                                                                        padding: '0',
-                                                                        textDecoration: 'none',
-                                                                    }}
-                                                                    onClick={() => toggleExpanded(index)}
-                                                                >
-                                                                    View More
-                                                                </button>
-                                                            )}
-
-                                                            {expandedComments.includes(index) && (
-                                                                <button
-                                                                    style={{
-                                                                        background: 'none',
-                                                                        border: 'none',
-                                                                        color: '#ff9c33',
-                                                                        cursor: 'pointer',
-                                                                        padding: '0',
-                                                                        textDecoration: 'none',
-                                                                    }}
-                                                                    onClick={() => toggleExpanded(index)}
-                                                                >
-                                                                    View Less
-                                                                </button>
-                                                            )}
-                                                        </li>
-                                                    );
-                                                })}
-                                            </ul>
+                                        {(useContext(UserContext).id == 1 || useContext(UserContext).id == 2) && isLatestComment && isPendingReviewer && (
+                                                <div
+                                                    onClick={() => handleCheckmarkClick(index)}
+                                                    style={{
+                                                        color: '#ff9933',
+                                                        fontSize: '16px',
+                                                        cursor: 'pointer',
+                                                        marginRight: '8px',
+                                                        borderWidth: '1px 1px 1px 1px',
+                                                        borderColor: '#ff9933',
+                                                        borderStyle: 'solid'
+                                                    }}
+                                                >
+                                                    Publish
+                                                </div>
+                                            )}
+                                        <div
+                                            style={{
+                                                fontSize: '13px',
+                                                color: '#888',
+                                                marginBottom: '5px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                            }}
+                                        >
+                                            {Intl.DateTimeFormat('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }).format(new Date(m.updated_on))} | {m.updated_on.split("T")[0]} | {m.assignee}
                                         </div>
-                                    </div>
-                                )}
-                            </CCardBody>
+                                        <div style={{ height: '8px' }}></div>
+                                        <div
+                                            style={{
+                                                fontSize: '14px',
+                                                color: '#333',
+                                                textAlign: 'left',
+                                                whiteSpace: 'pre-wrap',
+                                                overflow: 'hidden',
+                                                display: '-webkit-box',
+                                                WebkitBoxOrient: 'vertical',
+                                                WebkitLineClamp: expandedComments.includes(index) || isLatestComment ? 'none' : 3,
+                                            }}
+                                        >
+                                            {m.description}
+                                        </div>
 
+                                        {!isLatestComment && !expandedComments.includes(index) && m.description.length > 0 && (
+                                            <button
+                                                style={{
+                                                    background: 'none',
+                                                    border: 'none',
+                                                    color: '#ff9c33',
+                                                    cursor: 'pointer',
+                                                    padding: '0',
+                                                    textDecoration: 'none',
+                                                }}
+                                                onClick={() => toggleExpanded(index)}
+                                            >
+                                                View More
+                                            </button>
+                                        )}
+
+                                        {expandedComments.includes(index) && (
+                                            <button
+                                                style={{
+                                                    background: 'none',
+                                                    border: 'none',
+                                                    color: '#ff9c33',
+                                                    cursor: 'pointer',
+                                                    padding: '0',
+                                                    textDecoration: 'none',
+                                                }}
+                                                onClick={() => toggleExpanded(index)}
+                                            >
+                                                View Less
+                                            </button>
+                                        )}
+                                    </li>
+                                );
+                            })}
+                        </ul>
+                    </div>
+                </div>
+            )}
+
+            {/* Confirmation Modal */}
+            <Modal show={showConfirmation} onHide={handleCloseModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Confirm Publish</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>Are you sure you want to publish this comment?</Modal.Body>
+                <Modal.Footer>
+                    <Button style={{ backgroundColor: '#ff9933', border: 'none' }} onClick={handleConfirmPublish}>
+                        Yes
+                    </Button>
+                    <Button variant="secondary" style={{ border: 'none' }} onClick={handleCloseModal}>
+                        No
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+        </CCardBody>
                         </CCard>
                     </div>
                 </div>

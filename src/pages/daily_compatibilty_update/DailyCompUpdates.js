@@ -18,7 +18,7 @@ function DailyCompUpdates(){
     }
   
     //To Activate Right Tab
-    useEffect(()=>{
+    useEffect(() => {
         const urlParams = new URLSearchParams(location.search);
         const page = urlParams.get('page');
         if (page && (page === 'list' || page === 'manage')) {

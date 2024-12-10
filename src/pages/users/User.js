@@ -31,7 +31,7 @@ function User() {
                     <CTab itemKey="list" onClick={() => switchTab("list")}>List</CTab>
                     <CTab itemKey="manage" onClick={() => switchTab("manage")}>Manage</CTab>
                 </CTabList>
-            </CTabs>
+            </CTabs> <br/><br/>
             <CTabContent>
                 {activeTab === "list" ? <List /> : <Manage />}
             </CTabContent>

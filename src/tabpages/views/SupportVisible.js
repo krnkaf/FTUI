@@ -1,46 +1,53 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { CButton, CFormSelect, CFormTextarea, CToast, CToastBody, CToastHeader } from '@coreui/react';
 import { GetToken, GetURL } from '../../library/API';
 import { Formik, Form, Field } from 'formik';
+import { UserContext } from '../Inquiry';
+import { DetailedContext } from './TableView';
+import { useToast } from '../../ToastComponent';
 
-const SupportVisible = ({ currentTask, inquiry_id, onClose }) => {
+const SupportVisible = ({ inquiry_id }) => {
     const [userTypes, setUserTypes] = useState([]);
     const [users, setUsers] = useState([]);
     const [filteredUsers, setFilteredUsers] = useState([]);
-    const [toastVisible, setToastVisible] = useState(false); // State for toast visibility
+    const { setShowDetailedView } = useContext(DetailedContext)
+    const { fetchInquiries, state, status, userList } = useContext(UserContext);
+    const { showToast } = useToast();
+
+    const fetchData = async () => {
+        try {
+            const typesResponse = await fetch(GetURL("/backend/Users/LoadBaseData"), {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': GetToken()
+                }
+            }).catch(e => showToast('Failed', 'Failed to load user list.' + e, 2));
+
+            const typesData = await typesResponse.json();
+            if (typesData.data && typesData.data.user_type) {
+                setUserTypes(typesData.data.user_type);
+            }
+
+            const usersResponse = await fetch(GetURL("/backend/Users/GetAllList"), {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': GetToken()
+                }
+            }).catch(e => showToast('Failed', 'Failed to load user.' + e, 2));
+            const usersData = await usersResponse.json();
+            if (usersData.data && usersData.data.list) {
+                setUsers(usersData.data.list);
+                setFilteredUsers(usersData.data.list);
+            }
+        } catch (err) {
+            // alert('An error occurred. Please try again later.');
+            showToast('Failed', 'An error occuring while loading the component.' + err, 2);
+        }
+    };
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const typesResponse = await fetch(GetURL("/backend/Users/LoadBaseData"), {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': GetToken()
-                    }
-                });
-                const typesData = await typesResponse.json();
-                if (typesData.data && typesData.data.user_type) {
-                    setUserTypes(typesData.data.user_type);
-                }
-
-                const usersResponse = await fetch(GetURL("/backend/Users/GetAllList"), {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': GetToken()
-                    }
-                });
-                const usersData = await usersResponse.json();
-                if (usersData.data && usersData.data.list) {
-                    setUsers(usersData.data.list);
-                    setFilteredUsers(usersData.data.list);
-                }
-            } catch (err) {
-                alert('An error occurred. Please try again later.');
-            }
-        };
-
         fetchData();
     }, []);
 
@@ -61,35 +68,31 @@ const SupportVisible = ({ currentTask, inquiry_id, onClose }) => {
                     },
                     body: JSON.stringify(payload)
                 });
-                const result = await response.json();
 
                 if (response.ok) {
-                    // Show toast notification upon successful API call
-                    setToastVisible(true);
-                    
                     resetForm();
+                    fetchInquiries(state, status);
+                    setShowDetailedView(false);
+                    showToast('Success', `Inquiry assigned to ${userList.find(e => e._id = values.selectedUser).name}`, 1)
                 } else {
-                    alert('Failed to assign task. Please try again.');
+                    showToast('Failed', `Unable to assign inquiry`, 2)
                 }
             } catch (err) {
-                alert('An error occurred while assigning the task. Please try again.');
+                showToast('Failed', `An error has occurred ${err}`)
             }
         } else {
-            alert('Please select both user type and user.');
+            showToast('Info', 'Please select both user type and user.', 3)
         }
-
-        // Reload the page after submission (optional)
-        // location.reload();
     };
 
     return (
         <div style={{
-            maxWidth: '100vw',  // Decrease width to fit better in the parent component
+            maxWidth: '100vw',
             margin: '0 auto',
-            padding: '15px',    // Reduced padding
+            padding: '15px',
             backgroundColor: '#fff',
             borderRadius: '8px',
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)', // Added light shadow for depth
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
         }}>
             <h4 style={{ textAlign: 'center', fontWeight: '600', marginBottom: '20px' }}>Assign Task</h4>
             <Formik
@@ -164,22 +167,6 @@ const SupportVisible = ({ currentTask, inquiry_id, onClose }) => {
                     </Form>
                 )}
             </Formik>
-
-            {/* Toast Notification */}
-            {toastVisible && (
-                <div style={{
-                    position: 'fixed', top: '30px', right: '10px', zIndex: 9999
-                }}>
-                    <CToast visible={toastVisible} onClose={() => {setToastVisible(false); }} color="success">
-                        <CToastHeader closeButton>
-                            Task Assigned Successfully
-                        </CToastHeader>
-                        <CToastBody>
-                            The task has been assigned to the selected user.
-                        </CToastBody>
-                    </CToast>
-                </div>
-            )}
         </div>
     );
 };

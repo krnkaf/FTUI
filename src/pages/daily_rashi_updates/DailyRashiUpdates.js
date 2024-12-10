@@ -1,24 +1,24 @@
-import React, { useEffect,useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import 'core-js'
 import { CTabList, CTabs, CTab, CTabContent } from '@coreui/react';
 import List from './components/List';
 import Manage from './components/Manage';
-import { useNavigate,useLocation  } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
-function DailyRashiUpdates(){
+function DailyRashiUpdates() {
 
     const [activeTab, setActiveTab] = useState('list');
 
     const navigate = useNavigate();
     const location = useLocation();
 
-    const swithTab = (tab) =>{
+    const swithTab = (tab) => {
         setActiveTab(tab);
-        navigate("/page/daily_rashi_updates?page="+tab)
+        navigate("/page/daily_rashi_updates?page=" + tab)
     }
-  
+
     //To Activate Right Tab
-    useEffect(()=>{
+    useEffect(() => {
         const urlParams = new URLSearchParams(location.search);
         const page = urlParams.get('page');
         if (page && (page === 'list' || page === 'manage')) {
@@ -27,20 +27,27 @@ function DailyRashiUpdates(){
             // Default to the 'list' tab if no query string is present
             setActiveTab('list');
         }
-    },[location.search]);
+    }, [location.search]);
+
+    const getTabStyle = (tab) => {
+        return {
+            backgroundColor: activeTab === tab ? '#ff9933' : '#ffffff',
+            color: activeTab === tab ? '#ffffff' : '#ff9933',
+            border: 'none',
+        };
+    }
 
     return <>
-            <CTabs activeItemKey={activeTab}>
-                <CTabList style={{"float":"right"}}  variant="pills">
-                    <CTab itemKey="list" onClick={e=>swithTab("list")}>List</CTab>
-                    <CTab itemKey="manage" onClick={e=>swithTab("manage")}>Manage</CTab>
-                </CTabList>
-            </CTabs> <br/><br/>
-            <CTabContent>
-                {activeTab=="list"?<List/>:<Manage/>}
-            </CTabContent>
-            
-            </>
+        <CTabs activeItemKey={activeTab}>
+            <CTabList style={{ "float": "right" }} variant="pills">
+                <CTab itemKey="list" onClick={e => swithTab("list")} style={getTabStyle('list')}>List</CTab>
+                <CTab itemKey="manage" onClick={e => swithTab("manage")} style={getTabStyle('manage')}>Manage</CTab>
+            </CTabList>
+        </CTabs> <br /><br />
+        <CTabContent>
+            {activeTab == "list" ? <List /> : <Manage />}
+        </CTabContent>
+    </>
 }
 
 export default DailyRashiUpdates;

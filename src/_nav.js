@@ -33,10 +33,16 @@ const dashboard = [
     component: CNavTitle,
     name: 'Inquiry',
   },
+  // {
+  //   component: CNavItem,
+  //   name: 'Inquiry',
+  //   to: '/tabpages/inquiry/new/pending',
+  //   icon: <CIcon icon={cilDescription} customClassName="nav-icon" />,
+  // },
   {
     component: CNavItem,
     name: 'Inquiry',
-    to: '/tabpages/inquiry/new/pending',
+    to: '/tabpages/index',
     icon: <CIcon icon={cilDescription} customClassName="nav-icon" />,
   }
 ]

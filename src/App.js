@@ -1,7 +1,6 @@
 import React, { Suspense, useEffect } from 'react';
 import { BrowserRouter, Route, Routes, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-
 import { CSpinner, useColorModes } from '@coreui/react';
 import './scss/style.scss';
 
@@ -14,10 +13,12 @@ const Register = React.lazy(() => import('./views/pages/register/Register'));
 const Page404 = React.lazy(() => import('./views/pages/page404/Page404'));
 const Page500 = React.lazy(() => import('./views/pages/page500/Page500'));
 
+import { ToastProvider } from './ToastComponent';
+
 const AppWrapper = () => {
   const { isColorModeSet, setColorMode } = useColorModes('coreui-free-react-admin-template-theme');
   const storedTheme = useSelector((state) => state.theme);
-  const navigate = useNavigate(); // Use the navigate hook
+  const navigate = useNavigate();
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.href.split('?')[1]);
@@ -62,7 +63,9 @@ const AppWrapper = () => {
 const App = () => {
   return (
     <BrowserRouter>
-      <AppWrapper />
+      <ToastProvider>
+        <AppWrapper />
+      </ToastProvider>
     </BrowserRouter>
   );
 };

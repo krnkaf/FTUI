@@ -18,7 +18,7 @@ function DailyAusTimeUpdate(){
     }
   
     //To Activate Right Tab
-    useEffect(()=>{
+    useEffect(() => {
         const urlParams = new URLSearchParams(location.search);
         const page = urlParams.get('page');
         if (page && (page === 'list' || page === 'manage')) {
@@ -35,7 +35,7 @@ function DailyAusTimeUpdate(){
                     <CTab itemKey="list" onClick={e=>swithTab("list")}>List</CTab>
                     <CTab itemKey="manage" onClick={e=>swithTab("manage")}>Manage</CTab>
                 </CTabList>
-            </CTabs>
+            </CTabs> <br/><br/>
             <CTabContent>
                 {activeTab=="list"?<List/>:<Manage/>}
             </CTabContent>

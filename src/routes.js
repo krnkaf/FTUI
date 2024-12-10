@@ -64,13 +64,7 @@ const Questions = React.lazy(() => import('./pages/questions/Questions'))
 const Bundles = React.lazy(() => import('./pages/bundles/Bundles'))
 
 const Inquiry = React.lazy(() => import('./tabpages/Inquiry'))
-
-// const New = React.lazy(() => import('./tabpages/New/New'))
-// const Expert = React.lazy(() => import('./tabpages/Expert/Expert'))
-// const Reviewer = React.lazy(() => import('./tabpages/Reviewer/Reviewer'))
-// const Translator = React.lazy(() => import('./tabpages/Translator/Translator'))
-// const Published = React.lazy(() => import('./tabpages/Published/Published'))
-// const Cancelled = React.lazy(() => import('./tabpages/Cancelled/Cancelled'))
+const InquiryIndex = React.lazy(() => import('./tabpages/index'))
 
 const routes = [
   { path: '/', exact: true, name: 'Home' },
@@ -84,14 +78,8 @@ const routes = [
   { path: '/page/questioncategory', exact: true, name: 'Question Categories', element: QuestionCategory },
   { path: '/page/questions', exact: true, name: 'Questions', element: Questions },
   { path: '/page/bundles', exact: true, name: 'Bundles', element: Bundles },
-  // { path: '/tabpages/inquiry/new/pending', exact: true, name: 'Inquiry', element: Inquiry },
   { path: '/tabpages/inquiry/:state/:status', name: 'Inquiry Detail', element: Inquiry },
-  // { path: '/tabpages/inquiry/New', exact: true, name: 'New Inquiry', element: New },
-  // { path: '/tabpages/inquiry/Expert', exact: true, name: 'Expert Reading', element: Expert },
-  // { path: '/tabpages/inquiry/Reviewer', exact: true, name: 'Reviewer', element: Reviewer },
-  // { path: '/tabpages/inquiry/Translator', exact: true, name: 'Translator', element: Translator },
-  // { path: '/tabpages/inquiry/Published', exact: true, name: 'Published', element: Published },
-  // { path: '/tabpages/inquiry/Cancelled', exact: true, name: 'Cancelled', element: Cancelled },
+  { path: '/tabpages/index', name: 'Inquiry', element: InquiryIndex },
 
 
   { path: '/theme', name: 'Theme', element: Colors, exact: true },
