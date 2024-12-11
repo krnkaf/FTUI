@@ -74,7 +74,7 @@ const TableView = () => {
                                             style={{
                                                 padding: '12px 15px',
                                                 backgroundColor: '#f8f8f8',
-                                                color: '#ff9933',
+                                                color: 'gray',
                                                 fontWeight: 'normal',
                                                 lineHeight: '17px',
                                                 textAlign: 'center', // Center horizontally
@@ -86,7 +86,7 @@ const TableView = () => {
                                     ))}
                                     <CTableHeaderCell
                                         style={{
-                                            color: '#ff9933',
+                                            color: 'gray',
                                             padding: '12px 15px',
                                             backgroundColor: '#f8f8f8',
                                             fontWeight: 'normal',

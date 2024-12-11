@@ -25,9 +25,9 @@ const Manage = () => {
             try {
                 const response = await fetch(GetURL("/backend/DailyRashiUpdates/LoadBaseData"), {
                     method: 'GET',
-                    headers: { 
+                    headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': GetToken() 
+                        'Authorization': GetToken()
                     }
                 });
                 const data = await response.json();
@@ -43,9 +43,9 @@ const Manage = () => {
             try {
                 const response = await fetch(GetURL(`/backend/GuestProfileUpdate/GetAllGuestProfile`), {
                     method: 'GET',
-                    headers: { 
+                    headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': GetToken() 
+                        'Authorization': GetToken()
                     }
                 });
                 const data = await response.json();
@@ -56,7 +56,7 @@ const Manage = () => {
                     const profile = data.data.list.filter(f => (
                         f._id == urlParams.get('id')
                     ))[0];
-                    setEmail(mail || ''); 
+                    setEmail(mail || '');
                     setInitialValues({
                         basic_description: profile.guest_profile?.basic_description || '',
                         lucky_number: profile.guest_profile?.lucky_number || '',
@@ -103,9 +103,9 @@ const Manage = () => {
         try {
             const response = await fetch(GetURL('/backend/GuestProfileUpdate/UpdateGuestProfile'), {
                 method: 'POST',
-                headers: { 
+                headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': GetToken() 
+                    'Authorization': GetToken()
                 },
                 body: JSON.stringify(payload)
             });
@@ -122,7 +122,7 @@ const Manage = () => {
 
     return (
         <div>
-            <h3>Updating Profile for: {email}</h3>
+            <h3 style={{ marginLeft: '10px', marginBottom: '20px' }}>Updating Profile for: {email}</h3>
             <Formik
                 initialValues={initialValues}
                 enableReinitialize
@@ -146,27 +146,30 @@ const Manage = () => {
                             <Field as={CFormTextarea} type="text" id="basic_description" name="basic_description" />
                             {errors.basic_description && touched.basic_description && <div className="text-danger">{errors.basic_description}</div>}
                         </div>
-                        <div className="mb-3">
-                            <label htmlFor="lucky_number">Lucky Number</label>
-                            <Field as={CFormInput} type="text" id="lucky_number" name="lucky_number" />
-                            {errors.lucky_number && touched.lucky_number && <div className="text-danger">{errors.lucky_number}</div>}
+                        <div className="mb-3" style={{ display: 'flex', justifyContent: 'space-between', gap: '10px' }}>
+                            <div style={{ flex: 1 }}>
+                                <label htmlFor="lucky_number">Lucky Number</label>
+                                <Field as={CFormInput} type="text" id="lucky_number" name="lucky_number" />
+                                {errors.lucky_number && touched.lucky_number && <div className="text-danger">{errors.lucky_number}</div>}
+                            </div>
+                            <div style={{ flex: 1 }}>
+                                <label htmlFor="lucky_gem">Lucky Gem</label>
+                                <Field as={CFormInput} type="text" id="lucky_gem" name="lucky_gem" />
+                                {errors.lucky_gem && touched.lucky_gem && <div className="text-danger">{errors.lucky_gem}</div>}
+                            </div>
+                            <div style={{ flex: 1 }}>
+                                <label htmlFor="lucky_color">Lucky Color</label>
+                                <Field as={CFormInput} type="text" id="lucky_color" name="lucky_color" />
+                                {errors.lucky_color && touched.lucky_color && <div className="text-danger">{errors.lucky_color}</div>}
+                            </div>
                         </div>
-                        <div className="mb-3">
-                            <label htmlFor="lucky_gem">Lucky Gem</label>
-                            <Field as={CFormInput} type="text" id="lucky_gem" name="lucky_gem" />
-                            {errors.lucky_gem && touched.lucky_gem && <div className="text-danger">{errors.lucky_gem}</div>}
-                        </div>
-                        <div className="mb-3">
-                            <label htmlFor="lucky_color">Lucky Color</label>
-                            <Field as={CFormInput} type="text" id="lucky_color" name="lucky_color" />
-                            {errors.lucky_color && touched.lucky_color && <div className="text-danger">{errors.lucky_color}</div>}
-                        </div>
+
                         <div className="mb-3">
                             <label htmlFor="compatibility_description">Compatibility Description</label>
                             <Field as={CFormTextarea} id="compatibility_description" name="compatibility_description" />
                             {errors.compatibility_description && touched.compatibility_description && <div className="text-danger">{errors.compatibility_description}</div>}
                         </div>
-                        <CButton type="submit" color="primary">
+                        <CButton type="submit" style={{ border: 'none', backgroundColor: '#ff9933', color: 'white' }}>
                             Update
                         </CButton>
                     </Form>

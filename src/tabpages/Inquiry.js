@@ -206,7 +206,7 @@ const Inquiry = () => {
                                 <CNavLink
                                     active={activeTab === 'new'}
                                     onClick={() => handleTabChange('new')}
-                                    style={{ padding: '10px 20px', fontWeight: 'bold', color: '#ff9933' }}
+                                    style={{ padding: '10px 20px', color: '#ff9933' }}
                                 >
                                     New Inquiry
                                 </CNavLink>
@@ -217,7 +217,7 @@ const Inquiry = () => {
                                 <CNavLink
                                     active={activeTab === 'expert'}
                                     onClick={() => handleTabChange('expert')}
-                                    style={{ padding: '10px 20px', fontWeight: 'bold', color: '#ff9933' }}
+                                    style={{ padding: '10px 20px', color: '#ff9933' }}
                                 >
                                     Expert Reading
                                 </CNavLink>
@@ -228,7 +228,7 @@ const Inquiry = () => {
                                 <CNavLink
                                     active={activeTab === 'translator'}
                                     onClick={() => handleTabChange('translator')}
-                                    style={{ padding: '10px 20px', fontWeight: 'bold', color: '#ff9933' }}
+                                    style={{ padding: '10px 20px', color: '#ff9933' }}
                                 >
                                     Translator
                                 </CNavLink>
@@ -239,7 +239,7 @@ const Inquiry = () => {
                                 <CNavLink
                                     active={activeTab === 'reviewer'}
                                     onClick={() => handleTabChange('reviewer')}
-                                    style={{ padding: '10px 20px', fontWeight: 'bold', color: '#ff9933' }}
+                                    style={{ padding: '10px 20px', color: '#ff9933' }}
                                 >
                                     Reviewer
                                 </CNavLink>
@@ -250,7 +250,7 @@ const Inquiry = () => {
                                 <CNavLink
                                     active={activeTab === 'publish'}
                                     onClick={() => handleTabChange('publish')}
-                                    style={{ padding: '10px 20px', fontWeight: 'bold', color: '#ff9933' }}
+                                    style={{ padding: '10px 20px', color: '#ff9933' }}
                                 >
                                     Publish
                                 </CNavLink>
@@ -261,14 +261,14 @@ const Inquiry = () => {
                                 <CNavLink
                                     active={activeTab === 'cancelled'}
                                     onClick={() => handleTabChange('cancelled')}
-                                    style={{ padding: '10px 20px', fontWeight: 'bold', color: '#ff9933' }}
+                                    style={{ padding: '10px 20px', color: '#ff9933' }}
                                 >
                                     Cancelled
                                 </CNavLink>
                             </CNavItem>
                         )}
                     </CNav>
-                        <CButton style={{ textAlign: 'center', maxHeight: '6vh', backgroundColor: '#ff9933', marginRight: '20px' }} onClick={() => setFilterVisible(true)}><FaSearch /></CButton>
+                        <CButton style={{ textAlign: 'center', maxHeight: '6vh', backgroundColor: '#ff9933', marginRight: '20px' }} onClick={() => setFilterVisible(true)}><FaSearch style={{ color: 'white' }} /></CButton>
                 </div>
 
                 <Suspense fallback={<div>Loading...</div>}>

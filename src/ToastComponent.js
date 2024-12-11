@@ -2,19 +2,29 @@ import React, { createContext, useContext, useState, useCallback } from 'react';
 import ReactDOM from 'react-dom';
 
 const Toast = React.memo(({ title, message, type, onClose }) => {
-  const colors = ['#808080', '#28a745', '#dc3545', '#ff9933'];
+
+  const opacity = 0.8;
+
+  const colors = [
+    `rgba(128, 128, 128, ${opacity})`,
+    `rgba(40, 167, 69, ${opacity})`,
+    `rgba(220, 53, 69, ${opacity})`,  
+    `rgba(255, 153, 51, ${opacity})`  
+  ];
+
   const backgroundColor = colors[type] || colors[0];
+  const textColor = `rgba(255, 255, 255, 1)`;
 
   return ReactDOM.createPortal(
     <div
       style={{
         position: 'fixed',
-        left: '50%',
+        right: '0%',
         bottom: '7vh',
-        transform: 'translateX(-50%)',
+        transform: 'translateX(-10%)',
         padding: '10px 20px',
         backgroundColor,
-        color: '#fff',
+        color: textColor,
         borderRadius: '5px',
         zIndex: 9999,
         minWidth: '250px',
@@ -27,6 +37,7 @@ const Toast = React.memo(({ title, message, type, onClose }) => {
     document.body
   );
 });
+
 
 export const ToastContext = createContext();
 
@@ -42,8 +53,8 @@ export const ToastProvider = ({ children }) => {
 
     setTimeout(() => {
       setToastConfig(null);
-      setIsToastActive(false);
-    }, 5000);
+      setIsToastActive(false);  
+    }, 3000);
   }, [isToastActive]);
 
   return (

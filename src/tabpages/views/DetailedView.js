@@ -400,7 +400,7 @@ const DetailedView = ({ item }) => {
                                             }
                                             else if ((x == 5 && fromPage === 'reviewer')) {
                                                 if (status === 'pending') {
-                                                    return <CButton onClick={handleReviewerPush} style={{ marginTop: '20px', backgroundColor: '#ff9933', color: 'white' }}>Publish</CButton>
+                                                    return <CButton onClick={handleReviewerPush} style={{ marginTop: '20px', backgroundColor: '#ff9933', color: 'white' }}>Approve</CButton>
                                                 }
                                             }
                                             return <>-/-</>; // Render nothing for all other cases
