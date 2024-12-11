@@ -146,7 +146,7 @@ const Login = () => {
                         </CButton>
                       </CCol>
                     </CRow>
-                    <CRow>
+                    {/* <CRow>
                       <CCol>
                         Quick Login:
                         <button onClick={() => quickLogin('admin@gmail.com', '12345')}>Admin</button>
@@ -154,7 +154,7 @@ const Login = () => {
                         <button onClick={() => quickLogin('translator@gmail.com', '12345')}>Translator</button>
                         <button onClick={() => quickLogin('reviewer@gmail.com', '12345')}>Reviewer</button>
                       </CCol>
-                    </CRow>
+                    </CRow> */}
                   </CForm>
                 </CCardBody>
               </CCard>
