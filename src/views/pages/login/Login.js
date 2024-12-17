@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -12,81 +13,94 @@ import {
   CInputGroup,
   CInputGroupText,
   CRow,
-  CFormFeedback
+  CFormFeedback,
 } from '@coreui/react';
 import CIcon from '@coreui/icons-react';
 import { cilLockLocked, cilUser } from '@coreui/icons';
 import { GetURL } from '../../../library/API';
 
+import { useToast } from '../../../ToastComponent';
+
+const saveToLocalStorage = (key, value) => {
+  try {
+    localStorage.setItem(key, value);
+  } catch (err) {
+    console.error('Error saving to localStorage:', err);
+  }
+};
+
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [validated, setValidated] = useState(false);
-  const [error, setError] = useState('');
+  const [validationError, setValidationError] = useState('');
+  const [apiError, setApiError] = useState('');
   const navigate = useNavigate();
 
-  const handleEmailChange = (e) => setEmail(e.target.value);
-  const handlePasswordChange = (e) => setPassword(e.target.value);
+  const { showToast } = useToast();
 
-  const validateEmail = (email) => {
-    const re = /\S+@\S+\.\S+/;
-    return re.test(email);
+  const handleEmailChange = (e) => {
+    setEmail(e.target.value);
+    clearErrors();
+  };
+
+  const handlePasswordChange = (e) => {
+    setPassword(e.target.value);
+    clearErrors();
+  };
+
+  const clearErrors = () => {
+    setValidationError('');
+    setApiError('');
+  };
+
+  const validateEmail = (email) => /\S+@\S+\.\S+/.test(email);
+
+  const validateInputs = () => {
+    if (!validateEmail(email)) {
+      setValidationError('Please provide a valid email.');
+      return false;
+    }
+    if (password.length < 5) {
+      setValidationError('Password must be at least 5 characters.');
+      return false;
+    }
+    return true;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setValidated(true);
 
-    if (validateEmail(email) && password.length >= 3) {
-      try {
-        const response = await fetch(GetURL("/UserContoller/Login"), {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ email, password }),
-        });
+    if (!validateInputs()) return;
 
-        if (response.ok) {
-          const data = await response.json();
-          localStorage.setItem('token', data.data.token);
-          localStorage.setItem('user_type_id', data.data.user_type_id);
-          navigate('/dashboard'); // Redirect to home page after successful login
-          location.reload()
-        } else {
-          const errorData = await response.json();
-          setError(errorData.message || 'Login failed. Please try again.');
-        }
-      } catch (err) {
-        setError('An error occurred. Please try again later.');
-      }
-    }
-  };
-
-  const quickLogin = async (ea, pwd) => {
     try {
-      const response = await fetch(GetURL("/UserContoller/Login"), {
+      const response = await fetch(GetURL('/UserContoller/Login'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email: ea, password: pwd }),
+        body: JSON.stringify({ email, password }),
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        localStorage.setItem('token', data.data.token);
-        localStorage.setItem('user_type_id', data.data.user_type_id);
-        navigate('/dashboard'); // Redirect to home page after successful login
-        location.reload()
+      const data = await response.json();
+
+      if (data.error_code === '0') {
+        saveToLocalStorage('token', data.data.token);
+        saveToLocalStorage('user_type_id', data.data.user_type_id);
+        navigate('/dashboard');
+        location.reload();
       } else {
-        const errorData = await response.json();
-        setError(errorData.message || 'Login failed. Please try again.');
+        showToast('Failure', data.message || 'Invalid credentials.', 2);
+        setApiError(data.message || 'Invalid credentials.');
+        setPassword(''); 
       }
     } catch (err) {
-      setError('An error occurred. Please try again later.');
+      showToast('Failure', 'An unexpected error occurred. Please try again.', 2);
+      setApiError('An unexpected error occurred. Please try again.');
+      console.error('Login error:', err);
     }
-  }
+  };
 
   return (
     <div className="bg-body-tertiary min-vh-100 d-flex flex-row align-items-center">
@@ -110,11 +124,9 @@ const Login = () => {
                         value={email}
                         onChange={handleEmailChange}
                         required
-                        isInvalid={validated && !validateEmail(email)}
+                        isInvalid={!!validationError && !validateEmail(email)}
                       />
-                      <CFormFeedback invalid>
-                        Please provide a valid email.
-                      </CFormFeedback>
+                      <CFormFeedback invalid>{validationError}</CFormFeedback>
                     </CInputGroup>
                     <CInputGroup className="mb-4">
                       <CInputGroupText>
@@ -127,13 +139,11 @@ const Login = () => {
                         value={password}
                         onChange={handlePasswordChange}
                         required
-                        isInvalid={validated && password.length < 5}
+                        isInvalid={!!validationError && password.length < 5}
                       />
-                      <CFormFeedback invalid>
-                        Password must be at least 5 characters.
-                      </CFormFeedback>
+                      <CFormFeedback invalid>{validationError}</CFormFeedback>
                     </CInputGroup>
-                    {error && <p className="text-danger">{error}</p>}
+                    {apiError && <p className="text-danger">{apiError}</p>}
                     <CRow>
                       <CCol xs={6}>
                         <CButton color="primary" className="px-4" type="submit">
@@ -146,15 +156,6 @@ const Login = () => {
                         </CButton>
                       </CCol>
                     </CRow>
-                    {/* <CRow>
-                      <CCol>
-                        Quick Login:
-                        <button onClick={() => quickLogin('admin@gmail.com', '12345')}>Admin</button>
-                        <button onClick={() => quickLogin('expert@gmail.com', '12345')}>Expert</button>
-                        <button onClick={() => quickLogin('translator@gmail.com', '12345')}>Translator</button>
-                        <button onClick={() => quickLogin('reviewer@gmail.com', '12345')}>Reviewer</button>
-                      </CCol>
-                    </CRow> */}
                   </CForm>
                 </CCardBody>
               </CCard>

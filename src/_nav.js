@@ -20,14 +20,18 @@ const user_type_id = localStorage.getItem('user_type_id');
 
 const dashboard = [
   {
+    component: CNavTitle,
+    name: 'Menu'
+  },
+  {
     component: CNavItem,
     name: 'Dashboard',
     to: '/dashboard',
     icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
-    badge: {
-      color: 'info',
-      text: 'NEW',
-    },
+    // badge: {
+    //   color: 'info',
+    //   text: 'NEW',
+    // },
   },
   {
     component: CNavTitle,

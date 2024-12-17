@@ -60,12 +60,12 @@ const AppHeader = () => {
           <CNavItem>
             <CNavLink to='/login' as={NavLink}>Users</CNavLink>
           </CNavItem>
-          <CNavItem>
+          {/* <CNavItem>
             <CNavLink href="#">Settings</CNavLink>
-          </CNavItem>
+          </CNavItem> */}
         </CHeaderNav>
         <CHeaderNav className="ms-auto">
-          <CNavItem>
+          {/* <CNavItem>
             <CNavLink href="#">
               <CIcon icon={cilBell} size="lg" />
             </CNavLink>
@@ -84,9 +84,9 @@ const AppHeader = () => {
         <CHeaderNav>
           <li className="nav-item py-1">
             <div className="vr h-100 mx-2 text-body text-opacity-75"></div>
-          </li>
+          </li> */}
           <CDropdown variant="nav-item" placement="bottom-end">
-            <CDropdownToggle caret={false}>
+            {/* <CDropdownToggle caret={false}>
               {colorMode === 'dark' ? (
                 <CIcon icon={cilMoon} size="lg" />
               ) : colorMode === 'auto' ? (
@@ -94,8 +94,8 @@ const AppHeader = () => {
               ) : (
                 <CIcon icon={cilSun} size="lg" />
               )}
-            </CDropdownToggle>
-            <CDropdownMenu>
+            </CDropdownToggle> */}
+            {/* <CDropdownMenu>
               <CDropdownItem
                 active={colorMode === 'light'}
                 className="d-flex align-items-center"
@@ -123,11 +123,11 @@ const AppHeader = () => {
               >
                 <CIcon className="me-2" icon={cilContrast} size="lg" /> Auto
               </CDropdownItem>
-            </CDropdownMenu>
+            </CDropdownMenu> */}
           </CDropdown>
-          <li className="nav-item py-1">
+          {/* <li className="nav-item py-1">
             <div className="vr h-100 mx-2 text-body text-opacity-75"></div>
-          </li>
+          </li> */}
           <AppHeaderDropdown />
         </CHeaderNav>
       </CContainer>

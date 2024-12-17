@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect } from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
 import { BrowserRouter, Route, Routes, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { CSpinner, useColorModes } from '@coreui/react';
@@ -14,60 +14,102 @@ const Page404 = React.lazy(() => import('./views/pages/page404/Page404'));
 const Page500 = React.lazy(() => import('./views/pages/page500/Page500'));
 
 import { ToastProvider } from './ToastComponent';
+import { GetURL, GetToken } from './library/API';
 
 const AppWrapper = () => {
-  const { isColorModeSet, setColorMode } = useColorModes('coreui-free-react-admin-template-theme');
-  const storedTheme = useSelector((state) => state.theme);
-  const navigate = useNavigate();
+	const { isColorModeSet, setColorMode } = useColorModes('coreui-free-react-admin-template-theme');
+	const storedTheme = useSelector((state) => state.theme);
+	const navigate = useNavigate();
 
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.href.split('?')[1]);
-    const theme = urlParams.get('theme') && urlParams.get('theme').match(/^[A-Za-z0-9\s]+/)[0];
-    if (theme) {
-      setColorMode(theme);
-    }
+	useEffect(() => {
+		const urlParams = new URLSearchParams(window.location.href.split('?')[1]);
+		const theme = urlParams.get('theme') && urlParams.get('theme').match(/^[A-Za-z0-9\s]+/)[0];
+		if (theme) {
+			setColorMode(theme);
+		}
 
-    if (isColorModeSet()) {
-      return;
-    }
+		if (isColorModeSet()) {
+			return;
+		}
 
-    setColorMode(storedTheme);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+		setColorMode(storedTheme);
+	}, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Check for token and redirect if not present
-  useEffect(() => {
-    if (localStorage.getItem('token') == null) {
-      navigate('/login'); // Redirect to login if no token
-    }
-  }, [navigate]);
+	// Check for token and redirect if not present
+	useEffect(() => {
+		if (localStorage.getItem('token') == null) {
+			navigate('/login'); // Redirect to login if no token
+		}
+	}, [navigate]);
 
-  return (
-    <Suspense
-      fallback={
-        <div className="pt-3 text-center">
-          <CSpinner color="primary" variant="grow" />
-        </div>
-      }
-    >
-      <Routes>
-        <Route exact path="/login" name="Login Page" element={<Login />} />
-        <Route exact path="/register" name="Register Page" element={<Register />} />
-        <Route exact path="/404" name="Page 404" element={<Page404 />} />
-        <Route exact path="/500" name="Page 500" element={<Page500 />} />
-        <Route path="*" name="Home" element={<DefaultLayout />} />
-      </Routes>
-    </Suspense>
-  );
+	return (
+		<Suspense
+			fallback={
+				<div className="pt-3 text-center">
+					<CSpinner color="primary" variant="grow" />
+				</div>
+			}
+		>
+			<Routes>
+				<Route exact path="/login" name="Login Page" element={<Login />} />
+				<Route exact path="/register" name="Register Page" element={<Register />} />
+				<Route exact path="/404" name="Page 404" element={<Page404 />} />
+				<Route exact path="/500" name="Page 500" element={<Page500 />} />
+				<Route path="*" name="Home" element={<DefaultLayout />} />
+			</Routes>
+		</Suspense>
+	);
 };
 
 const App = () => {
-  return (
-    <BrowserRouter>
-      <ToastProvider>
-        <AppWrapper />
-      </ToastProvider>
-    </BrowserRouter>
-  );
+	const [inSession, setInSession] = useState(null);
+
+	// Check session and redirect appropriately
+	const sessionCheck = async () => {
+		const response = await fetch(GetURL('/UserContoller'), {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': GetToken(),
+			},
+		});
+
+		const data = await response.json();
+		setInSession(data.error_code);
+		console.log(data);
+	};
+
+	useEffect(() => {
+		sessionCheck();
+	}, []);
+
+	if (inSession === null) {
+		return (
+			<div className="pt-3 text-center">
+				<CSpinner color="primary" variant="grow" />
+			</div>
+		);
+	}
+
+	if (inSession !== '0') {
+		localStorage.removeItem('id');
+		localStorage.removeItem('user_type_id');
+		localStorage.removeItem('token');
+	}
+
+	return (
+		<BrowserRouter>
+			<ToastProvider>
+				{inSession === '0' ? (
+					<AppWrapper />
+				) : (
+					<Routes>
+						<Route path="*" element={<Login />} />
+					</Routes>
+				)}
+			</ToastProvider>
+		</BrowserRouter>
+	);
 };
 
 export default App;

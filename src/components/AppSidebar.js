@@ -35,7 +35,7 @@ const AppSidebar = () => {
         dispatch({ type: 'set', sidebarShow: visible })
       }}
     >
-      <CSidebarHeader className="border-bottom">
+      {/* <CSidebarHeader className="border-bottom">
         <CSidebarBrand to="/">
           <CIcon customClassName="sidebar-brand-full" icon={logo} height={32} />
           <CIcon customClassName="sidebar-brand-narrow" icon={sygnet} height={32} />
@@ -45,7 +45,7 @@ const AppSidebar = () => {
           dark
           onClick={() => dispatch({ type: 'set', sidebarShow: false })}
         />
-      </CSidebarHeader>
+      </CSidebarHeader> */}
       <AppSidebarNav items={navigation} />
       <CSidebarFooter className="border-top d-none d-lg-flex">
         <CSidebarToggler

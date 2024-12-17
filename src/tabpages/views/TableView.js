@@ -7,41 +7,36 @@ import {
     CTableHead,
     CTableDataCell,
     CButton,
-    CToast,
-    CToastBody,
-    CToastHeader,
-    CToaster,
     CBadge
 } from '@coreui/react';
 import DetailedView from './DetailedView';
 import { UserContext } from '../Inquiry';
-import { useToast } from '../../ToastComponent';
 
 export const DetailedContext = createContext();
 
 const TableView = () => {
     try {
-        const [toast, setToast] = useState({ visible: false, message: '' });
         const [showDetailedView, setShowDetailedView] = useState(false);
         const [selectedItem, setSelectedItem] = useState(null);
 
         const [inquiries] = useContext(UserContext)?.inquiryList || [];
+        const { category_type } = useContext(UserContext);
 
-        const formatDateTime = (timestamp) => {
-            const dateObj = new Date(timestamp);
-            const date = `${dateObj.getFullYear()}/${(dateObj.getMonth() + 1).toString().padStart(2, '0')}/${dateObj.getDate().toString().padStart(2, '0')}`;
-            const time = Intl.DateTimeFormat('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }).format(new Date(dateObj));
-            return { date, time };
+        const formatDateTime = (create_timestamp, update_timestamp) => {
+            const createDateObj = new Date(create_timestamp);
+            const created_date = `${createDateObj.getFullYear()}/${(createDateObj.getMonth() + 1).toString().padStart(2, '0')}/${createDateObj.getDate().toString().padStart(2, '0')}`;
+            const created_time = Intl.DateTimeFormat('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }).format(new Date(createDateObj));
+            const updateDateObj = new Date(update_timestamp);
+            const updated_date = `${updateDateObj.getFullYear()}/${(updateDateObj.getMonth() + 1).toString().padStart(2, '0')}/${updateDateObj.getDate().toString().padStart(2, '0')}`;
+            const updated_time = Intl.DateTimeFormat('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }).format(new Date(updateDateObj));
+            return { created_date, created_time, updated_date, updated_time };
         };
-
-        const { showToast } = useToast();
 
         return (
             <DetailedContext.Provider value={{ setShowDetailedView }}>
                 <div style={{ padding: '20px' }}>
                     <div
                         style={{
-                            maxHeight: '500px',
                             overflowY: 'auto',
                             scrollbarWidth: 'thin',
                             scrollbarColor: '#888 #f1f1f1',
@@ -68,7 +63,7 @@ const TableView = () => {
                                 }}
                             >
                                 <CTableRow>
-                                    {['SN', 'Inq no.', 'Category', 'Question', 'Date', 'Time', 'Status', 'Assignee', 'Guest Name'].map(header => (
+                                    {['SN', 'Inq no.', 'Category', 'Question', 'Created Date', 'Updated Date', 'Status', 'Assignee', 'Guest Name'].map(header => (
                                         <CTableHeaderCell
                                             key={header}
                                             style={{
@@ -77,8 +72,8 @@ const TableView = () => {
                                                 color: 'gray',
                                                 fontWeight: 'normal',
                                                 lineHeight: '17px',
-                                                textAlign: 'center', // Center horizontally
-                                                verticalAlign: 'middle', // Center vertically
+                                                textAlign: 'center',
+                                                verticalAlign: 'middle',
                                             }}
                                         >
                                             {header}
@@ -93,8 +88,8 @@ const TableView = () => {
                                             position: 'sticky',
                                             right: '0',
                                             zIndex: '1',
-                                            textAlign: 'center', // Center horizontally
-                                            verticalAlign: 'middle', // Center vertically
+                                            textAlign: 'center',
+                                            verticalAlign: 'middle',
                                         }}
                                     >
                                         Action
@@ -103,7 +98,7 @@ const TableView = () => {
                             </CTableHead>
                             <CTableBody>
                                 {inquiries.map((item, index) => {
-                                    const { date, time } = formatDateTime(item.purchased_on);
+                                    const { created_date, created_time, updated_date, updated_time } = formatDateTime(item.purchased_on, item.updated_date);
                                     return (
                                         <CTableRow key={item.inquiry_number}>
                                             {[
@@ -116,12 +111,28 @@ const TableView = () => {
                                                             overflow: 'hidden',
                                                             textOverflow: 'ellipsis',
                                                             lineHeight: '17px',
+                                                            cursor: 'copy'
+                                                        }}
+
+                                                        onClick={() => {
+                                                            navigator.clipboard.writeText(item.inquiry_number)
+                                                                .catch((err) => {
+                                                                    console.error('Failed to copy: ', err);
+                                                                });
                                                         }}
                                                     >
                                                         📋 {item.inquiry_number}
                                                     </div>
                                                 </span>,
-                                                item.category_type_id,
+                                                <div
+                                                    style={{
+                                                        textAlign: 'left', // Left-align the category type
+                                                        padding: '5px 15px',
+                                                        lineHeight: '17px',
+                                                    }}
+                                                >
+                                                    {category_type[item.category_type_id - 1]?.name}
+                                                </div>,
                                                 <div
                                                     style={{
                                                         minWidth: '300px',
@@ -133,8 +144,12 @@ const TableView = () => {
                                                 >
                                                     {item.question}
                                                 </div>,
-                                                date,
-                                                time,
+                                                <div style={{ fontSize: '15px' }}>
+                                                    {created_date + " | " + created_time},
+                                                </div>,
+                                                <div style={{ fontSize: '15px' }}>
+                                                    {updated_date + " | " + updated_time}
+                                                </div>,
                                                 <div
                                                     style={{
                                                         padding: '12px 15px',
@@ -150,7 +165,15 @@ const TableView = () => {
                                                     )}
                                                 </div>,
                                                 item.assignee || 'N/A',
-                                                item.profile1?.name || 'N/A',
+                                                <div
+                                                    style={{
+                                                        textAlign: 'left', // Left-align the category type
+                                                        padding: '5px 15px',
+                                                        lineHeight: '17px',
+                                                    }}
+                                                >
+                                                    {item.profile1?.name || 'N/A'}
+                                                </div>,
                                             ].map((value, idx) => (
                                                 <CTableDataCell
                                                     key={idx}
@@ -158,8 +181,8 @@ const TableView = () => {
                                                         padding: '5px 15px',
                                                         maxWidth: idx === 1 ? '800px' : '',
                                                         lineHeight: '17px',
-                                                        textAlign: 'center', // Center horizontally
-                                                        verticalAlign: 'middle', // Center vertically
+                                                        textAlign: 'center',
+                                                        verticalAlign: 'middle',
                                                     }}
                                                 >
                                                     {value}
@@ -168,13 +191,13 @@ const TableView = () => {
                                             <CTableDataCell
                                                 style={{
                                                     padding: '12px 15px',
-                                                    textAlign: 'center', // Center horizontally
+                                                    textAlign: 'center',
                                                     lineHeight: '17px',
                                                     position: 'sticky',
                                                     right: '0',
                                                     zIndex: '1',
                                                     backgroundColor: '#f8f8f8',
-                                                    verticalAlign: 'middle', // Center vertically
+                                                    verticalAlign: 'middle',
                                                 }}
                                             >
                                                 <CButton
@@ -203,27 +226,13 @@ const TableView = () => {
                         </CTable>
                     </div>
                     {showDetailedView && <DetailedView item={selectedItem} />}
-                    {toast.visible && (
-                        <CToaster position="top-right">
-                            <CToast
-                                visible={toast.visible}
-                                onClose={() => setToast({ ...toast, visible: false })}
-                                style={{ minWidth: '250px' }}
-                            >
-                                <CToastHeader closeButton>
-                                    <strong className="me-auto">Notification</strong>
-                                </CToastHeader>
-                                <CToastBody>{toast.message}</CToastBody>
-                            </CToast>
-                        </CToaster>
-                    )}
                 </div>
             </DetailedContext.Provider>
         );
     } catch (error) {
-        return(<>
-            Error 404   
-            {() => {showToast('Error', 'Page Could Not Be Loaded', 2); console.log(error)}}
+        return (<>
+            Error 404
+            {() => { showToast('Error', 'Page Could Not Be Loaded', 2); console.log(error) }}
         </>);
     }
 };

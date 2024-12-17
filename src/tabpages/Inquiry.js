@@ -1,10 +1,11 @@
 import React, { Suspense, useState, useEffect, createContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CNav, CNavItem, CNavLink, CButton, CToaster, CToast, CToastBody, CToastHeader, CModal, CModalBody, CModalFooter, CFormInput, CFormSelect } from '@coreui/react';
+import { CNav, CNavItem, CNavLink, CButton, CPagination, CModal, CModalBody, CModalFooter, CFormInput, CFormSelect, CPaginationItem } from '@coreui/react';
 import TableView from './views/TableView';
 import { GetToken, GetURL } from '../library/API';
 import { useToast } from '../ToastComponent';
 import { FaSearch } from 'react-icons/fa';
+import { Pagination } from 'react-bootstrap';
 
 export const UserContext = createContext();
 
@@ -13,18 +14,18 @@ const Inquiry = () => {
         const navigate = useNavigate();
         const [userList, setUserList] = useState([]);
         const [currentUser, setCurrentUser] = useState(null);
-        const [userTypeId, setUserTypeId] = useState(localStorage.getItem('user_type_id'));
+        const [userTypeId] = useState(localStorage.getItem('user_type_id'));
         const [fromPage, setFromPage] = useState('new');
         const [activeTab, setActiveTab] = useState('');
         const [visibleTabs, setVisibleTabs] = useState([]);
         const [filterVisible, setFilterVisible] = useState(false);
         const [filters, setFilters] = useState({
-            inquiryNumber: '',
-            date: '',
-            paymentStatus: '',
-            category: '',
-            guestName: '',
-            status: '',
+            inquiry_number: '',
+            inquiry_date: '',
+            inquiry_payment_status: '',
+            question_id: '',
+            assignee_id: '',
+            category_type_id: ''
         });
 
         const { showToast } = useToast();
@@ -40,6 +41,112 @@ const Inquiry = () => {
             4: ['translator'],
             5: ['reviewer']
         };
+        
+        const [state, setState] = useState(pathSegments[3]);
+        const [status, setStatus] = useState('pending');
+        const [inquiryList, setInquiryList] = useState([]);
+
+        const [category_type, set_category_type] = useState([]);
+        const [assignee_list, set_assignee_list] = useState([]);
+        const [question, set_question] = useState([]);
+
+        const [filterParams, setFilterParams] = useState({});
+
+        const [currentPage, setCurrentPage] = useState(1);
+        const [totalCount, setTotalCount] = useState(null);
+        const pageSize = 10;
+        const totalPages = Math.ceil(totalCount / pageSize);
+
+        const handleTabChange = (tab) => {
+            setActiveTab(tab);
+            setState(tab);
+            setStatus('pending');
+            handleClearFilters();
+            navigate(`/tabpages/inquiry/${tab}/${status}`);
+        };
+        
+        const handleStatusChange = (status) => {
+            handleClearFilters();
+            setStatus(status);
+            navigate(`/tabpages/inquiry/${activeTab}/${status}`);
+        };
+
+        const handleFilterChange = (e) => {
+            setFilters({ ...filters, [e.target.name]: e.target.value });
+        };
+
+        const handleApplyFilters = () => {
+            setFilterVisible(false);
+            console.log(filters);
+
+            setFilterParams(Object.fromEntries(
+                Object.entries(filters).filter(([key, value]) => value !== null && value !== '')
+            ));
+
+            showToast('Items Filtered');
+        };
+
+        const handleClearFilters = () => {
+            setFilters({
+                inquiry_number: '',
+                inquiry_date: '',
+                inquiry_payment_status: '',
+                question_id: '',
+                assignee_id: '',
+                category_type_id: ''
+            });
+        };
+        
+        const fetchFilterForInquiry = async () => {
+            try {
+                const response = await fetch(GetURL(`/backend/InquiryManagement/GetFilterForInquiry`), {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': GetToken()
+                    }
+                });
+
+                const data = await response.json();
+                set_category_type(data.data.category_type);
+                set_assignee_list(data.data.assignee_list);
+                set_question(data.data.question);
+            } catch (e) {
+                showToast('Failed', 'Cannot fetch inquiries right now. Try again later.', 2)
+            }
+        }
+
+        const fetchInquiries = async (state, status) => {
+            try {
+                const statestatusURL = new URLSearchParams({
+                    inquiry_state: state,
+                    inquiry_status: status
+                }).toString();
+
+                const filterURL = new URLSearchParams(filterParams).toString();
+
+                const paginationURL = new URLSearchParams({
+                    page_number: currentPage,
+                    page_size: pageSize
+                }).toString();
+
+                const fullURL = statestatusURL + (filterURL ? '&' + filterURL : '') + (paginationURL ? '&' + paginationURL : '');
+
+                const response = await fetch(GetURL(`/backend/InquiryManagement/GetInquiries?${fullURL}`), {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': GetToken()
+                    }
+                });
+
+                const data = await response.json();
+                setInquiryList(data.data.list);
+                setTotalCount(data.data.total_count)
+            } catch (e) {
+                showToast('Failed', 'Cannot fetch inquiries right now. Try again later.', 2)
+            }
+        }
 
         useEffect(() => {
             const stateMap = {
@@ -71,14 +178,14 @@ const Inquiry = () => {
                     showToast('Response Error', 'No Network Connection', 2);
                 }
             };
-            
+
             fetchUserTypes();
         }, []);
-        
+
         useEffect(() => {
             setVisibleTabs(tabVisibility[userTypeId]);
         }, [userTypeId]);
-        
+
         useEffect(() => {
             try {
                 if (visibleTabs.length > 0) {
@@ -89,48 +196,14 @@ const Inquiry = () => {
                 showToast('Failed', 'An error has occurred', 1);
             }
         }, [visibleTabs]);
-        
-        const handleTabChange = (tab) => {
-            setActiveTab(tab);
-            setState(tab);
-            navigate(`/tabpages/inquiry/${tab}/${status}`);
-        };
 
-        const handleStatusChange = (status) => {
-            setStatus(status);
-            navigate(`/tabpages/inquiry/${activeTab}/${status}`);
-        };
+        useEffect(() => {
+            fetchInquiries(state, status);
+        }, [state, status, filterParams, currentPage]);
 
-        const handleUserChange = () => {
-            const currentIndex = userList.indexOf(currentUser);
-            const nextIndex = (currentIndex + 1) % userList.length;
-            const nextUser = userList[nextIndex];
-            setCurrentUser(nextUser);
-        };
-        
-        const handleIncrement = () => {
-            setUserTypeId((p) => ((p % 5) + 1));
-        };
-
-        const handleFilterChange = (e) => {
-            setFilters({ ...filters, [e.target.name]: e.target.value });
-        };
-    
-        const handleApplyFilters = () => {
-            setFilterVisible(false);
-            showToast('Items Filtered');
-        };
-    
-        const handleClearFilters = () => {
-            setFilters({
-                inquiryNumber: '',
-                date: '',
-                paymentStatus: '',
-                category: '',
-                guestName: '',
-                status: '',
-            });
-        };
+        useEffect(() => {
+            fetchFilterForInquiry();
+        }, [])
 
         const SubTabs = ({ from, substate }) => {
             return (
@@ -145,7 +218,7 @@ const Inquiry = () => {
                                 Pending
                             </CNavLink>
                         </CNavItem>
-                        {(from != 'new') &&  <CNavItem>
+                        {(from != 'new') && <CNavItem>
                             <CNavLink
                                 active={status === 'completed'}
                                 onClick={() => handleStatusChange('completed')}
@@ -160,46 +233,15 @@ const Inquiry = () => {
                         <TableView page={fromPage} state={from} status="pending" substate={substate} />
                     )}
                     {status === 'completed' && (
-                        <TableView page={fromPage} state={from} status="completed" substate={substate}   />
+                        <TableView page={fromPage} state={from} status="completed" substate={substate} />
                     )}
                 </>
             );
         };
 
-        const [state, setState] = useState(pathSegments[3]);
-        const [status, setStatus] = useState('pending');
-        const [inquiryList, setInquiryList] = useState([]);
-
-        const fetchInquiries = async (state, status) => {
-            try {
-                const response = await fetch(GetURL(`/backend/InquiryManagement/GetInquiries?inquiry_state=${state}&inquiry_status=${status}`), {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': GetToken()
-                    }
-                });
-
-                const data = await response.json();
-                setInquiryList(data.data.list);
-            } catch(e) {
-                showToast('Failed', 'Cannot fetch inquiries right now. Try again later.', 2)
-            }
-        }
-
-        useEffect(() => {
-            fetchInquiries(state, status);
-        }, [state, status]);
-
         return (
-            <UserContext.Provider value={{ id: userTypeId, assignee: currentUser, userList, fromPage: fromPage, state: state, setState, status: status, setStatus, inquiryList: [inquiryList], setInquiryList, fetchInquiries }}>
-                {/* <div style={{ margin: '20px 0', display: 'flex', gap: '15px' }}>
-                    <CButton name='User' onClick={() => handleIncrement()} style={{ padding: '8px 16px', backgroundColor: '#ff9933', color: 'white' }}> Next User Id</CButton> 
-                    <span style={{ fontWeight: 'bold', alignSelf: 'center' }}>{userTypeId}</span>
-                    <CButton name='Change User' onClick={() => handleUserChange()} style={{ padding: '8px 16px', backgroundColor: '#ff9933', color: 'white' }}> Change User</CButton>
-                    <CButton name='Change User' onClick={() => console.log(inquiryList)} style={{ padding: '8px 16px', backgroundColor: '#ff9933', color: 'white' }}> InquiryList</CButton>
-                </div>  */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: '' }}>
+            <UserContext.Provider value={{ id: userTypeId, assignee: currentUser, userList, fromPage: fromPage, state: state, setState, status: status, setStatus, inquiryList: [inquiryList], setInquiryList, fetchInquiries, category_type }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: '', marginLeft: '20px' }}>
                     <CNav variant="tabs" onSelect={handleTabChange} style={{ marginBottom: '20px', backgroundColor: '#f8f9fa', borderRadius: '5px' }}>
                         {visibleTabs.includes('new') && (
                             <CNavItem>
@@ -268,7 +310,7 @@ const Inquiry = () => {
                             </CNavItem>
                         )}
                     </CNav>
-                        <CButton style={{ textAlign: 'center', maxHeight: '6vh', backgroundColor: '#ff9933', marginRight: '20px' }} onClick={() => setFilterVisible(true)}><FaSearch style={{ color: 'white' }} /></CButton>
+                    <CButton style={{ textAlign: 'center', maxHeight: '6vh', backgroundColor: '#ff9933', marginRight: '20px' }} onClick={() => setFilterVisible(true)}><FaSearch style={{ color: 'white' }} /></CButton>
                 </div>
 
                 <Suspense fallback={<div>Loading...</div>}>
@@ -280,33 +322,96 @@ const Inquiry = () => {
                     {activeTab === 'cancelled' && <SubTabs from='new' substate='cancelled' />}
                 </Suspense>
 
+                <Pagination style={{ marginLeft: '20px' }}>
+                    <Pagination.First onClick={() => setCurrentPage(1)} />
+                    <Pagination.Prev onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))} />
+
+                    {Array.from({ length: totalPages }, (_, index) => {
+                        const pageNumber = index + 1;
+                        return (
+                            <Pagination.Item
+                                key={pageNumber}
+                                active={pageNumber === currentPage}
+                                onClick={() => setCurrentPage(pageNumber)}
+                            >
+                                {pageNumber}
+                            </Pagination.Item>
+                        );
+                    })}
+
+                    <Pagination.Next onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))} />
+                    <Pagination.Last onClick={() => setCurrentPage(totalPages)} />
+                    <CFormInput style={{ width: '5%' }}></CFormInput>
+                </Pagination>
+
                 <CModal visible={filterVisible} onClose={() => setFilterVisible(false)}>
                     <CModalBody>
                         <div>
-                            <label htmlFor="inquiryNumber">Inquiry Number</label>
-                            <CFormInput type="text" id="inquiryNumber" name="inquiryNumber" value={filters.inquiryNumber} onChange={handleFilterChange} />
+                            <label htmlFor="inquiry_number" style={{ textDecoration: 'none', color: 'gray', marginTop: '5px' }}>Inquiry Number</label>
+                            <CFormInput
+                                type="text"
+                                id="inquiry_number"
+                                name="inquiry_number"
+                                value={filters.inquiry_number}
+                                onChange={handleFilterChange}
+                            />
 
-                            <label htmlFor="date">Date</label>
-                            <CFormInput type="date" id="date" name="date" value={filters.date} onChange={handleFilterChange} />
+                            <label htmlFor="inquiry_date" style={{ textDecoration: 'none', color: 'gray', marginTop: '5px' }}>Inquiry Date</label>
+                            <CFormInput
+                                type="date"
+                                id="inquiry_date"
+                                name="inquiry_date"
+                                value={filters.inquiry_date}
+                                onChange={handleFilterChange}
+                            />
 
-                            <label htmlFor="paymentStatus">Payment Status</label>
-                            <CFormSelect name="paymentStatus" value={filters.paymentStatus} onChange={handleFilterChange}>
-                                <option value="">Select</option>
-                                <option value="paid">Paid</option>
-                                <option value="unpaid">Unpaid</option>
+                            <label htmlFor="inquiry_payment_status" style={{ textDecoration: 'none', color: 'gray', marginTop: '5px' }}>Payment Status</label>
+                            <CFormSelect
+                                name="inquiry_payment_status"
+                                value={filters.inquiry_payment_status}
+                                onChange={handleFilterChange}
+                                placeholder='Selecta'
+                            >
+                                <option key={-1} value="">Select</option>
+                                {['Pending', 'Paid', 'Failed'].map((e, i) => (
+                                    <option key={i} value={i}>{e}</option>
+                                ))}
+                            </CFormSelect>
+                                
+                            <label htmlFor="question_id" style={{ textDecoration: 'none', color: 'gray', marginTop: '5px' }}>Question</label>
+                            <CFormSelect
+                                name='question_id'
+                                id='question_id'
+                                onChange={handleFilterChange}
+                            >
+                                <option key={-1} value={''}> Select </option>
+                                {question.map((k, v) => (
+                                    <option key={v} value={k._id}>{k.category_type} - {k.question}</option>
+                                ))}
+                            </CFormSelect>
+                            
+                            <label htmlFor="assignee_id" style={{ textDecoration: 'none', color: 'gray', marginTop: '5px' }}>Assignee</label>
+                            <CFormSelect
+                                name='assignee_id'
+                                value={filters.assignee_id}
+                                onChange={handleFilterChange}
+                            >
+                                <option key='-1' value=''>Select a User</option>
+                                {assignee_list.map((e, i) => (
+                                    <option key={i} value={e._id}>{e.name}</option>
+                                ))}
                             </CFormSelect>
 
-                            <label htmlFor="category">Category</label>
-                            <CFormInput type="text" id="category" name="category" value={filters.category} onChange={handleFilterChange} />
-
-                            <label htmlFor="guestName">Guest Name</label>
-                            <CFormInput type="text" id="guestName" name="guestName" value={filters.guestName} onChange={handleFilterChange} />
-
-                            <label htmlFor="status">Status</label>
-                            <CFormSelect name="status" value={filters.status} onChange={handleFilterChange}>
-                                <option value="">Select</option>
-                                <option value="active">Active</option>
-                                <option value="inactive">Inactive</option>
+                            <label htmlFor="category_type_id" style={{ textDecoration: 'none', color: 'gray', marginTop: '5px' }}>Category Type</label>
+                            <CFormSelect
+                                id="category_type_id"
+                                name="category_type_id"
+                                onChange={handleFilterChange}
+                            >   
+                                <option key={-1} value={''}>Select</option>
+                                {category_type.map((k, i) => (
+                                    <option key={i} value={k.id}>{k.name}</option>
+                                ))}
                             </CFormSelect>
                         </div>
                     </CModalBody>
@@ -316,6 +421,14 @@ const Inquiry = () => {
                         <CButton color="danger" onClick={handleClearFilters}>Clear Filters</CButton>
                     </CModalFooter>
                 </CModal>
+
+                {/* category_type: "Horosope"
+                    category_type_id: 1
+                    question: "1 day"
+                    question_category_id: "673eb375094af6a20d4686ce"
+                    question_category_name: "Horoscope"
+                    _id: "673eb390094af6a20d4686cf" */}
+
             </UserContext.Provider>
         );
     } catch (error) {

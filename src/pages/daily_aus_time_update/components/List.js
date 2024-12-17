@@ -81,7 +81,7 @@ const List = () => {
                             <CTableDataCell style={{ textAlign: 'center', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                                 <CButton
                                     style={{ padding: '4px 8px', fontSize: '14px', marginLeft: '5px', borderWidth: '0px 0px 1px 1px', borderStyle: 'solid', borderColor: 'gray' }}
-                                    onClick={() => handleEdit(profile._id)}
+                                    onClick={() => handleEdit(item._id)}
                                     size="sm"
                                 >
                                     <CIcon icon={cilPencil} style={{ color: '#ff9933' }} />
