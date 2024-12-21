@@ -240,7 +240,7 @@ const Inquiry = () => {
         };
 
         return (
-            <UserContext.Provider value={{ id: userTypeId, assignee: currentUser, userList, fromPage: fromPage, state: state, setState, status: status, setStatus, inquiryList: [inquiryList], setInquiryList, fetchInquiries, category_type }}>
+            <UserContext.Provider value={{ category_type, id: userTypeId, assignee: currentUser, userList, fromPage: fromPage, state: state, setState, status: status, setStatus, inquiryList: [inquiryList], setInquiryList, fetchInquiries, category_type }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: '', marginLeft: '20px' }}>
                     <CNav variant="tabs" onSelect={handleTabChange} style={{ marginBottom: '20px', backgroundColor: '#f8f9fa', borderRadius: '5px' }}>
                         {visibleTabs.includes('new') && (
@@ -397,9 +397,19 @@ const Inquiry = () => {
                                 onChange={handleFilterChange}
                             >
                                 <option key='-1' value=''>Select a User</option>
-                                {assignee_list.map((e, i) => (
-                                    <option key={i} value={e._id}>{e.name}</option>
-                                ))}
+                                {assignee_list.map((e, i) => {
+                                    if (state == 'expert' && e.user_type_id == 3) {
+                                        return <option key={i} value={e._id}>{e.name}</option>
+                                    }
+                                    else if (state == 'translator' && e.user_type_id == 4) {
+                                        return <option key={i} value={e._id}>{e.name}</option>
+                                    }
+                                    else if (state == 'reviewer' && e.user_type_id == 5) {
+                                        return <option key={i} value={e._id}>{e.name}</option>
+                                    }
+                                    else
+                                        return <></>
+                                })}
                             </CFormSelect>
 
                             <label htmlFor="category_type_id" style={{ textDecoration: 'none', color: 'gray', marginTop: '5px' }}>Category Type</label>
@@ -409,9 +419,9 @@ const Inquiry = () => {
                                 onChange={handleFilterChange}
                             >   
                                 <option key={-1} value={''}>Select</option>
-                                {category_type.map((k, i) => (
+                                {category_type.map((k, i) => {
                                     <option key={i} value={k.id}>{k.name}</option>
-                                ))}
+                                })}
                             </CFormSelect>
                         </div>
                     </CModalBody>

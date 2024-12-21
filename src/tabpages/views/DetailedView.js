@@ -8,7 +8,7 @@ import { UserContext } from '../Inquiry';
 import { DetailedContext } from './TableView';
 import { useToast } from '../../ToastComponent';
 import { Modal, Button } from 'react-bootstrap';
-import { FaCheck, FaSignOutAlt } from 'react-icons/fa';
+import { FaSignOutAlt } from 'react-icons/fa';
 
 export const commentContext = createContext();
 
@@ -18,7 +18,7 @@ const DetailedView = ({ item }) => {
     const [showConfirmation, setShowConfirmation] = useState(false);
     const [selectedCommentIndex, setSelectedCommentIndex] = useState(null);
 
-    const { fromPage, status, state, fetchInquiries } = useContext(UserContext);
+    const { fromPage, status, state, fetchInquiries, category_type } = useContext(UserContext);
     const { setShowDetailedView } = useContext(DetailedContext);
     const handleBackButtonClick = () => setShowDetailedView(false);
     const { showToast } = useToast();
@@ -254,12 +254,13 @@ const DetailedView = ({ item }) => {
                                             <span style={{ fontWeight: 600, fontSize: '16px' }}>Purchased: &nbsp;<ReactTimeAgo date={item.purchased_on} /></span>
                                             {/* Payment Badge */}
                                             <CBadge
-                                                color={!item.payment_successful ? 'success' : 'danger'}
                                                 style={{
                                                     padding: '5px 10px',
                                                     borderRadius: '5px',
                                                     fontSize: '14px',
                                                     fontWeight: '500',
+                                                    color: 'white',
+                                                    backgroundColor: !item.payment_successful ? '#556B2F' : 'darkred'
                                                 }}
                                             >
                                                 {!item.payment_successful ? 'Paid' : 'Cancelled'}
@@ -280,7 +281,7 @@ const DetailedView = ({ item }) => {
                                     }}
                                 >
                                     <h4 style={{ margin: 0, fontSize: '16px', fontWeight: 200 }}>
-                                        {item.category_type_id} - {item.question} {
+                                        {category_type.find(e => e.id == item.category_type_id)?.name} - {item.question} {
                                             (() => {
                                                 if (item.auspicious_from_date == null && item.horoscope_from_date == null) {
                                                     return null;

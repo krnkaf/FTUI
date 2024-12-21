@@ -4,19 +4,23 @@ import { Formik, Field, Form } from 'formik';
 import * as Yup from 'yup';
 import { GetToken, GetURL } from '../../../library/API';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useToast } from '../../../ToastComponent';
 
 const Manage = () => {
     const [userTypes, setUserTypes] = useState([]);
     const [initialValues, setInitialValues] = useState({
+        _id: '',
         name: '',
         email: '',
-        user_type_id: '',  // Initially as an empty string
+        user_type_id: '',
         password: '',
-        active: true  // New field for active status
+        active: true
     });
     const [updateId, setUpdateId] = useState(null);
     const navigate = useNavigate();
     const location = useLocation();
+
+    const { showToast } = useToast();
 
     useEffect(() => {
         const fetchUserTypes = async () => {
@@ -33,7 +37,7 @@ const Manage = () => {
                     setUserTypes(data.data.user_type);
                 }
             } catch (err) {
-                alert('An error occurred. Please try again later.');
+                showToast('Failed', 'An error occurred. Please try again later.', 2);
             }
         };
 
@@ -49,15 +53,16 @@ const Manage = () => {
                 const data = await response.json();
                 if (data.data && data.data.item) {
                     setInitialValues({
+                        _id: id,
                         name: data.data.item.name,
                         email: data.data.item.email,
                         user_type_id: data.data.item.user_type_id,
                         password: '',
-                        active: data.data.item.active || false  // Set active status
+                        active: data.data.item.active || false
                     });
                 }
             } catch (err) {
-                alert('An error occurred. Please try again later.');
+                showToast('Failed', 'An error occurred. Please try again later.', 2);
             }
         };
 
@@ -71,6 +76,7 @@ const Manage = () => {
         } else {
             setUpdateId(null);
             setInitialValues({
+                _id: '',
                 name: '',
                 email: '',
                 user_type_id: '',
@@ -90,12 +96,17 @@ const Manage = () => {
 
     const handleSubmit = async (values, { resetForm }) => {
         const url = updateId ? '/backend/Users/Update' : '/backend/Users/Create';
-        const method = updateId ? 'POST' : 'POST';
+        const method = 'POST';
+
         const payload = {
             ...values,
             user_type_id: Number(values.user_type_id),
             active: values.active
         };
+
+        if (updateId) {
+            payload._id = updateId;
+        }
 
         try {
             const response = await fetch(GetURL(url), {
@@ -110,10 +121,10 @@ const Manage = () => {
                 navigate('/page/user?page=list');
             } else {
                 const errorData = await response.json();
-                alert(errorData.message);
+                showToast('Failed', errorData.message);
             }
         } catch (err) {
-            alert('An error occurred. Please try again later.');
+            showToast('Failed', 'An error occurred. Please try again later.', 2);
         }
 
         resetForm();

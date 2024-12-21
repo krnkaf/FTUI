@@ -209,7 +209,7 @@ const List = () => {
                                 <CTableDataCell style={{ textAlign: 'center' }}>{formatDate(profile.updated_date)}</CTableDataCell>
                                 <CTableDataCell style={{ textAlign: 'center' }}>{profile.updated_by}</CTableDataCell>
                                 <CTableDataCell style={{ textAlign: 'center' }}>
-                                    {profile.guest_profile == null ? <CBadge color='body-secondary'><span style={{ color: 'gray' }}>Not Verified</span></CBadge> : <CBadge color='success'>Verified</CBadge>}
+                                    {profile.guest_profile == null ? <CBadge color='body-secondary'><span style={{ color: 'gray' }}>Not Verified</span></CBadge> : <CBadge style={{ color: 'white', backgroundColor: '#556B2F' }}>Verified</CBadge>}
                                 </CTableDataCell>
                                 <CTableDataCell style={{ textAlign: 'center' }}>
                                     <CFormCheck
