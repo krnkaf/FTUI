@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { CButton, CFormInput, CFormSelect, CFormCheck } from '@coreui/react';
-import { Formik, Field, Form } from 'formik';
+import { Button, Form, Row, Col, Card, Container, Alert } from 'react-bootstrap';
+import { Formik, Field, Form as FormikForm } from 'formik';
 import * as Yup from 'yup';
 import { GetToken, GetURL } from '../../../library/API';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -132,50 +132,103 @@ const Manage = () => {
 
     return (
         <>
-            <Formik
-                initialValues={initialValues}
-                enableReinitialize
-                validationSchema={validationSchema}
-                onSubmit={handleSubmit}
-            >
-                {({ handleSubmit, errors, touched }) => (
-                    <Form onSubmit={handleSubmit}>
-                        <div className="mb-3">
-                            <label htmlFor="name">Name</label>
-                            <Field as={CFormInput} type="text" id="name" name="name" />
-                            {errors.name && touched.name && <div className="text-danger">{errors.name}</div>}
-                        </div>
-                        <div className="mb-3">
-                            <label htmlFor="email">Email</label>
-                            <Field as={CFormInput} type="email" id="email" name="email" />
-                            {errors.email && touched.email && <div className="text-danger">{errors.email}</div>}
-                        </div>
-                        <div className="mb-3">
-                            <label htmlFor="user_type_id">User Type</label>
-                            <Field as={CFormSelect} name="user_type_id" id="user_type_id">
-                                <option value="">Select User Type</option>
-                                {userTypes.map(type => (
-                                    <option key={type.id} value={type.id}>{type.name}</option>
-                                ))}
-                            </Field>
-                            {errors.user_type_id && touched.user_type_id && <div className="text-danger">{errors.user_type_id}</div>}
-                        </div>
-                        <div className="mb-3">
-                            <label htmlFor="password">Password</label>
-                            <Field as={CFormInput} type="password" id="password" name="password" />
-                            {errors.password && touched.password && <div className="text-danger">{errors.password}</div>}
-                        </div>
-                        <div className="mb-3">
-                            <Field type="checkbox" id="active" name="active" />
-                            <label htmlFor="active" className="ms-2">Active</label>
-                            {errors.active && touched.active && <div className="text-danger">{errors.active}</div>}
-                        </div>
-                        <CButton type="submit" color="primary">
-                            {updateId ? "Update" : "Create"}
-                        </CButton>
-                    </Form>
-                )}
-            </Formik>
+            <Container className="py-5">
+                <Card>
+                    <Card.Body>
+                        <Card.Title className="text-center">{updateId ? "Update User" : "Create User"}</Card.Title>
+
+                        <Formik
+                            initialValues={initialValues}
+                            enableReinitialize
+                            validationSchema={validationSchema}
+                            onSubmit={handleSubmit}
+                        >
+                            {({ handleSubmit, errors, touched }) => (
+                                <FormikForm onSubmit={handleSubmit}>
+                                    <Row className="mb-3">
+                                        <Col sm={6}>
+                                            <Form.Label htmlFor="name">Name</Form.Label>
+                                            <Field
+                                                as={Form.Control}
+                                                type="text"
+                                                id="name"
+                                                name="name"
+                                                isInvalid={touched.name && !!errors.name}
+                                            />
+                                            <Form.Control.Feedback type="invalid">
+                                                {errors.name}
+                                            </Form.Control.Feedback>
+                                        </Col>
+
+                                        <Col sm={6}>
+                                            <Form.Label htmlFor="email">Email</Form.Label>
+                                            <Field
+                                                as={Form.Control}
+                                                type="email"
+                                                id="email"
+                                                name="email"
+                                                isInvalid={touched.email && !!errors.email}
+                                            />
+                                            <Form.Control.Feedback type="invalid">
+                                                {errors.email}
+                                            </Form.Control.Feedback>
+                                        </Col>
+                                    </Row>
+
+                                    <Row className="mb-3">
+                                        <Col sm={6}>
+                                            <Form.Label htmlFor="user_type_id">User Type</Form.Label>
+                                            <Field
+                                                as={Form.Select}
+                                                id="user_type_id"
+                                                name="user_type_id"
+                                                isInvalid={touched.user_type_id && !!errors.user_type_id}
+                                            >
+                                                <option value="">Select User Type</option>
+                                                {userTypes.map(type => (
+                                                    <option key={type.id} value={type.id}>{type.name}</option>
+                                                ))}
+                                            </Field>
+                                            <Form.Control.Feedback type="invalid">
+                                                {errors.user_type_id}
+                                            </Form.Control.Feedback>
+                                        </Col>
+                                    </Row>
+
+                                    <Row className="mb-3">
+                                        <Col sm={6}>
+                                            <Form.Label htmlFor="password">Password</Form.Label>
+                                            <Field
+                                                as={Form.Control}
+                                                type="password"
+                                                id="password"
+                                                name="password"
+                                                isInvalid={touched.password && !!errors.password}
+                                            />
+                                            <Form.Control.Feedback type="invalid">
+                                                {errors.password}
+                                            </Form.Control.Feedback>
+                                        </Col>
+                                    </Row>
+
+                                    <Row className="mb-3 align-items-center">
+                                        <Col sm={1}>
+                                            <Field type="checkbox" id="active" name="active" />
+                                            <Form.Label htmlFor="active">Active</Form.Label>
+                                        </Col>
+                                    </Row>
+
+                                    <div className="d-flex justify-content-center">
+                                        <Button type="submit" style={{ color: 'white', backgroundColor: '#ff9933', border: 'none' }} size="lg" className="w-50">
+                                            {updateId ? "Update" : "Create"}
+                                        </Button>
+                                    </div>
+                                </FormikForm>
+                            )}
+                        </Formik>
+                    </Card.Body>
+                </Card>
+            </Container>
         </>
     );
 };

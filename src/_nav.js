@@ -99,12 +99,12 @@ const user_nav = [
     to: '/page/questions',
     icon: <CIcon icon={cilDescription} customClassName="nav-icon" />,
   },
-  {
-    component: CNavItem,
-    name: 'Bundles',
-    to: '/page/bundles',
-    icon: <CIcon icon={cilDescription} customClassName="nav-icon" />,
-  },
+  // {
+  //   component: CNavItem,
+  //   name: 'Bundles',
+  //   to: '/page/bundles',
+  //   icon: <CIcon icon={cilDescription} customClassName="nav-icon" />,
+  // },
 ];
 
 // Define main navigation items

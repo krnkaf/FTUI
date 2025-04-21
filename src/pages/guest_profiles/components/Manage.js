@@ -20,6 +20,23 @@ const Manage = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
+    const seePlanetAPI = async (payload) => {
+        try {
+            const response = await fetch(GetURL(`/backend/GuestProfileUpdate/PlanetDetailAPIForGuest?guest_id=${updateId}`), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': GetToken()
+                },
+                body: JSON.stringify(payload)
+            });
+            const data = await response.json();
+            console.log(data)
+        } catch (e) {
+            console.log(e)
+        }
+    }
+
     useEffect(() => {
         const fetchRashiOptions = async () => {
             try {
@@ -99,6 +116,8 @@ const Manage = () => {
             rashi_id: values.rashi_id,
             compatibility_description: values.compatibility_description
         };
+
+        seePlanetAPI(payload);
 
         try {
             const response = await fetch(GetURL('/backend/GuestProfileUpdate/UpdateGuestProfile'), {

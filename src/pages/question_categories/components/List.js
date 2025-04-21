@@ -88,13 +88,13 @@ const List = () => {
                                     <CTableDataCell>{formatDate(category.created_date)}</CTableDataCell>
                                     <CTableDataCell>{category.created_by}</CTableDataCell>
                                     <CTableDataCell style={{ textAlign: 'center' }}>
-                                    <CFormCheck
-                                        style={{ backgroundColor: 'gray', border: 'none' }}
-                                        type="checkbox"
-                                        checked={category.active}
-                                        disabled
-                                    />
-                                </CTableDataCell>
+                                        <CFormCheck
+                                            style={{ backgroundColor: 'gray', border: 'none' }}
+                                            type="checkbox"
+                                            checked={category.active}
+                                            disabled
+                                        />
+                                    </CTableDataCell>
                                     <CTableDataCell>
                                         <CButton
                                         style={{ padding: '4px 8px', fontSize: '14px', marginLeft: '5px', borderWidth: '0px 0px 1px 1px', borderStyle: 'solid', borderColor: 'gray' }}

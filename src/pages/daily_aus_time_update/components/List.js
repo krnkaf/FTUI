@@ -78,7 +78,7 @@ const List = () => {
                             <CTableDataCell style={{ textAlign: 'center' }}>{item.updated_by}</CTableDataCell>
                             <CTableDataCell style={{ textAlign: 'center' }}>{formatDate(item.created_date)}</CTableDataCell>
                             <CTableDataCell style={{ textAlign: 'center' }}>{item.created_by}</CTableDataCell>
-                            <CTableDataCell style={{ textAlign: 'center', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                            <CTableDataCell style={{ textAlign: 'center', alignItems: 'center' }}>
                                 <CButton
                                     style={{ padding: '4px 8px', fontSize: '14px', marginLeft: '5px', borderWidth: '0px 0px 1px 1px', borderStyle: 'solid', borderColor: 'gray' }}
                                     onClick={() => handleEdit(item._id)}

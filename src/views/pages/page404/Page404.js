@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import {
   CButton,
   CCol,
@@ -12,6 +12,12 @@ import CIcon from '@coreui/icons-react'
 import { cilMagnifyingGlass } from '@coreui/icons'
 
 const Page404 = () => {
+  useEffect(() => {
+    if (navigator.onLine) {
+      window.location.href = '/';
+    }
+  }, [])
+
   return (
     <div className="bg-body-tertiary min-vh-100 d-flex flex-row align-items-center">
       <CContainer>

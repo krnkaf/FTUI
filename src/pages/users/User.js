@@ -24,12 +24,32 @@ function User() {
         }
     }, [location.search]);
 
+    const tabStyle = (isActive) => ({
+        backgroundColor: isActive ? '#ff9933' : '#ffffff',
+        color: isActive ? '#ffffff' : '#000000',
+        border: '1px solid #ff9933',
+        cursor: 'pointer',
+        marginRight: '5px'
+    });
+
     return (
         <>
             <CTabs activeItemKey={activeTab}>
-                <CTabList style={{ float: "right" }} variant="pills">
-                    <CTab itemKey="list" onClick={() => switchTab("list")}>List</CTab>
-                    <CTab itemKey="manage" onClick={() => switchTab("manage")}>Manage</CTab>
+                <CTabList style={{ float: "right", marginRight: '10px' }} variant="pills">
+                    <CTab
+                        itemKey="list"
+                        onClick={() => switchTab("list")}
+                        style={tabStyle(activeTab === 'list')}
+                    >
+                        List
+                    </CTab>
+                    <CTab
+                        itemKey="manage"
+                        onClick={() => switchTab("manage")}
+                        style={tabStyle(activeTab === 'manage')}
+                    >
+                        Manage
+                    </CTab>
                 </CTabList>
             </CTabs> <br/><br/>
             <CTabContent>

@@ -29,19 +29,19 @@ function DailyRashiUpdates() {
         }
     }, [location.search]);
 
-    const getTabStyle = (tab) => {
-        return {
-            backgroundColor: activeTab === tab ? '#ff9933' : '#ffffff',
-            color: activeTab === tab ? '#ffffff' : '#ff9933',
-            border: 'none',
-        };
-    }
+    const tabStyle = (isActive) => ({
+        backgroundColor: isActive ? '#ff9933' : '#ffffff',
+        color: isActive ? '#ffffff' : '#000000',
+        border: '1px solid #ff9933',
+        cursor: 'pointer',
+        marginRight: '5px'
+    });
 
     return <>
         <CTabs activeItemKey={activeTab}>
             <CTabList style={{ "float": "right" }} variant="pills">
-                <CTab itemKey="list" onClick={e => swithTab("list")} style={getTabStyle('list')}>List</CTab>
-                <CTab itemKey="manage" onClick={e => swithTab("manage")} style={getTabStyle('manage')}>Manage</CTab>
+                <CTab itemKey="list" onClick={e => swithTab("list")} style={tabStyle(activeTab === 'list')}>List</CTab>
+                <CTab itemKey="manage" onClick={e => swithTab("manage")} style={tabStyle(activeTab === 'manage')}>Manage</CTab>
             </CTabList>
         </CTabs> <br /><br />
         <CTabContent>

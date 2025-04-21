@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { CCard, CCardBody, CCardHeader, CButton, CRow, CCol, CBadge, CModal, CModalHeader } from '@coreui/react';
+import { CCard, CCardBody, CCardHeader, CButton, CRow, CCol, CBadge, CModal, CModalHeader, CTable, CTableHead, CTableHeaderCell, CTableBody, CTableDataCell, CTableRow } from '@coreui/react';
 import SupportVisible from './SupportVisible';
 import Submit from './Submit';
 import { GetURL, GetToken } from '../../library/API';
@@ -9,10 +9,20 @@ import { DetailedContext } from './TableView';
 import { useToast } from '../../ToastComponent';
 import { Modal, Button } from 'react-bootstrap';
 import { FaSignOutAlt } from 'react-icons/fa';
+import CIcon from '@coreui/icons-react';
+import { cilX } from '@coreui/icons';
+import '../../scss/style.scss'
+import HoroscopePlanetDetail from './Vedic Plots/HoroscopePlanetDetail';
+import MatchingNorthMatchWithAstro from './Vedic Plots/MatchingNorthMatchWithAstro';
+import Panchang from './Vedic Plots/Panchang';
+import DashaCurrentMahaDashaFull from './Vedic Plots/DashaCurrentMahaDashaFull';
 
 export const commentContext = createContext();
 
-const DetailedView = ({ item }) => {
+const DetailedView = ({ i_no }) => {
+
+    const [item, setItem] = useState(null)
+
     const [comments, setComments] = useState([]);
     const [expandedComments, setExpandedComments] = useState([]);
     const [showConfirmation, setShowConfirmation] = useState(false);
@@ -23,27 +33,85 @@ const DetailedView = ({ item }) => {
     const handleBackButtonClick = () => setShowDetailedView(false);
     const { showToast } = useToast();
 
-    const navbarHeight = 60;
+    const [data, setData] = useState([]);
+    const [showVedicResponse1and2, setShowVedicResponse1and2] = useState(false);
+    const [showVedicResponse3, setShowVedicResponse3] = useState(false);
+    const [showVedicResponse4, setShowVedicResponse4] = useState(false);
+    const [showVedicResponse5, setShowVedicResponse5] = useState(false);
 
-    useEffect(() => {
-        const FetchComments = async (item) => {
-            try {
-                const response = await fetch(GetURL(`/backend/InquiryManagement/GetCommentHistory?inquiry_id=${item.inquiry_id}`), {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': GetToken(),
-                    },
-                });
-                const data = await response.json();
-                setComments(data.data.comment);
-            } catch (err) {
-                // alert('An error occurred. Please try again later.' + err);
-                showToast('Failed', 'Cannot fetch comments right now.', 2);
+    const callVedicAPI = async (inquiry_id, vedic_api_type) => {
+        try {
+            const response = await fetch(GetURL(`/backend/InquiryManagement/CallVedicAPI?inquiry_id=${inquiry_id}&vedic_api_type_id=${vedic_api_type}`), {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'authorization': GetToken()
+                }
+            })
+            if (response.status == 200) {
+                fetchSpecificInquiry(i_no);
             }
-        };
+        } catch (err) {
+            console.log(err)
+        }
+    }
 
-        FetchComments(item);
+    const fetchSpecificInquiry = async (inq) => {
+        try {
+            const response = await fetch(GetURL(`/backend/InquiryManagement/GetInquiriyByNumber?inquiry_number=${inq}`), {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': GetToken()
+                }
+            });
+            const data = await response.json();
+            const item = data.data.inquiry;
+            setItem(item);
+        } catch (e) {
+            console.log(e);
+        }
+    };
+
+    // const fetchSpecificInquiry = async (inq) => {
+    //     try {
+    //         const response = await fetch(GetURL(`/backend/InquiryManagement/GetInquiriyByNumber?inquiry_number=${inq}`), {
+    //             method: 'GET',
+    //             headers: {
+    //                 'Content-Type': 'application/json',
+    //                 'Authorization': GetToken()
+    //             }
+    //         });
+    //         const data = await response.json();
+    //         const item = data.data.inquiry;
+    //         setItem(item);
+    //         return item; // Return the item so we can use it right away if needed
+    //     } catch (e) {
+    //         console.log(e);
+    //     }
+    // };
+    
+    // const callVedicAPI = async (inquiry_id, vedic_api_type) => {
+    //     try {
+    //         const response = await fetch(GetURL(`/backend/InquiryManagement/CallVedicAPI?inquiry_id=${inquiry_id}&vedic_api_type_id=${vedic_api_type}`), {
+    //             method: 'GET',
+    //             headers: {
+    //                 'Content-Type': 'application/json',
+    //                 'authorization': GetToken()
+    //             }
+    //         });
+    //         if (response.status === 200) {
+    //             await fetchSpecificInquiry(inquiry_id); // Also await this inside callVedicAPI
+    //         }
+    //     } catch (err) {
+    //         console.log(err);
+    //     }
+    // };
+    
+    
+    useEffect(() => {
+
+        fetchSpecificInquiry(i_no);
 
         const handleKeyPress = (e) => {
             if (e.key === 'Escape') {
@@ -53,6 +121,30 @@ const DetailedView = ({ item }) => {
 
         window.addEventListener('keydown', handleKeyPress);
         return () => window.removeEventListener('keydown', handleKeyPress);
+    }, []);
+
+    useEffect(() => {
+        const FetchComments = async (item) => {
+            try {
+                if (item && item.inquiry_id) {  // Check if item is not null and has inquiry_id
+                    const response = await fetch(GetURL(`/backend/InquiryManagement/GetCommentHistory?inquiry_id=${item.inquiry_id}`), {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': GetToken(),
+                        },
+                    });
+                    const data = await response.json();
+                    setComments(data.data.comment);
+                }
+            } catch (err) {
+                showToast('Failed', 'Cannot fetch comments right now.', 2);
+            }
+        };
+
+        if (item) {
+            FetchComments(item);
+        }
     }, [item]);
 
     const handleCheckmarkClick = (index) => {
@@ -81,7 +173,7 @@ const DetailedView = ({ item }) => {
         });
     };
 
-    const ProfileCard = ({ name, dob, tob, city_id, visible, from }) => {
+    const ProfileCard = ({ name, dob, tob, city_id, time_zone, visible, from }) => {
         return (
             <CCard
                 className="mb-3"
@@ -99,7 +191,8 @@ const DetailedView = ({ item }) => {
                     <strong>Name:</strong> {name || 'N/A'} <br />
                     <strong>DOB:</strong> {dob || 'N/A'} <br />
                     <strong>TOB:</strong> {Intl.DateTimeFormat('en-us', { hour: '2-digit', minute: '2-digit', hour12: true }).format((new Date(`1970-01-01T${tob}:00Z`))) || 'N/A'} <br />
-                    <strong>POB:</strong> {city_id || 'N/A'}
+                    <strong>POB:</strong> {city_id || 'N/A'} <br />
+                    <strong>Timezone:</strong> {time_zone || 'N/A'}
                 </CCardBody>
             </CCard>
         );
@@ -175,6 +268,94 @@ const DetailedView = ({ item }) => {
         }
     };
 
+    const getPlanet = async (inq_id, type) => {
+        await callVedicAPI(inq_id, String(type));
+        await fetchSpecificInquiry(i_no);
+        let r_list = item.vedic_api_response_list;
+
+        if (r_list == null || r_list == []) {
+            alert("no vedic responses yet");
+            return;
+        }
+
+        var index = 0;
+        var found = false;
+
+        for (let i = 0; i < r_list.length; i++) {
+            console.log("i:", i)
+            console.log(i, "data:", r_list[i].vedic_api_type_id)
+            if (r_list[i].vedic_api_type_id == type) {
+                index = i;
+                found = true;
+            }
+        }
+
+        if (found) {
+            setData(JSON.parse(r_list[index].vedic_api_response).response)
+        } else {
+            return 0;
+        }
+
+        if (type == 1 || type == 2) {
+            setShowVedicResponse3(false);
+            setShowVedicResponse4(false);
+            setShowVedicResponse5(false);
+            setShowVedicResponse1and2(true);
+        } else if (type == 3) {
+            setShowVedicResponse1and2(false);
+            setShowVedicResponse4(false);
+            setShowVedicResponse5(false);
+            setShowVedicResponse3(true);
+        } else if (type == 4) {
+            setShowVedicResponse1and2(false);
+            setShowVedicResponse3(false);
+            setShowVedicResponse5(false);
+            setShowVedicResponse4(true);
+        } else if (type == 5) {
+            setShowVedicResponse1and2(false);
+            setShowVedicResponse3(false);
+            setShowVedicResponse4(false);
+            setShowVedicResponse5(true);
+        } else {
+            alert("Error Fetching Type")
+        }
+
+    }
+
+    // const getPlanet = async (inq_id, type) => {
+    //     await callVedicAPI(inq_id, String(type));
+    //     await fetchSpecificInquiry(i_no); // Make sure this is awaited properly
+    
+    //     // Now read the freshly updated item
+    //     let updatedItem = await getUpdatedItem(); // You'll need to access the latest item, explained below
+    //     let r_list = updatedItem?.vedic_api_response_list;
+    
+    //     if (!r_list || r_list.length === 0) {
+    //         alert("no vedic responses yet");
+    //         return;
+    //     }
+    
+    //     let index = r_list.findIndex(r => r.vedic_api_type_id == type);
+    //     if (index === -1) return;
+    
+    //     setData(JSON.parse(r_list[index].vedic_api_response).response);
+    
+    //     // set the response flags
+    //     setShowVedicResponse1and2(type === 1 || type === 2);
+    //     setShowVedicResponse3(type === 3);
+    //     setShowVedicResponse4(type === 4);
+    //     setShowVedicResponse5(type === 5);
+    
+    //     if (![1,2,3,4,5].includes(type)) {
+    //         alert("Error Fetching Type");
+    //     }
+    // };
+    
+
+    if (item == null) {
+        return <div>Null Item!</div>
+    }
+
     return (
         <CModal visible={true}>
             <CModalHeader>
@@ -231,6 +412,25 @@ const DetailedView = ({ item }) => {
                                         width: '100%',
                                     }}
                                 >
+                                    <button onClick={async () => {
+                                        const category = category_type.find(e => e.id == item.category_type_id)?.name;
+                                        fetch("http://localhost:3001/send-notification", {
+                                            method: 'POST',
+                                            headers: {
+                                                "Content-Type": "application/json"
+                                            },
+                                            body: JSON.stringify({
+                                                "title": category + " - " + item.question,
+                                                "body": "Click here to view reply",
+                                                "deviceToken": "fU4TlznlS16sYApf8b_p_c:APA91bHLN1J0dVEGqYDE9764Yi0zvSZG7DRIIdr0E3YAuAT-dT2f_oy5RpMrLQwKfp2_-fFt480fpsgM5k9L1F5gueNyIfr-a1kAZhjvPwSMqHCyDsBc9tM",
+                                                "data": {
+                                                    "route": "/chat",
+                                                    "inquiry_id": item.inquiry_id,
+                                                    "inquiry": item
+                                                }
+                                            })
+                                        });
+                                    }}>Send Notification</button>
                                     <div style={{ display: 'flex', width: '100%', alignItems: 'center' }}>
                                         {/* Back Button */}
                                         <CButton
@@ -273,6 +473,7 @@ const DetailedView = ({ item }) => {
                                     style={{
                                         display: 'flex',
                                         alignItems: 'center',
+                                        justifyContent: 'space-between',
                                         padding: '15px 15px 15px 15px',
                                         backgroundColor: '#FFFFFF',
                                         borderRadius: '0 0 10px 10px',
@@ -295,7 +496,28 @@ const DetailedView = ({ item }) => {
                                             })()
                                         }
                                     </h4>
+
+                                    {(localStorage.getItem('user_type_id') == 1 || localStorage.getItem('user_type_id') == 3) && (
+                                        <span style={{ display: 'flex', flexDirection: 'row', alignSelf: 'flex-end' }}>
+                                            <CButton className="btn btn-sm" style={{ border: '1px solid black', marginRight: '1px', fontSize: 'xx-small', padding: '3px', marginLeft: '1px' }} onClick={() => getPlanet(item.inquiry_id, 1)}>
+                                                Horoscope Planet Detail (Current)
+                                            </CButton>
+                                            <CButton className="btn btn-sm" style={{ border: '1px solid black', marginRight: '1px', fontSize: 'xx-small', padding: '3px', marginLeft: '1px' }} onClick={() => getPlanet(item.inquiry_id, 2)}>
+                                                Horoscope Planet Detail (Birth)
+                                            </CButton>
+                                            <CButton className="btn btn-sm" style={{ border: '1px solid black', marginRight: '1px', fontSize: 'xx-small', padding: '3px', marginLeft: '1px' }} onClick={() => getPlanet(item.inquiry_id, 3)}>
+                                                Matching North Match With Astro
+                                            </CButton>
+                                            <CButton className="btn btn-sm" style={{ border: '1px solid black', marginRight: '1px', fontSize: 'xx-small', padding: '3px', marginLeft: '1px' }} onClick={() => getPlanet(item.inquiry_id, 4)}>
+                                                Panchang
+                                            </CButton>
+                                            <CButton className="btn btn-sm" style={{ border: '1px solid black', marginRight: '1px', fontSize: 'xx-small', padding: '3px', marginLeft: '1px' }} onClick={() => getPlanet(item.inquiry_id, 5)}>
+                                                Dasha Current Maha Dasha Full
+                                            </CButton>
+                                        </span>
+                                    )}
                                 </CCardHeader>
+
                             </CCard>
                             {/* Content Section: Vertical Split Begins Below Header */}
                             <div style={{ display: 'flex', flexDirection: 'row', width: '100%' }}>
@@ -328,7 +550,8 @@ const DetailedView = ({ item }) => {
                                                     name={item.profile1.name}
                                                     dob={item.profile1.dob}
                                                     tob={item.profile1.tob}
-                                                    city_id={item.profile1.city_id}
+                                                    city_id={item.profile1.city.city_ascii}
+                                                    time_zone={item.profile1.tz.toString()}
                                                     visible={true}
                                                     from={"Profile 1"}
                                                 />
@@ -346,7 +569,8 @@ const DetailedView = ({ item }) => {
                                                         name={item.profile2.name}
                                                         dob={item.profile2.dob}
                                                         tob={item.profile2.tob}
-                                                        city_id={item.profile2.city_id}
+                                                        city_id={item.profile2.city.city_ascii}
+                                                        time_zone={item.profile1.tz}
                                                         visible={item.profile2}
                                                         from={"Profile 2"}
                                                     />
@@ -454,7 +678,26 @@ const DetailedView = ({ item }) => {
                                                                 >
                                                                     {(useContext(UserContext).id == 1 || useContext(UserContext).id == 2) && isLatestComment && isPendingReviewer && (
                                                                         <div
-                                                                            onClick={() => handleCheckmarkClick(index)}
+                                                                            onClick={() => {
+                                                                                handleCheckmarkClick(index);
+                                                                                const category = category_type.find(e => e.id == item.category_type_id)?.name;
+                                                                                fetch("http://localhost:3001/send-notification", {
+                                                                                    method: 'POST',
+                                                                                    headers: {
+                                                                                        "Content-Type": "application/json"
+                                                                                    },
+                                                                                    body: JSON.stringify({
+                                                                                        "title": category + " - " + item.question,
+                                                                                        "body": "Click here to view reply",
+                                                                                        "deviceToken": "fU4TlznlS16sYApf8b_p_c:APA91bHLN1J0dVEGqYDE9764Yi0zvSZG7DRIIdr0E3YAuAT-dT2f_oy5RpMrLQwKfp2_-fFt480fpsgM5k9L1F5gueNyIfr-a1kAZhjvPwSMqHCyDsBc9tM",
+                                                                                        "data": {
+                                                                                            "route": "/chat",
+                                                                                            "inquiry_id": item.inquiry_id,
+                                                                                            "inquiry": item
+                                                                                        }
+                                                                                    })
+                                                                                })
+                                                                            }}
                                                                             style={{
                                                                                 color: '#ff9933',
                                                                                 fontSize: '16px',
@@ -549,6 +792,35 @@ const DetailedView = ({ item }) => {
                                     </CCardBody>
                                 </CCard>
                             </div>
+
+                            {(showVedicResponse1and2 && data != null) && (
+                                <div>
+                                    <button onClick={() => setShowVedicResponse1and2(false)}><CIcon icon={cilX} /></button>
+                                    <br />
+                                    <HoroscopePlanetDetail data={data} getPlanet={getPlanet} item={item}/>
+                                </div>
+                            )}
+                            {(showVedicResponse3 && data != null) && (
+                                <div>
+                                    <button onClick={() => setShowVedicResponse3(false)}><CIcon icon={cilX} /></button>
+                                    <br />
+                                    <MatchingNorthMatchWithAstro data={data} getPlanet={getPlanet} item={item}/>
+                                </div>
+                            )}
+                            {(showVedicResponse4 && data != null) && (
+                                <div>
+                                    <button onClick={() => setShowVedicResponse4(false)}><CIcon icon={cilX} /></button>
+                                    <br />
+                                    <Panchang data={data} getPlanet={getPlanet} item={item}/>
+                                </div>
+                            )}
+                            {(showVedicResponse5 && data != null) && (
+                                <div>
+                                    <button onClick={() => setShowVedicResponse5(false)}><CIcon icon={cilX} /></button>
+                                    <br />
+                                    <DashaCurrentMahaDashaFull data={data} getPlanet={getPlanet} item={item}/>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </commentContext.Provider>

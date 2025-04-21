@@ -10,6 +10,7 @@ import { FaSearch } from 'react-icons/fa';
 import { useToast } from '../../../ToastComponent';
 
 const List = () => {
+    const [loading, setLoading] = useState(true);
     const { showToast } = useToast();
     const [initialValues] = useState({
         name: '',
@@ -28,10 +29,68 @@ const List = () => {
     const [defaultChecked, setDefaultChecked] = useState([false, false, true]);
     const pageSize = 5;
     const navigate = useNavigate();
+    const newData = {
+        "_id": "67d6a3783e72b4a6d9ac90a3",
+        "name": "string",
+        "email": "jaagya22@tbc.edu.np",
+        "city_id": "67d68b6f3e72b4a6d9abd935",
+        "tz": 3.22,
+        "dob": "2024-01-01",
+        "tob": "23:59",
+        "token": "6fe8db73-07f8-4dc2-b663-40c162433622",
+        "otp": null,
+        "active": true,
+        "device_token": "123456",
+        "device_type": "android",
+        "guest_profile": null,
+        "city": {
+            "_id": "67d68b6f3e72b4a6d9abd935",
+            "city_ascii": "Kathmandu",
+            "lat": "27.7100",
+            "lng": "85.3200",
+            "country": "Nepal",
+            "iso2": "NP",
+            "iso3": "NPL",
+            "city_id": "1524589448",
+            "updated_date": "0001-01-01T00:00:00Z",
+            "updated_by": null,
+            "created_date": "0001-01-01T00:00:00Z",
+            "created_by": null
+        },
+        "api_planet_detail": null,
+        "updated_date": "2025-03-16T10:10:00.578Z",
+        "updated_by": "",
+        "created_date": "2025-03-16T10:10:00.578Z",
+        "created_by": ""
+    }
 
     const [showFilterModal, setShowFilterModal] = useState(false);
 
+    const [cities, setCities] = useState([])
+
+    const fetchCities = async (city) => {
+        try {
+            const response = await fetch(GetURL(`/frontend/Guests/SearchCity?search_param=${city}`), {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': GetToken()
+                }
+            })
+
+            const data = await response.json();
+            setCities(data);
+            // return String.toString(data);
+        } catch (err) {
+            console.err(err);
+            return 'none';
+        } finally {
+            setLoading(true);
+        }
+    }
+
     useEffect(() => {
+
         const fetchData = async () => {
             try {
                 const params = new URLSearchParams({
@@ -121,6 +180,10 @@ const List = () => {
 
     const pageCount = totalCount ? Math.ceil(totalCount / pageSize) : 0;
 
+    // if (loading) {
+    //     return <div>Loading...</div>;
+    // }
+
     return (
         <div className='tablediv'>
             <CButton color='info' onClick={() => setShowFilterModal(true)} style={{ backgroundColor: '#ff9933', border: 'none' }}> <FaSearch style={{ verticalAlign: 'baseline', color: 'white' }} /> </CButton>
@@ -182,12 +245,13 @@ const List = () => {
             </CModal>
 
             <h4 style={{ marginTop: '20px' }}>Guests</h4>
+            <button onClick={() => { console.log(cities) }}>Cities</button>
             <CTable hover>
                 <thead>
                     <CTableRow>
                         <CTableHeaderCell style={{ textAlign: 'left' }}>Name</CTableHeaderCell>
                         <CTableHeaderCell style={{ textAlign: 'left' }}>Email</CTableHeaderCell>
-                        <CTableHeaderCell style={{ textAlign: 'left' }}>City ID</CTableHeaderCell>
+                        <CTableHeaderCell style={{ textAlign: 'left' }}>City</CTableHeaderCell>
                         <CTableHeaderCell style={{ textAlign: 'center' }}>Date of Birth</CTableHeaderCell>
                         <CTableHeaderCell style={{ textAlign: 'center' }}>Time of Birth</CTableHeaderCell>
                         <CTableHeaderCell style={{ textAlign: 'center' }}>Updated Date</CTableHeaderCell>
@@ -203,7 +267,7 @@ const List = () => {
                             <CTableRow>
                                 <CTableDataCell style={{ textAlign: 'left' }}>{profile.name}</CTableDataCell>
                                 <CTableDataCell style={{ textAlign: 'left' }}>{profile.email}</CTableDataCell>
-                                <CTableDataCell style={{ textAlign: 'left' }}>{profile.city_id}</CTableDataCell>
+                                <CTableDataCell style={{ textAlign: 'left' }}>{profile.city.city_ascii}</CTableDataCell>
                                 <CTableDataCell style={{ textAlign: 'center' }}>{profile.dob}</CTableDataCell>
                                 <CTableDataCell style={{ textAlign: 'center' }}>{Intl.DateTimeFormat('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }).format(new Date("2024-01-01T" + profile.tob + ":27.642Z"))}</CTableDataCell>
                                 <CTableDataCell style={{ textAlign: 'center' }}>{formatDate(profile.updated_date)}</CTableDataCell>
@@ -219,7 +283,7 @@ const List = () => {
                                         disabled
                                     />
                                 </CTableDataCell>
-                                <CTableDataCell style={{ textAlign: 'center', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                <CTableDataCell style={{ textAlign: 'center', alignItems: 'center' }}>
                                     {profile.guest_profile ? (
                                         <CButton
                                             style={{ padding: '4px 8px', fontSize: '14px', margin: '0 5px', borderWidth: '0px 0px 1px 1px', borderStyle: 'solid', borderColor: 'gray' }}

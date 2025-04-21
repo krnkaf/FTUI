@@ -28,12 +28,20 @@ function DailyAusTimeUpdate(){
             setActiveTab('list');
         }
     },[location.search]);
+    
+    const tabStyle = (isActive) => ({
+        backgroundColor: isActive ? '#ff9933' : '#ffffff',
+        color: isActive ? '#ffffff' : '#000000',
+        border: '1px solid #ff9933',
+        cursor: 'pointer',
+        marginRight: '5px'
+    });
 
     return <>
             <CTabs activeItemKey={activeTab}>
                 <CTabList style={{"float":"right"}}  variant="pills">
-                    <CTab itemKey="list" onClick={e=>swithTab("list")}>List</CTab>
-                    <CTab itemKey="manage" onClick={e=>swithTab("manage")}>Manage</CTab>
+                    <CTab itemKey="list" onClick={e=>swithTab("list")} style={tabStyle(activeTab === 'list')}>List</CTab>
+                    <CTab itemKey="manage" onClick={e=>swithTab("manage")} style={tabStyle(activeTab === 'manage')}>Manage</CTab>
                 </CTabList>
             </CTabs> <br/><br/>
             <CTabContent>

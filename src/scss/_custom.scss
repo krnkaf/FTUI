@@ -13,3 +13,40 @@ label {
 .EditButton {
     margin-right: 10px;
 }
+
+#vedic-table-main {
+    font-size: x-small;
+    width: 50%;
+}
+
+#vedic-small-1 {
+    font-size: x-small;
+}
+
+#vedic-small-2 {
+    font-size: x-small;
+}
+
+#vedic-small-3 {
+    font-size: x-small;
+}
+
+#vedic-med-1 {
+    font-size: x-small;
+}
+
+#vedic-med-2 {
+    font-size: x-small;
+}
+
+.compact-1 table {
+    padding: 0px;
+}
+
+.compact-1 table, th, td {
+    line-height: 1.2;
+}
+
+.compact-1 table th,td {
+    max-width: 50%;
+}

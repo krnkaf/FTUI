@@ -1,71 +1,43 @@
 import React, { useEffect, useState } from 'react';
-import { CButton, CTable, CTableRow, CTableHeaderCell, CTableBody, CTableDataCell, CToaster, CToast, CToastHeader, CToastBody, CTableHead } from '@coreui/react';
+import {
+    CButton,
+    CTable,
+    CTableRow,
+    CTableHeaderCell,
+    CTableBody,
+    CTableDataCell,
+    CTableHead
+} from '@coreui/react';
 import { GetToken, GetURL } from '../../../library/API';
 import { useNavigate } from 'react-router-dom';
+import { cilPencil } from '@coreui/icons';
+import { useToast } from '../../../ToastComponent';
+import CIcon from '@coreui/icons-react';
 
 const List = () => {
     const [questions, setQuestions] = useState([]);
-    const [categories, setCategories] = useState([]);
-    const [users, setUsers] = useState([]); 
-    const [userMap, setUserMap] = useState({}); 
-    const [toast, setToast] = useState({ visible: false, message: '' });
+    const { showToast } = useToast();
     const navigate = useNavigate();
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const categoryResponse = await fetch(GetURL("/backend/Question/LoadBaseData"), {
+                const response = await fetch(GetURL("/backend/Question/GetAllList"), {
                     method: 'GET',
-                    headers: { 
+                    headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': GetToken() 
+                        'Authorization': GetToken()
                     },
                 });
 
-                if (categoryResponse.ok) {
-                    const categoryData = await categoryResponse.json();
-                    setCategories(categoryData.data.question_category_items);
-                } else {
-                    console.error('Failed to fetch categories');
-                }
-
-                const questionResponse = await fetch(GetURL("/backend/Question/GetAllList"), {
-                    method: 'GET',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Authorization': GetToken() 
-                    },
-                });
-
-                if (questionResponse.ok) {
-                    const questionData = await questionResponse.json();
-                    setQuestions(questionData.data.list);
+                if (response.ok) {
+                    const data = await response.json();
+                    setQuestions(data.data.list);
                 } else {
                     console.error('Failed to fetch questions');
                 }
-
-                const userResponse = await fetch(GetURL("/backend/Users/GetAllList"), {
-                    method: 'GET',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Authorization': GetToken() 
-                    },
-                });
-
-                if (userResponse.ok) {
-                    const userData = await userResponse.json();
-                    setUsers(userData.data.list);
-
-                    const userMap = userData.data.list.reduce((acc, user) => {
-                        acc[user._id] = user;
-                        return acc;
-                    }, {});
-                    setUserMap(userMap);
-                } else {
-                    console.error('Failed to fetch users');
-                }
             } catch (error) {
-                setToast({ visible: true, message: `An error occurred: ${error}` });
+                showToast('Failed', `An error occurred: ${error}`, 2);
             }
         };
 
@@ -77,6 +49,7 @@ const List = () => {
     };
 
     const formatDate = (dateString) => {
+        if (!dateString) return "N/A";
         const date = new Date(dateString);
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -87,40 +60,28 @@ const List = () => {
     };
 
     return (
-        <div style={{ padding: '20px' }}>
-            {/* Add margin top and bottom, also ensure the table is responsive and takes full width */}
-            <CTable
-                hover
-                responsive
-                style={{
-                    width: 'calc(100% - 40px)', // Full width minus left and right margins
-                    marginTop: '20px',          // Margin on top of the table
-                    marginBottom: '20px',       // Margin below the table
-                    marginLeft: '20px',         // Margin on the left
-                    marginRight: '20px',        // Margin on the right
-                    borderRadius: '8px',
-                    boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
-                    borderCollapse: 'collapse',
-                }}
-            >
-                <CTableHead
-                    style={{
-                        position: 'sticky',
-                        top: 0,
-                        backgroundColor: '#f8f8f8',
-                        zIndex: 1,
-                    }}
-                >
+        <div className='tablediv'>
+            <h4>Questions</h4>
+            <CTable hover>
+                <CTableHead>
+                    <CTableRow>
                         <CTableHeaderCell>Question</CTableHeaderCell>
                         <CTableHeaderCell>Category</CTableHeaderCell>
                         <CTableHeaderCell>Order ID</CTableHeaderCell>
                         <CTableHeaderCell>Price</CTableHeaderCell>
+                        <CTableHeaderCell>Price Before Discount</CTableHeaderCell>
+                        <CTableHeaderCell>Discount Amount</CTableHeaderCell>
+                        <CTableHeaderCell>Is Initial Offering</CTableHeaderCell>
+                        <CTableHeaderCell>Is Bundle</CTableHeaderCell>
+                        <CTableHeaderCell>Effective From</CTableHeaderCell>
+                        <CTableHeaderCell>Effective To</CTableHeaderCell>
                         <CTableHeaderCell>Updated Date</CTableHeaderCell>
                         <CTableHeaderCell>Updated By</CTableHeaderCell>
                         <CTableHeaderCell>Created Date</CTableHeaderCell>
                         <CTableHeaderCell>Created By</CTableHeaderCell>
                         <CTableHeaderCell>Active</CTableHeaderCell>
                         <CTableHeaderCell>Action</CTableHeaderCell>
+                    </CTableRow>
                 </CTableHead>
                 <CTableBody>
                     {questions.map((item) => (
@@ -129,6 +90,12 @@ const List = () => {
                             <CTableDataCell>{item.question_category_name}</CTableDataCell>
                             <CTableDataCell>{item.order_id}</CTableDataCell>
                             <CTableDataCell>{item.price}</CTableDataCell>
+                            <CTableDataCell>{item.price_before_discount}</CTableDataCell>
+                            <CTableDataCell>{item.discount_amount}</CTableDataCell>
+                            <CTableDataCell>{item.is_initial_offerings ? "Yes" : "No"}</CTableDataCell>
+                            <CTableDataCell>{item.is_bundle ? "Yes" : "No"}</CTableDataCell>
+                            <CTableDataCell>{formatDate(item.effective_from)}</CTableDataCell>
+                            <CTableDataCell>{formatDate(item.effective_to)}</CTableDataCell>
                             <CTableDataCell>{formatDate(item.updated_date)}</CTableDataCell>
                             <CTableDataCell>{item.updated_by}</CTableDataCell>
                             <CTableDataCell>{formatDate(item.created_date)}</CTableDataCell>
@@ -138,35 +105,17 @@ const List = () => {
                             </CTableDataCell>
                             <CTableDataCell>
                                 <CButton
-                                    color="warning"
+                                    style={{ padding: '4px 8px', fontSize: '14px', marginLeft: '5px', borderWidth: '0px 0px 1px 1px', borderStyle: 'solid', borderColor: 'gray' }}
                                     onClick={() => handleEdit(item._id)}
-                                    style={{
-                                        backgroundColor: '#28a745',
-                                        color: 'white',
-                                        border: 'none',
-                                        padding: '5px 10px',
-                                        borderRadius: '5px',
-                                    }}
+                                    size="sm"
                                 >
-                                    Edit
+                                    <CIcon icon={cilPencil} style={{ color: '#ff9933' }} />
                                 </CButton>
                             </CTableDataCell>
                         </CTableRow>
                     ))}
                 </CTableBody>
             </CTable>
-
-            {/* Toast Notifications */}
-            {toast.visible && (
-                <CToaster position="top-right">
-                    <CToast visible={toast.visible} onClose={() => setToast({ ...toast, visible: false })}>
-                        <CToastHeader closeButton>
-                            <strong className="me-auto">Notification</strong>
-                        </CToastHeader>
-                        <CToastBody>{toast.message}</CToastBody>
-                    </CToast>
-                </CToaster>
-            )}
         </div>
     );
 };

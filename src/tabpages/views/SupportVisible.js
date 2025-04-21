@@ -1,10 +1,11 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { CButton, CFormSelect, CFormTextarea, CToast, CToastBody, CToastHeader } from '@coreui/react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
+import { CButton, CFormSelect, CFormTextarea, CToast, CToastBody, CToastHeader,CToaster } from '@coreui/react';
 import { GetToken, GetURL } from '../../library/API';
 import { Formik, Form, Field } from 'formik';
 import { UserContext } from '../Inquiry';
 import { DetailedContext } from './TableView';
 import { useToast } from '../../ToastComponent';
+import getToast from '../../ToastView';
 
 const SupportVisible = ({ inquiry_id }) => {
     const [userTypes, setUserTypes] = useState([]);
@@ -13,6 +14,9 @@ const SupportVisible = ({ inquiry_id }) => {
     const { setShowDetailedView } = useContext(DetailedContext)
     const { fetchInquiries, state, status, userList } = useContext(UserContext);
     const { showToast } = useToast();
+
+    const [toast, addToast] = useState()
+    const toaster = useRef(null);
 
     const fetchData = async () => {
         try {
@@ -52,6 +56,7 @@ const SupportVisible = ({ inquiry_id }) => {
     }, []);
 
     const handleSubmit = async (values, { resetForm }) => {
+
         const payload = {
             assignee_id: values.selectedUser,
             comment: values.comment,
@@ -81,7 +86,8 @@ const SupportVisible = ({ inquiry_id }) => {
                 showToast('Failed', `An error has occurred ${err}`)
             }
         } else {
-            showToast('Info', 'Please select both user type and user.', 3)
+            addToast(getToast('Info', 'Please select both user type and user.', 0))
+            // showToast('Info', 'Please select both user type and user.', 3)
         }
     };
 
@@ -94,6 +100,8 @@ const SupportVisible = ({ inquiry_id }) => {
             borderRadius: '8px',
             boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
         }}>
+            <CToaster className="p-3" placement="top-end" push={toast} ref={toaster} />
+            
             <h4 style={{ textAlign: 'center', fontWeight: '600', marginBottom: '20px' }}>Assign Task</h4>
             <Formik
                 initialValues={{ comment: '', selectedType: '', selectedUser: '' }}

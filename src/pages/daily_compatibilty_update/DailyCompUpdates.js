@@ -1,11 +1,11 @@
 import React, { useEffect,useState } from 'react'
 import 'core-js'
-import { CTabList, CTabs, CTab, CTabContent } from '@coreui/react';
+import { CTabList, CTabs,CTab,CTabPanel,CTabContent } from '@coreui/react';
 import List from './components/List';
 import Manage from './components/Manage';
 import { useNavigate,useLocation  } from 'react-router-dom';
 
-function DailyCompUpdates(){
+function DailyAusTimeUpdate(){
 
     const [activeTab, setActiveTab] = useState('list');
 
@@ -28,19 +28,26 @@ function DailyCompUpdates(){
             setActiveTab('list');
         }
     },[location.search]);
+    
+    const tabStyle = (isActive) => ({
+        backgroundColor: isActive ? '#ff9933' : '#ffffff',
+        color: isActive ? '#ffffff' : '#000000',
+        border: '1px solid #ff9933',
+        cursor: 'pointer',
+        marginRight: '5px'
+    });
 
     return <>
             <CTabs activeItemKey={activeTab}>
                 <CTabList style={{"float":"right"}}  variant="pills">
-                    <CTab itemKey="list" onClick={e=>swithTab("list")}>List</CTab>
-                    <CTab itemKey="manage" onClick={e=>swithTab("manage")}>Manage</CTab>
+                    <CTab itemKey="list" onClick={e=>swithTab("list")} style={tabStyle(activeTab === 'list')}>List</CTab>
+                    <CTab itemKey="manage" onClick={e=>swithTab("manage")} style={tabStyle(activeTab === 'manage')}>Manage</CTab>
                 </CTabList>
             </CTabs> <br/><br/>
             <CTabContent>
                 {activeTab=="list"?<List/>:<Manage/>}
             </CTabContent>
-            
-            </>
+        </>
 }
 
-export default DailyCompUpdates;
+export default DailyAusTimeUpdate;

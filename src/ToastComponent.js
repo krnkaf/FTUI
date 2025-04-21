@@ -1,78 +1,60 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
-import ReactDOM from 'react-dom';
+import { CToast, CToastBody, CToastHeader } from '@coreui/react';
 
-const Toast = React.memo(({ title, message, type, onClose }) => {
-
-  const opacity = 0.8;
-
-  const colors = [
-    `rgba(128, 128, 128, ${opacity})`,
-    `rgba(40, 167, 69, ${opacity})`,
-    `rgba(220, 53, 69, ${opacity})`,  
-    `rgba(255, 153, 51, ${opacity})`  
-  ];
-
-  const backgroundColor = colors[type] || colors[0];
-  const textColor = `rgba(255, 255, 255, 1)`;
-
-  return ReactDOM.createPortal(
-    <div
-      style={{
-        position: 'fixed',
-        right: '0%',
-        bottom: '7vh',
-        transform: 'translateX(-10%)',
-        padding: '10px 20px',
-        backgroundColor,
-        color: textColor,
-        borderRadius: '5px',
-        zIndex: 9999,
-        minWidth: '250px',
-      }}
-      onAnimationEnd={onClose}
-    >
-      <strong>{title}</strong>
-      <p>{message}</p>
-    </div>,
-    document.body
-  );
-});
-
-
-export const ToastContext = createContext();
+const ToastContext = createContext();
 
 export const ToastProvider = ({ children }) => {
-  const [toastConfig, setToastConfig] = useState(null);
-  const [isToastActive, setIsToastActive] = useState(false);
+  const [toasts, setToasts] = useState([]);
 
   const showToast = useCallback((title, message, type) => {
-    if (isToastActive) return;
-
-    setToastConfig({ title, message, type });
-    setIsToastActive(true);
+    const id = Date.now();
+    const newToast = { id, title, message, type };
+    setToasts((prev) => [...prev, newToast]);
 
     setTimeout(() => {
-      setToastConfig(null);
-      setIsToastActive(false);  
+      setToasts((prev) => prev.filter((toast) => toast.id !== id));
     }, 3000);
-  }, [isToastActive]);
+  }, []);
+
+  const getToastColor = (type) => {
+    switch (type) {
+      case 1:
+        return 'success';
+      case 2:
+        return 'danger';
+      case 3:
+        return 'warning';
+      default:
+        return 'secondary';
+    }
+  };
 
   return (
     <ToastContext.Provider value={{ showToast }}>
       {children}
-      {toastConfig && (
-        <Toast
-          title={toastConfig.title}
-          message={toastConfig.message}
-          type={toastConfig.type}
-          onClose={() => {
-            setToastConfig(null);
-            setIsToastActive(false);
-          }}
-        />
-      )}
+      <div className="position-fixed bottom-0 end-0 m-3">
+        {toasts.map((toast) => (
+          <CToast
+            key={toast.id}
+            visible
+            autohide
+            color={getToastColor(toast.type)}
+          >
+            <CToastHeader>
+              <strong className="me-auto">{toast.title}</strong>
+            </CToastHeader>
+            <CToastBody>{toast.message}</CToastBody>
+          </CToast>
+        ))}
+      </div>
     </ToastContext.Provider>
   );
 };
 
-export const useToast = () => useContext(ToastContext);
+export const useToast = () => {
+  const context = useContext(ToastContext);
+  if (!context) {
+    throw new Error('useToast must be used within a ToastProvider');
+  }
+  return context;
+};

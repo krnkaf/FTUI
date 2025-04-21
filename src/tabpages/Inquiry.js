@@ -1,6 +1,6 @@
 import React, { Suspense, useState, useEffect, createContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CNav, CNavItem, CNavLink, CButton, CPagination, CModal, CModalBody, CModalFooter, CFormInput, CFormSelect, CPaginationItem } from '@coreui/react';
+import { CNav, CNavItem, CNavLink, CButton, CPagination, CModal, CModalBody, CModalFooter, CFormInput, CFormSelect, CPaginationItem, CFormLabel } from '@coreui/react';
 import TableView from './views/TableView';
 import { GetToken, GetURL } from '../library/API';
 import { useToast } from '../ToastComponent';
@@ -41,7 +41,7 @@ const Inquiry = () => {
             4: ['translator'],
             5: ['reviewer']
         };
-        
+
         const [state, setState] = useState(pathSegments[3]);
         const [status, setStatus] = useState('pending');
         const [inquiryList, setInquiryList] = useState([]);
@@ -54,7 +54,7 @@ const Inquiry = () => {
 
         const [currentPage, setCurrentPage] = useState(1);
         const [totalCount, setTotalCount] = useState(null);
-        const pageSize = 10;
+        const [pageSize, setPageSize] = useState(10);
         const totalPages = Math.ceil(totalCount / pageSize);
 
         const handleTabChange = (tab) => {
@@ -64,7 +64,7 @@ const Inquiry = () => {
             handleClearFilters();
             navigate(`/tabpages/inquiry/${tab}/${status}`);
         };
-        
+
         const handleStatusChange = (status) => {
             handleClearFilters();
             setStatus(status);
@@ -96,7 +96,7 @@ const Inquiry = () => {
                 category_type_id: ''
             });
         };
-        
+
         const fetchFilterForInquiry = async () => {
             try {
                 const response = await fetch(GetURL(`/backend/InquiryManagement/GetFilterForInquiry`), {
@@ -199,7 +199,7 @@ const Inquiry = () => {
 
         useEffect(() => {
             fetchInquiries(state, status);
-        }, [state, status, filterParams, currentPage]);
+        }, [state, status, filterParams, currentPage, pageSize]);
 
         useEffect(() => {
             fetchFilterForInquiry();
@@ -240,7 +240,7 @@ const Inquiry = () => {
         };
 
         return (
-            <UserContext.Provider value={{ category_type, id: userTypeId, assignee: currentUser, userList, fromPage: fromPage, state: state, setState, status: status, setStatus, inquiryList: [inquiryList], setInquiryList, fetchInquiries, category_type }}>
+            <UserContext.Provider value={{ category_type, id: userTypeId, assignee: currentUser, userList, fromPage: fromPage, state: state, setState, status: status, setStatus, inquiryList: [inquiryList], setInquiryList, fetchInquiries }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: '', marginLeft: '20px' }}>
                     <CNav variant="tabs" onSelect={handleTabChange} style={{ marginBottom: '20px', backgroundColor: '#f8f9fa', borderRadius: '5px' }}>
                         {visibleTabs.includes('new') && (
@@ -323,6 +323,20 @@ const Inquiry = () => {
                 </Suspense>
 
                 <Pagination style={{ marginLeft: '20px' }}>
+                    <CFormLabel htmlFor='pagInput' style={{ textDecoration: 'none', color: 'gray', alignSelf: 'center' }}>Rows: </CFormLabel>
+                    <CFormInput
+                        id='pagInput'
+                        style={{ width: '3%', marginRight: '20px' }}
+                        autoComplete='off'
+                        autoCorrect='on'
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                                const num = e.target.value;
+                                if (num >= 5 && num <= 100)
+                                    setPageSize(e.target.value);
+                            }
+                        }}
+                    ></CFormInput>
                     <Pagination.First onClick={() => setCurrentPage(1)} />
                     <Pagination.Prev onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))} />
 
@@ -341,7 +355,6 @@ const Inquiry = () => {
 
                     <Pagination.Next onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))} />
                     <Pagination.Last onClick={() => setCurrentPage(totalPages)} />
-                    <CFormInput style={{ width: '5%' }}></CFormInput>
                 </Pagination>
 
                 <CModal visible={filterVisible} onClose={() => setFilterVisible(false)}>
@@ -377,7 +390,7 @@ const Inquiry = () => {
                                     <option key={i} value={i}>{e}</option>
                                 ))}
                             </CFormSelect>
-                                
+
                             <label htmlFor="question_id" style={{ textDecoration: 'none', color: 'gray', marginTop: '5px' }}>Question</label>
                             <CFormSelect
                                 name='question_id'
@@ -389,27 +402,28 @@ const Inquiry = () => {
                                     <option key={v} value={k._id}>{k.category_type} - {k.question}</option>
                                 ))}
                             </CFormSelect>
-                            
+
                             <label htmlFor="assignee_id" style={{ textDecoration: 'none', color: 'gray', marginTop: '5px' }}>Assignee</label>
                             <CFormSelect
-                                name='assignee_id'
+                                name="assignee_id"
                                 value={filters.assignee_id}
                                 onChange={handleFilterChange}
                             >
-                                <option key='-1' value=''>Select a User</option>
-                                {assignee_list.map((e, i) => {
-                                    if (state == 'expert' && e.user_type_id == 3) {
-                                        return <option key={i} value={e._id}>{e.name}</option>
-                                    }
-                                    else if (state == 'translator' && e.user_type_id == 4) {
-                                        return <option key={i} value={e._id}>{e.name}</option>
-                                    }
-                                    else if (state == 'reviewer' && e.user_type_id == 5) {
-                                        return <option key={i} value={e._id}>{e.name}</option>
-                                    }
-                                    else
-                                        return <></>
-                                })}
+                                <option key="-1" value="">Select a User</option>
+                                {assignee_list
+                                    // .filter(e => {
+                                    //     if (state === 'expert') return e.user_type_id == 3;
+                                    //     if (state === 'translator') return e.user_type_id == 4;
+                                    //     if (state === 'reviewer') return e.user_type_id == 5;
+                                    //     return false;
+                                    // })
+                                    // .forEach(e => console.log(e))
+                                    .map(e => (
+                                        <option key={e._id} value={e._id}>
+                                            {e.name}
+                                        </option>
+                                    ))
+                                }
                             </CFormSelect>
 
                             <label htmlFor="category_type_id" style={{ textDecoration: 'none', color: 'gray', marginTop: '5px' }}>Category Type</label>
@@ -417,7 +431,7 @@ const Inquiry = () => {
                                 id="category_type_id"
                                 name="category_type_id"
                                 onChange={handleFilterChange}
-                            >   
+                            >
                                 <option key={-1} value={''}>Select</option>
                                 {category_type.map((k, i) => {
                                     <option key={i} value={k.id}>{k.name}</option>

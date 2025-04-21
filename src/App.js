@@ -33,13 +33,21 @@ const AppWrapper = () => {
 		}
 
 		setColorMode(storedTheme);
-	}, []); // eslint-disable-line react-hooks/exhaustive-deps
+	}, []);
 
-	// Check for token and redirect if not present
 	useEffect(() => {
 		if (localStorage.getItem('token') == null) {
-			navigate('/login'); // Redirect to login if no token
+			navigate('/login');
 		}
+	}, [navigate]);
+
+	useEffect(() => {
+		const handleOffline = () => navigate('/404');
+		window.addEventListener('offline', handleOffline);
+
+		return () => {
+			window.removeEventListener('offline', handleOffline);
+		};
 	}, [navigate]);
 
 	return (
@@ -63,8 +71,6 @@ const AppWrapper = () => {
 
 const App = () => {
 	const [inSession, setInSession] = useState(null);
-
-	// Check session and redirect appropriately
 	const sessionCheck = async () => {
 		const response = await fetch(GetURL('/UserContoller'), {
 			method: 'GET',
@@ -76,7 +82,6 @@ const App = () => {
 
 		const data = await response.json();
 		setInSession(data.error_code);
-		console.log(data);
 	};
 
 	useEffect(() => {

@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { FaPen, FaTrash } from 'react-icons/fa';
 import { useToast } from '../../../ToastComponent';
 
-const Manage = () => {
+const Manage = () => {  
   const [items, setItems] = useState([]);
   const [horoscopes, setHoroscopes] = useState([]);
   const [updateIndex, setUpdateIndex] = useState(-1);
@@ -18,9 +18,9 @@ const Manage = () => {
     rating: '',
     description: ''
   });
-
+  
   const { showToast } = useToast();
-
+  
   const navigate = useNavigate();
   const [updating, setUpdating] = useState(null);
   const [hovering, setHovering] = useState(false);
@@ -55,7 +55,6 @@ const Manage = () => {
     const setForm = async () => {
       try {
         const urlPath = location.pathname + location.search;
-        console.log(location.search.split("&").length)
 
         if (urlPath.includes('/page/daily_rashi_updates') && location.search.split("&").length === 2) {
           localStorage.setItem('id', location.search.split("&")[1].split("=")[1]);

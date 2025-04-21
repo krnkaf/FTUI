@@ -60,6 +60,22 @@ const AppHeader = () => {
           <CNavItem>
             <CNavLink to='/login' as={NavLink}>Users</CNavLink>
           </CNavItem>
+          <CNavItem>
+            <CNavLink to='/tabpages/index' as={NavLink}>Inquiry</CNavLink>
+          </CNavItem>
+          <CDropdown variant="nav-item" popper={false}>
+              <CDropdownToggle color="secondary">Setup</CDropdownToggle>
+              <CDropdownMenu>
+                <CNavLink to='/page/daily_rashi_updates' as={NavLink}>Rashi</CNavLink>
+                <CNavLink to='/page/daily_comp_updates' as={NavLink}>Compatibility</CNavLink>
+                <CNavLink to='/page/daily_aus_time_update' as={NavLink}>Auspicious Time</CNavLink>
+                <CNavLink to='/page/user' as={NavLink}>Users</CNavLink>
+                <CNavLink to='/page/guestprofiles' as={NavLink}>Guest</CNavLink>
+                <CNavLink to='/page/questioncategory' as={NavLink}>Question Categories</CNavLink>
+                <CNavLink to='/page/questions' as={NavLink}>Questions</CNavLink>
+                {/* <CNavLink to='/page/bundles' as={NavLink}>Bundles</CNavLink> */}
+              </CDropdownMenu>
+            </CDropdown>
           {/* <CNavItem>
             <CNavLink href="#">Settings</CNavLink>
           </CNavItem> */}

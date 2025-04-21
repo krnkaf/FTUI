@@ -107,13 +107,13 @@ const List = () => {
                                     {formatDate(user.updated_date)}
                                 </CTableDataCell>
                                 <CTableDataCell style={{ textAlign: 'center' }}>
-                                    {user.updated_by == '' ?? 'Super'}
+                                    {user.updated_by == '' ? 'Super' : user.updated_by}
                                 </CTableDataCell>
                                 <CTableDataCell style={{ textAlign: 'center' }}>
                                     {formatDate(user.created_date)}
                                 </CTableDataCell>
                                 <CTableDataCell style={{ textAlign: 'center' }}>
-                                    {user.created_by ?? 'Super'}
+                                {user.created_by == '' ? 'Super' : user.created_by}
                                 </CTableDataCell>
                                 <CTableDataCell style={{ textAlign: 'center' }}>
                                     <CFormCheck
@@ -125,8 +125,7 @@ const List = () => {
                                 </CTableDataCell>
                                 <CTableDataCell
                                     style={{
-                                        display: 'flex',
-                                        justifyContent: 'center',
+                                        textAlign: 'center',
                                         alignItems: 'center',
                                     }}
                                 >

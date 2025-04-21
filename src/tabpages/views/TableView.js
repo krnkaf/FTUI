@@ -9,8 +9,10 @@ import {
     CButton,
     CBadge
 } from '@coreui/react';
-import DetailedView from './DetailedView';
+import DetailedView from './DetailedViewCopy';
 import { UserContext } from '../Inquiry';
+import Test from './Test';
+import { GetToken, GetURL } from '../../library/API';
 
 export const DetailedContext = createContext();
 
@@ -31,6 +33,26 @@ const TableView = () => {
             const updated_time = Intl.DateTimeFormat('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }).format(new Date(updateDateObj));
             return { created_date, created_time, updated_date, updated_time };
         };
+
+        const [data, setData] = useState([]);
+        const [showVedicResponse, setShowVedicResponse] = useState(false);
+
+        const clipboardIcon = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 448 512'%3E%3Cg transform='scale(0.5)'%3E%3Crect x='-10' y='-10' width='520' height='540' fill='rgba(0, 0, 0, 0.6)' rx='20'/%3E%3Cpath d='M384 336l-192 0c-8.8 0-16-7.2-16-16l0-256c0-8.8 7.2-16 16-16l140.1 0L400 115.9 400 320c0 8.8-7.2 16-16 16zM192 384l192 0c35.3 0 64-28.7 64-64l0-204.1c0-12.7-5.1-24.9-14.1-33.9L366.1 14.1c-9-9-21.2-14.1-33.9-14.1L192 0c-35.3 0-64 28.7-64 64l0 256c0 35.3 28.7 64 64 64zM64 128c-35.3 0-64 28.7-64 64L0 448c0 35.3 28.7 64 64 64l192 0c35.3 0 64-28.7 64-64l0-32-48 0 0 32c0 8.8-7.2 16-16 16L64 464c-8.8 0-16-7.2-16-16l0-256c0-8.8 7.2-16 16-16l32 0 0-48-32 0z' fill='%23ffffff'/%3E%3C/g%3E%3C/svg%3E"), pointer`;
+
+        const callVedicAPI = async (inquiry_id, vedic_api_type) => {
+            try {
+                const response = await fetch(GetURL(`/backend/InquiryManagement/CallVedicAPI?inquiry_id=${inquiry_id}&vedic_api_type=${vedic_api_type}`), {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'authorization': GetToken()
+                    }
+                })
+                console.log("Status: ", response.status);
+            } catch (err) {
+                console.log(err)
+            }
+        }
 
         return (
             <DetailedContext.Provider value={{ setShowDetailedView }}>
@@ -63,7 +85,7 @@ const TableView = () => {
                                 }}
                             >
                                 <CTableRow>
-                                    {['SN', 'Inq no.', 'Category', 'Question', 'Created Date', 'Updated Date', 'Status', 'Assignee', 'Guest Name'].map(header => (
+                                    {['SN', 'Call API', 'Inq no.', 'Category', 'Question', 'Created Date', 'Updated Date', 'Status', 'Assignee', 'Guest Name'].map(header => (
                                         <CTableHeaderCell
                                             key={header}
                                             style={{
@@ -103,6 +125,13 @@ const TableView = () => {
                                         <CTableRow key={item.inquiry_number}>
                                             {[
                                                 index + 1,
+                                                <CButton color='secondary' onClick={() => callVedicAPI(item.inquiry_id, 5)}>
+                                                    Call
+                                                </CButton>,
+                                                // <CButton color='secondary' onClick={() => {setData(item.vedic_api_response_list ? item.vedic_api_response_list[0].vedic_api_response :  JSON.parse(response = "none")); setShowVedicResponse(true)}}>
+                                                //     {() => console.log(item.vedic_api_response_list ? (JSON.parse(item.vedic_api_response_list[0].vedic_api_response).status == 200 ? JSON.parse(item.vedic_api_response_list[0].vedic_api_response).response : JSON.parse(respone = 'none')) :  JSON.parse(response = "none"))}
+                                                //     Send
+                                                // </CButton>,
                                                 <span>
                                                     <div
                                                         style={{
@@ -111,7 +140,7 @@ const TableView = () => {
                                                             overflow: 'hidden',
                                                             textOverflow: 'ellipsis',
                                                             lineHeight: '17px',
-                                                            cursor: 'copy'
+                                                            cursor: clipboardIcon,
                                                         }}
 
                                                         onClick={() => {
@@ -225,7 +254,21 @@ const TableView = () => {
                             </CTableBody>
                         </CTable>
                     </div>
-                    {showDetailedView && <DetailedView item={selectedItem} />}
+                    {/* {showDetailedView && <DetailedView item={selectedItem} />} */}
+                    {showDetailedView && <DetailedView i_no={selectedItem.inquiry_number} />}
+                    {/* {showDetailedView && <Test item={selectedItem} />} */}
+                    {showVedicResponse && <div>
+                        <button onClick={() => setShowVedicResponse(false)}>X</button><br />
+                        {() => {
+                            if ('response' in data.keys()) {
+                                console.log(data)
+                            }
+                            else {
+                                console.log(JSON.parse(data).response)
+                                JSON.parse(data).response.toString()}
+                            }
+                        }
+                    </div>}
                 </div>
             </DetailedContext.Provider>
         );
