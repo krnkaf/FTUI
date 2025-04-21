@@ -46,7 +46,7 @@ const DetailedView = ({ i_no }) => {
                 }
             })
             if (response.status == 200) {
-                fetchSpecificInquiry(i_no);
+                await fetchSpecificInquiry(i_no);
             }
         } catch (err) {
             console.log(err)
@@ -105,10 +105,12 @@ const DetailedView = ({ i_no }) => {
     //     }
     // };
     
+    useEffect(() => {
+        fetchSpecificInquiry(i_no);
+    }, [item, data])
     
     useEffect(() => {
-
-        fetchSpecificInquiry(i_no);
+        // fetchSpecificInquiry(i_no);
 
         const handleKeyPress = (e) => {
             if (e.key === 'Escape') {
@@ -265,58 +267,67 @@ const DetailedView = ({ i_no }) => {
         }
     };
 
+    const [loading, setLoading] = useState(false);
+
     const getPlanet = async (inq_id, type) => {
-        await callVedicAPI(inq_id, String(type));
-        await fetchSpecificInquiry(i_no);
-        let r_list = item.vedic_api_response_list;
-
-        if (r_list == null || r_list == []) {
-            alert("no vedic responses yet");
-            return;
-        }
-
-        var index = 0;
-        var found = false;
-
-        for (let i = 0; i < r_list.length; i++) {
-            console.log("i:", i)
-            console.log(i, "data:", r_list[i].vedic_api_type_id)
-            if (r_list[i].vedic_api_type_id == type) {
-                index = i;
-                found = true;
+        try {
+            setLoading(true)
+            await callVedicAPI(inq_id, String(type));
+            await fetchSpecificInquiry(i_no);
+            let r_list = item.vedic_api_response_list;
+    
+            if (r_list == null || r_list == []) {
+                alert("no vedic responses yet");
+                return;
             }
+    
+            var index = 0;
+            var found = false;
+    
+            for (let i = 0; i < r_list.length; i++) {
+                console.log("i:", i)
+                console.log(i, "data:", r_list[i].vedic_api_type_id)
+                if (r_list[i].vedic_api_type_id == type) {
+                    index = i;
+                    found = true;
+                }
+            }
+    
+            if (found) {
+                setData(JSON.parse(r_list[index].vedic_api_response).response)
+            } else {
+                return 0;
+            }
+    
+            if (type == 1 || type == 2) {
+                setShowVedicResponse3(false);
+                setShowVedicResponse4(false);
+                setShowVedicResponse5(false);
+                setShowVedicResponse1and2(true);
+            } else if (type == 3) {
+                setShowVedicResponse1and2(false);
+                setShowVedicResponse4(false);
+                setShowVedicResponse5(false);
+                setShowVedicResponse3(true);
+            } else if (type == 4) {
+                setShowVedicResponse1and2(false);
+                setShowVedicResponse3(false);
+                setShowVedicResponse5(false);
+                setShowVedicResponse4(true);
+            } else if (type == 5) {
+                setShowVedicResponse1and2(false);
+                setShowVedicResponse3(false);
+                setShowVedicResponse4(false);
+                setShowVedicResponse5(true);
+            } else {
+                alert("Error Fetching Type")
+            }
+    
+        } catch (error) {
+            console.error("Failed to get planet:", error);
+        } finally {
+            setLoading(false);
         }
-
-        if (found) {
-            setData(JSON.parse(r_list[index].vedic_api_response).response)
-        } else {
-            return 0;
-        }
-
-        if (type == 1 || type == 2) {
-            setShowVedicResponse3(false);
-            setShowVedicResponse4(false);
-            setShowVedicResponse5(false);
-            setShowVedicResponse1and2(true);
-        } else if (type == 3) {
-            setShowVedicResponse1and2(false);
-            setShowVedicResponse4(false);
-            setShowVedicResponse5(false);
-            setShowVedicResponse3(true);
-        } else if (type == 4) {
-            setShowVedicResponse1and2(false);
-            setShowVedicResponse3(false);
-            setShowVedicResponse5(false);
-            setShowVedicResponse4(true);
-        } else if (type == 5) {
-            setShowVedicResponse1and2(false);
-            setShowVedicResponse3(false);
-            setShowVedicResponse4(false);
-            setShowVedicResponse5(true);
-        } else {
-            alert("Error Fetching Type")
-        }
-
     }
 
     // const getPlanet = async (inq_id, type) => {
@@ -596,17 +607,8 @@ const DetailedView = ({ i_no }) => {
                                         >
                                             {
                                                 (() => {
-                                                    // var x = localStorage.getItem('user_type_id');
                                                     var x = useContext(UserContext).id;
                                                     if (x == 1 || x == 2) {
-                                                        // if (fromPage === 'reviewer') {
-                                                        //     if (status === 'completed') {
-                                                        //         return <>
-                                                        //             <SupportVisible currentTask={item} inquiry_id={item.inquiry_id}/>
-                                                        //         </>
-                                                        //     }
-                                                        // }
-                                                        // Users 1 & 2: Always show SupportVisible
                                                         return <SupportVisible currentTask={item} inquiry_id={item.inquiry_id} />;
                                                     }
                                                     else if ((x == 3 && fromPage === 'expert') || (x == 4 && fromPage === 'translator')) {
@@ -790,6 +792,7 @@ const DetailedView = ({ i_no }) => {
                                 </CCard>
                             </div>
 
+                            {loading? (<div>Loading...</div>) : (<>
                             {(showVedicResponse1and2 && data != null) && (
                                 <div>
                                     <button onClick={() => setShowVedicResponse1and2(false)}><CIcon icon={cilX} /></button>
@@ -1207,10 +1210,10 @@ const DetailedView = ({ i_no }) => {
                                     {
                                         (() => {
 
-                                            return <div className='container text-center' style={{ marginBottom: '5px' }}>
+                                            return <div className='container text-center' style={{ margin: '0px', marginLeft: '5px', marginBottom: '5px' }}>
                                                 <div className='row'>
                                                     <div className='col-11'>
-                                                        <div className='row'>
+                                                        <div className='row' style={{ fontSize: 'xx-small' }}>
                                                             Score: {data.score} | Bot Response: {data.bot_response}
                                                         </div>
                                                         <div className='row'>
@@ -1486,6 +1489,23 @@ const DetailedView = ({ i_no }) => {
                                                                     </CTableBody>
                                                                 </CTable>
                                                             </div>
+                                                            <div className='col-1' style={{ alignContent: 'center' }}>
+                                                        <CButton className="btn btn-sm" style={{ border: '1px solid black', marginRight: '1px', fontSize: 'xx-small', padding: '3px', marginTop: '2px' }} onClick={() => getPlanet(item.inquiry_id, 1)}>
+                                                            Horoscope Planet Detail (Current)
+                                                        </CButton>
+                                                        <CButton className="btn btn-sm" style={{ border: '1px solid black', marginRight: '1px', fontSize: 'xx-small', padding: '3px', marginTop: '2px' }} onClick={() => getPlanet(item.inquiry_id, 2)}>
+                                                            Horoscope Planet Detail (Birth)
+                                                        </CButton>
+                                                        <CButton className="btn btn-sm" style={{ border: '1px solid black', marginRight: '1px', fontSize: 'xx-small', padding: '3px', marginTop: '2px' }} onClick={() => getPlanet(item.inquiry_id, 3)}>
+                                                            Matching North Match With Astro
+                                                        </CButton>
+                                                        <CButton className="btn btn-sm" style={{ border: '1px solid black', marginRight: '1px', fontSize: 'xx-small', padding: '3px', marginTop: '2px' }} onClick={() => getPlanet(item.inquiry_id, 4)}>
+                                                            Panchang
+                                                        </CButton>
+                                                        <CButton className="btn btn-sm" style={{ border: '1px solid black', marginRight: '1px', fontSize: 'xx-small', padding: '3px', marginTop: '2px' }} onClick={() => getPlanet(item.inquiry_id, 5)}>
+                                                            Dasha Current Maha Dasha Full
+                                                        </CButton>
+                                                    </div>
                                                         </div>
                                                         <div className='row' style={{ margin: 'none', marginTop: '5px', flexWrap: 'nowrap' }}>
                                                             <div className='col'>
@@ -2035,23 +2055,6 @@ const DetailedView = ({ i_no }) => {
                                                                 </CTable>
                                                             </div>
                                                         </div>
-                                                    </div>
-                                                    <div className='col-1' style={{ alignContent: 'center' }}>
-                                                        <CButton className="btn btn-sm" style={{ border: '1px solid black', marginRight: '1px', fontSize: 'xx-small', padding: '3px', marginTop: '2px' }} onClick={() => getPlanet(item.inquiry_id, 1)}>
-                                                            Horoscope Planet Detail (Current)
-                                                        </CButton>
-                                                        <CButton className="btn btn-sm" style={{ border: '1px solid black', marginRight: '1px', fontSize: 'xx-small', padding: '3px', marginTop: '2px' }} onClick={() => getPlanet(item.inquiry_id, 2)}>
-                                                            Horoscope Planet Detail (Birth)
-                                                        </CButton>
-                                                        <CButton className="btn btn-sm" style={{ border: '1px solid black', marginRight: '1px', fontSize: 'xx-small', padding: '3px', marginTop: '2px' }} onClick={() => getPlanet(item.inquiry_id, 3)}>
-                                                            Matching North Match With Astro
-                                                        </CButton>
-                                                        <CButton className="btn btn-sm" style={{ border: '1px solid black', marginRight: '1px', fontSize: 'xx-small', padding: '3px', marginTop: '2px' }} onClick={() => getPlanet(item.inquiry_id, 4)}>
-                                                            Panchang
-                                                        </CButton>
-                                                        <CButton className="btn btn-sm" style={{ border: '1px solid black', marginRight: '1px', fontSize: 'xx-small', padding: '3px', marginTop: '2px' }} onClick={() => getPlanet(item.inquiry_id, 5)}>
-                                                            Dasha Current Maha Dasha Full
-                                                        </CButton>
                                                     </div>
                                                 </div>
                                             </div>
@@ -2612,6 +2615,8 @@ const DetailedView = ({ i_no }) => {
                                     }
                                 </div>
                             )}
+                            </>)}
+
                         </div>
                     </div>
                 </commentContext.Provider>
