@@ -790,7 +790,7 @@ const DetailedView = ({ i_no }) => {
                                 </CCard>
                             </div>
 
-                            {/* {(showVedicResponse1and2 && data != null) && (
+                            {(showVedicResponse1and2 && data != null) && (
                                 <div>
                                     <button onClick={() => setShowVedicResponse1and2(false)}><CIcon icon={cilX} /></button>
                                     <br />
@@ -1198,13 +1198,6 @@ const DetailedView = ({ i_no }) => {
                                             </div>
                                         })()
                                     }
-                                </div>
-                            )} */}
-                            {(showVedicResponse1and2 && data != null) && (
-                                <div>
-                                    <button onClick={() => setShowVedicResponse3(false)}><CIcon icon={cilX} /></button>
-                                    <br />
-                                    <HoroscopePlanetDetail data={data}/>
                                 </div>
                             )}
                             {(showVedicResponse3 && data != null) && (
