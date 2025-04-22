@@ -473,7 +473,7 @@ const DetailedView = ({ i_no }) => {
                                         width: '100%',
                                     }}
                                 >
-                                    <button onClick={async () => {
+                                    {/* <button onClick={async () => {
                                         const category = category_type.find(e => e.id == item.category_type_id)?.name;
                                         fetch("http://localhost:3001/send-notification", {
                                             method: 'POST',
@@ -491,7 +491,7 @@ const DetailedView = ({ i_no }) => {
                                                 }
                                             })
                                         });
-                                    }}>Send Notification</button>
+                                    }}>Send Notification</button> */}
                                     <div style={{ display: 'flex', width: '100%', alignItems: 'center' }}>
                                         {/* Back Button */}
                                         <CButton
