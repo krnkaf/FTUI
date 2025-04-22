@@ -336,7 +336,7 @@ const DetailedView = ({ i_no }) => {
             let r_list = item.vedic_api_response_list;
     
             if (r_list == null || r_list == []) {
-                showToast("no vedic responses yet", 2);
+                // showToast("no vedic responses yet", 2);
                 return;
             }
     
