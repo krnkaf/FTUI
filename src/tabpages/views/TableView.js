@@ -85,7 +85,7 @@ const TableView = () => {
                                 }}
                             >
                                 <CTableRow>
-                                    {['SN', 'Call API', 'Inq no.', 'Category', 'Question', 'Created Date', 'Updated Date', 'Status', 'Assignee', 'Guest Name'].map(header => (
+                                    {['SN', 'Inq no.', 'Category', 'Question', 'Created Date', 'Updated Date', 'Status', 'Assignee', 'Guest Name'].map(header => (
                                         <CTableHeaderCell
                                             key={header}
                                             style={{
@@ -125,9 +125,9 @@ const TableView = () => {
                                         <CTableRow key={item.inquiry_number}>
                                             {[
                                                 index + 1,
-                                                <CButton color='secondary' onClick={() => callVedicAPI(item.inquiry_id, 5)}>
-                                                    Call
-                                                </CButton>,
+                                                // <CButton color='secondary' onClick={() => callVedicAPI(item.inquiry_id, 5)}>
+                                                //     Call
+                                                // </CButton>,
                                                 // <CButton color='secondary' onClick={() => {setData(item.vedic_api_response_list ? item.vedic_api_response_list[0].vedic_api_response :  JSON.parse(response = "none")); setShowVedicResponse(true)}}>
                                                 //     {() => console.log(item.vedic_api_response_list ? (JSON.parse(item.vedic_api_response_list[0].vedic_api_response).status == 200 ? JSON.parse(item.vedic_api_response_list[0].vedic_api_response).response : JSON.parse(respone = 'none')) :  JSON.parse(response = "none"))}
                                                 //     Send
