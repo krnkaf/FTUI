@@ -795,28 +795,28 @@ const DetailedView = ({ i_no }) => {
 
                             {(showVedicResponse1and2 && data != null) && (
                                 <div>
-                                    <button onClick={() => setShowVedicResponse1and2(false)}><CIcon icon={cilX} /></button>
+                                    <button onClick={() => setShowVedicResponse1and2(false)}><CIcon icon={cilX} size='sm' /></button>
                                     <br />
                                     <HoroscopePlanetDetail data={data} getPlanet={getPlanet} item={item}/>
                                 </div>
                             )}
                             {(showVedicResponse3 && data != null) && (
                                 <div>
-                                    <button onClick={() => setShowVedicResponse3(false)}><CIcon icon={cilX} /></button>
+                                    <button onClick={() => setShowVedicResponse3(false)}><CIcon icon={cilX} size='sm' /></button>
                                     <br />
                                     <MatchingNorthMatchWithAstro data={data} getPlanet={getPlanet} item={item}/>
                                 </div>
                             )}
                             {(showVedicResponse4 && data != null) && (
                                 <div>
-                                    <button onClick={() => setShowVedicResponse4(false)}><CIcon icon={cilX} /></button>
+                                    <button onClick={() => setShowVedicResponse4(false)}><CIcon icon={cilX} size='sm' /></button>
                                     <br />
                                     <Panchang data={data} getPlanet={getPlanet} item={item}/>
                                 </div>
                             )}
                             {(showVedicResponse5 && data != null) && (
                                 <div>
-                                    <button onClick={() => setShowVedicResponse5(false)}><CIcon icon={cilX} /></button>
+                                    <button onClick={() => setShowVedicResponse5(false)}><CIcon icon={cilX} size='sm' /></button>
                                     <br />
                                     <DashaCurrentMahaDashaFull data={data} getPlanet={getPlanet} item={item}/>
                                 </div>

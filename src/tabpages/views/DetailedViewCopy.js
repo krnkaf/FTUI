@@ -269,11 +269,70 @@ const DetailedView = ({ i_no }) => {
 
     const [loading, setLoading] = useState(false);
 
-    const getPlanet = async (inq_id, type) => {
-        try {
-            setLoading(true)
-            await callVedicAPI(inq_id, String(type));
-            await fetchSpecificInquiry(i_no);
+    // const getPlanet = async (inq_id, type) => {
+    //     try {
+    //         setLoading(true)
+    //         await callVedicAPI(inq_id, String(type));
+    //         await fetchSpecificInquiry(i_no);
+    //         let r_list = item.vedic_api_response_list;
+    
+    //         if (r_list == null || r_list == []) {
+    //             alert("no vedic responses yet");
+    //             return;
+    //         }
+    
+    //         var index = 0;
+    //         var found = false;
+    
+    //         for (let i = 0; i < r_list.length; i++) {
+    //             console.log("i:", i)
+    //             console.log(i, "data:", r_list[i].vedic_api_type_id)
+    //             if (r_list[i].vedic_api_type_id == type) {
+    //                 index = i;
+    //                 found = true;
+    //             }
+    //         }
+    
+    //         if (found) {
+    //             setData(JSON.parse(r_list[index].vedic_api_response).response)
+    //         } else {
+    //             return 0;
+    //         }
+    
+    //         if (type == 1 || type == 2) {
+    //             setShowVedicResponse3(false);
+    //             setShowVedicResponse4(false);
+    //             setShowVedicResponse5(false);
+    //             setShowVedicResponse1and2(true);
+    //         } else if (type == 3) {
+    //             setShowVedicResponse1and2(false);
+    //             setShowVedicResponse4(false);
+    //             setShowVedicResponse5(false);
+    //             setShowVedicResponse3(true);
+    //         } else if (type == 4) {
+    //             setShowVedicResponse1and2(false);
+    //             setShowVedicResponse3(false);
+    //             setShowVedicResponse5(false);
+    //             setShowVedicResponse4(true);
+    //         } else if (type == 5) {
+    //             setShowVedicResponse1and2(false);
+    //             setShowVedicResponse3(false);
+    //             setShowVedicResponse4(false);
+    //             setShowVedicResponse5(true);
+    //         } else {
+    //             alert("Error Fetching Type")
+    //         }
+    
+    //     } catch (error) {
+    //         console.error("Failed to get planet:", error);
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // }
+
+    const getPlanet = (inq_id, type) => {
+             callVedicAPI(inq_id, String(type));
+             fetchSpecificInquiry(i_no);
             let r_list = item.vedic_api_response_list;
     
             if (r_list == null || r_list == []) {
@@ -322,12 +381,6 @@ const DetailedView = ({ i_no }) => {
             } else {
                 alert("Error Fetching Type")
             }
-    
-        } catch (error) {
-            console.error("Failed to get planet:", error);
-        } finally {
-            setLoading(false);
-        }
     }
 
     // const getPlanet = async (inq_id, type) => {
@@ -795,7 +848,7 @@ const DetailedView = ({ i_no }) => {
                             {loading? (<div>Loading...</div>) : (<>
                             {(showVedicResponse1and2 && data != null) && (
                                 <div>
-                                    <button onClick={() => setShowVedicResponse1and2(false)}><CIcon icon={cilX} /></button>
+                                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}><CButton onClick={() => setShowVedicResponse1and2(false)} style={{ marginRight: '50px' }} size='sm' color='secondary' variant='outline'><CIcon icon={cilX} size='sm' /></CButton></div>
                                     <br />
                                     {
                                         (() => {
@@ -1205,7 +1258,7 @@ const DetailedView = ({ i_no }) => {
                             )}
                             {(showVedicResponse3 && data != null) && (
                                 <div>
-                                    <button onClick={() => setShowVedicResponse3(false)}><CIcon icon={cilX} /></button>
+                                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}><CButton onClick={() => setShowVedicResponse3(false)} style={{ marginRight: '50px' }} size='sm' color='secondary' variant='outline'><CIcon icon={cilX} size='sm' /></CButton></div>
                                     <br />
                                     {
                                         (() => {
@@ -2064,7 +2117,7 @@ const DetailedView = ({ i_no }) => {
                             )}
                             {(showVedicResponse4 && data != null) && (
                                 <div>
-                                    <button onClick={() => setShowVedicResponse4(false)}><CIcon icon={cilX} /></button>
+                                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}><CButton onClick={() => setShowVedicResponse4(false)} style={{ marginRight: '50px' }} size='sm' color='secondary' variant='outline'><CIcon icon={cilX} size='sm' /></CButton></div>
                                     <br />
                                     {
                                         (() => {
@@ -2359,7 +2412,7 @@ const DetailedView = ({ i_no }) => {
                             )}
                             {(showVedicResponse5 && data != null) && (
                                 <div>
-                                    <button onClick={() => setShowVedicResponse3(false)}><CIcon icon={cilX} /></button>
+                                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}><CButton onClick={() => setShowVedicResponse3(false)} style={{ marginRight: '50px' }} size='sm' color='secondary' variant='outline'><CIcon icon={cilX} size='sm' /></CButton></div>
                                     <br />
                                     {
                                         (() => {

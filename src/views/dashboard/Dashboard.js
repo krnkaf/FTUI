@@ -181,7 +181,7 @@ const Dashboard = () => {
       <WidgetsDropdown className="mb-4" />
       <CCard className="mb-4">
         <CCardBody>
-          <CRow>
+          {/* <CRow>
             <CCol sm={5}>
               <h4 id="traffic" className="card-title mb-0">
                 Traffic
@@ -205,11 +205,11 @@ const Dashboard = () => {
                 ))}
               </CButtonGroup>
             </CCol>
-          </CRow>
-          <MainChart />
+          </CRow> */}
+          {/* <MainChart /> */}
         </CCardBody>
-        <CCardFooter>
-          <CRow
+        {/*<CCardFooter> */}
+          {/* <CRow
             xs={{ cols: 1, gutter: 4 }}
             sm={{ cols: 2 }}
             lg={{ cols: 4 }}
@@ -230,11 +230,11 @@ const Dashboard = () => {
                 <CProgress thin className="mt-2" color={item.color} value={item.percent} />
               </CCol>
             ))}
-          </CRow>
-        </CCardFooter>
+          </CRow> */}
+        {/*</CCardFooter>*/}
       </CCard>
-      <WidgetsBrand className="mb-4" withCharts />
-      <CRow>
+      {/* <WidgetsBrand className="mb-4" withCharts /> */}
+      {/* <CRow>
         <CCol xs>
           <CCard className="mb-4">
             <CCardHeader>Traffic {' & '} Sales</CCardHeader>
@@ -379,7 +379,7 @@ const Dashboard = () => {
             </CCardBody>
           </CCard>
         </CCol>
-      </CRow>
+      </CRow> */}
     </>
   )
 }
